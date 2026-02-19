@@ -242,6 +242,75 @@ export function ClientPage({
           prerenderedHTML={preloadedFileTreeHtml}
         />
       </div>
+
+      {/* Divider */}
+      <hr className="my-8" style={{ borderColor: 'var(--color-border)' }} />
+
+      {/* Search Modes */}
+      <h2 id="search-modes" className="mb-4 text-2xl font-bold">
+        Search Modes
+      </h2>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ExampleCard
+          title="expand-matches"
+          description="Expands folders containing matches but keeps all items visible"
+        >
+          <ReactClientRendered
+            options={{ ...reactOptions, fileTreeSearchMode: 'expand-matches' }}
+            initialFiles={reactFiles}
+            stateConfig={sharedDemoStateConfig}
+          />
+        </ExampleCard>
+        <ExampleCard
+          title="collapse-non-matches"
+          description="Collapses folders not containing matches"
+        >
+          <ReactClientRendered
+            options={{
+              ...reactOptions,
+              fileTreeSearchMode: 'collapse-non-matches',
+            }}
+            initialFiles={reactFiles}
+            stateConfig={sharedDemoStateConfig}
+          />
+        </ExampleCard>
+        <ExampleCard
+          title="hide-non-matches"
+          description="Hides files and folders that don't contain matches"
+        >
+          <ReactClientRendered
+            options={{
+              ...reactOptions,
+              fileTreeSearchMode: 'hide-non-matches',
+            }}
+            initialFiles={reactFiles}
+            stateConfig={sharedDemoStateConfig}
+          />
+        </ExampleCard>
+      </div>
+
+      {/* Divider */}
+      <hr className="my-8" style={{ borderColor: 'var(--color-border)' }} />
+
+      {/* Drag and Drop Examples */}
+      <h2 id="drag-and-drop" className="mb-4 text-2xl font-bold">
+        Drag and Drop
+      </h2>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <VanillaDnDUncontrolled
+          options={fileTreeOptions}
+          stateConfig={sharedDemoStateConfig}
+        />
+        <ReactDnDControlled
+          options={reactOptions}
+          stateConfig={sharedDemoStateConfig}
+        />
+        <ReactDnDControlledSSR
+          options={reactOptions}
+          stateConfig={sharedDemoStateConfig}
+          prerenderedHTML={preloadedFileTreeHtml}
+        />
+      </div>
     </div>
   );
 }
@@ -1021,6 +1090,226 @@ function ReactSSRControlledFiles({
     >
       <FileTreeReact
         options={options}
+        prerenderedHTML={prerenderedHTML}
+        files={files}
+        onFilesChange={handleFilesChange}
+        initialExpandedItems={stateConfig?.initialExpandedItems}
+        onSelection={stateConfig?.onSelection}
+      />
+    </ExampleCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Drag and Drop Examples
+// ---------------------------------------------------------------------------
+
+/**
+ * Vanilla FileTree — Uncontrolled Drag and Drop
+ * Uses dragAndDrop: true with initialFiles. Moves are applied internally
+ * via setFiles(), onFilesChange fires as an observer.
+ */
+function VanillaDnDUncontrolled({
+  options,
+  stateConfig,
+}: {
+  options: FileTreeOptions;
+  stateConfig?: FileTreeStateConfig;
+}) {
+  const instanceRef = useRef<FileTree | null>(null);
+  const { log, addLog } = useStateLog();
+
+  const mergedStateConfig = useMemo<FileTreeStateConfig>(
+    () => ({
+      ...stateConfig,
+      onFilesChange: (files) => {
+        addLog(`files: [${files.join(', ')}]`);
+      },
+    }),
+    [stateConfig, addLog]
+  );
+
+  const ref = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node == null) {
+        return;
+      }
+
+      if (instanceRef.current != null) {
+        instanceRef.current.cleanUp();
+        node.innerHTML = '';
+      }
+
+      const fileTree = new FileTree(
+        {
+          ...options,
+          dragAndDrop: true,
+          initialFiles: sharedDemoFileTreeOptions.initialFiles,
+        },
+        mergedStateConfig
+      );
+      fileTree.render({ containerWrapper: node });
+      instanceRef.current = fileTree;
+
+      return () => {
+        fileTree.cleanUp();
+        instanceRef.current = null;
+      };
+    },
+    [options, mergedStateConfig]
+  );
+
+  return (
+    <ExampleCard
+      title="Vanilla — Uncontrolled DnD"
+      description="Drag files and folders between directories. Moves are applied immediately; onFilesChange logs changes."
+      footer={
+        <StateLog
+          entries={log}
+          className="mt-3 h-[140px] overflow-y-auto rounded border p-2 font-mono text-xs"
+        />
+      }
+    >
+      <div ref={ref} />
+    </ExampleCard>
+  );
+}
+
+/**
+ * React FileTree — Controlled Drag and Drop
+ * Parent owns `files` state. onFilesChange proposes moves; parent can
+ * accept or reject (e.g. lock .gitignore from being moved).
+ */
+function ReactDnDControlled({
+  options,
+  stateConfig,
+}: {
+  options: Omit<FileTreeOptions, 'initialFiles'>;
+  stateConfig?: FileTreeStateConfig;
+}) {
+  const [files, setFiles] = useState(sharedDemoFileTreeOptions.initialFiles);
+  const [lockGitignore, setLockGitignore] = useState(false);
+  const { log, addLog } = useStateLog();
+
+  const handleFilesChange = useCallback(
+    (nextFiles: string[]) => {
+      if (lockGitignore) {
+        // Check if .gitignore moved
+        const oldGitignore = files.find((f) => f.endsWith('.gitignore'));
+        const newGitignore = nextFiles.find((f) => f.endsWith('.gitignore'));
+        if (oldGitignore !== newGitignore) {
+          addLog('REJECTED: .gitignore is locked');
+          return;
+        }
+      }
+      addLog(`files: [${nextFiles.join(', ')}]`);
+      setFiles(nextFiles);
+    },
+    [lockGitignore, files, addLog]
+  );
+
+  return (
+    <ExampleCard
+      title="React — Controlled DnD"
+      description="Controlled files with DnD. Toggle lock to prevent .gitignore from being moved."
+      controls={
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="lock-gitignore"
+            className="flex cursor-pointer items-center gap-2 select-none"
+          >
+            <input
+              type="checkbox"
+              id="lock-gitignore"
+              checked={lockGitignore}
+              className="cursor-pointer"
+              onChange={() => setLockGitignore((prev) => !prev)}
+            />
+            Lock .gitignore
+          </label>
+        </div>
+      }
+      footer={
+        <StateLog
+          entries={log}
+          className="mt-3 h-[140px] overflow-y-auto rounded border p-2 font-mono text-xs"
+        />
+      }
+    >
+      <FileTreeReact
+        options={{ ...options, dragAndDrop: true }}
+        files={files}
+        onFilesChange={handleFilesChange}
+        initialExpandedItems={stateConfig?.initialExpandedItems}
+        onSelection={stateConfig?.onSelection}
+      />
+    </ExampleCard>
+  );
+}
+
+/**
+ * React FileTree — Controlled Drag and Drop with SSR
+ * Same as ReactDnDControlled but hydrated from prerendered HTML.
+ */
+function ReactDnDControlledSSR({
+  options,
+  stateConfig,
+  prerenderedHTML,
+}: {
+  options: Omit<FileTreeOptions, 'initialFiles'>;
+  stateConfig?: FileTreeStateConfig;
+  prerenderedHTML: string;
+}) {
+  const [files, setFiles] = useState(sharedDemoFileTreeOptions.initialFiles);
+  const [lockGitignore, setLockGitignore] = useState(false);
+  const { log, addLog } = useStateLog();
+
+  const handleFilesChange = useCallback(
+    (nextFiles: string[]) => {
+      if (lockGitignore) {
+        const oldGitignore = files.find((f) => f.endsWith('.gitignore'));
+        const newGitignore = nextFiles.find((f) => f.endsWith('.gitignore'));
+        if (oldGitignore !== newGitignore) {
+          addLog('REJECTED: .gitignore is locked');
+          return;
+        }
+      }
+      addLog(`files: [${nextFiles.join(', ')}]`);
+      setFiles(nextFiles);
+    },
+    [lockGitignore, files, addLog]
+  );
+
+  return (
+    <ExampleCard
+      title="React (SSR) — Controlled DnD"
+      description="SSR-hydrated controlled DnD. Toggle lock to prevent .gitignore from being moved."
+      controls={
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="lock-gitignore-ssr"
+            className="flex cursor-pointer items-center gap-2 select-none"
+          >
+            <input
+              type="checkbox"
+              id="lock-gitignore-ssr"
+              checked={lockGitignore}
+              className="cursor-pointer"
+              onChange={() => setLockGitignore((prev) => !prev)}
+            />
+            Lock .gitignore
+          </label>
+        </div>
+      }
+      footer={
+        <StateLog
+          entries={log}
+          className="mt-3 h-[140px] overflow-y-auto rounded border p-2 font-mono text-xs"
+        />
+      }
+    >
+      <FileTreeReact
+        options={{ ...options, dragAndDrop: true }}
         prerenderedHTML={prerenderedHTML}
         files={files}
         onFilesChange={handleFilesChange}

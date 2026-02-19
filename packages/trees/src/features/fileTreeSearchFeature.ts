@@ -1,3 +1,4 @@
+import { makeStateUpdater } from '@headless-tree/core';
 import type {
   FeatureImplementation,
   ItemInstance,
@@ -5,7 +6,6 @@ import type {
   TreeConfig,
   TreeInstance,
 } from '@headless-tree/core';
-import { makeStateUpdater } from '@headless-tree/core';
 
 import type { FileTreeSearchMode } from '../FileTree';
 import type { FileTreeNode } from '../types';
@@ -25,6 +25,7 @@ type SearchCache<T> = {
   matchItems: ItemInstance<T>[];
   matchIds: string[];
   matchIdSet: Set<string>;
+  visibleIdSet: Set<string>;
 };
 
 type FileTreeSearchDataRef<T> = SearchFeatureDataRef<T> & {
@@ -45,7 +46,7 @@ const defaultSearchMatcher = <T>(
 
 const getSearchMode = <T>(tree: TreeInstance<T>): FileTreeSearchMode =>
   (tree.getConfig() as FileTreeSearchConfig).fileTreeSearchMode ??
-  'expand-matches';
+  'hide-non-matches';
 
 const buildSearchIndex = <T>(
   tree: TreeInstance<T>,
@@ -98,6 +99,10 @@ const getSearchCache = <T>(tree: TreeInstance<T>): SearchCache<T> => {
       : [];
   const matchItems = matchIds.map((itemId) => tree.getItemInstance(itemId));
   const matchIdSet = new Set(matchIds);
+  const visibleIdSet = new Set(matchIds);
+  for (const matchId of matchIds) {
+    addAncestorFolders(index.parentById, rootItemId, matchId, visibleIdSet);
+  }
   const nextCache: SearchCache<T> = {
     search,
     rootItemId,
@@ -107,6 +112,7 @@ const getSearchCache = <T>(tree: TreeInstance<T>): SearchCache<T> => {
     matchItems,
     matchIds,
     matchIdSet,
+    visibleIdSet,
   };
 
   dataRef.current.searchCache = nextCache;
@@ -226,10 +232,10 @@ export const fileTreeSearchFeature: FeatureImplementation = {
       const cache = getSearchCache(tree);
       const searchMode = getSearchMode(tree);
       const baselineExpandedItems =
-        searchMode === 'collapse-non-matches'
-          ? []
-          : (dataRef.current.previousExpandedItems ??
-            tree.getState().expandedItems);
+        searchMode === 'expand-matches'
+          ? (dataRef.current.previousExpandedItems ??
+            tree.getState().expandedItems)
+          : [];
       expandForMatches(
         tree,
         cache,
@@ -292,6 +298,27 @@ export const fileTreeSearchFeature: FeatureImplementation = {
         return false;
       }
       return getSearchCache(tree).matchIdSet.has(item.getId());
+    },
+    getProps: ({ tree, prev }) => {
+      const props = prev?.();
+      if (!tree.isSearchOpen()) return props;
+
+      return {
+        ...props,
+        onMouseDown: (e: MouseEvent) => {
+          // Prevent the default focus-transfer so the search input keeps
+          // focus and no blur event fires before the click handler runs.
+          e.preventDefault();
+          (props as Record<string, any>)?.onMouseDown?.(e);
+        },
+        onClick: (e: MouseEvent) => {
+          // Let the selection feature handle the click first (sets
+          // selectedItems), then close search. restoreExpandedItems
+          // will now see the correct selection and expand ancestors.
+          (props as Record<string, any>)?.onClick?.(e);
+          tree.closeSearch();
+        },
+      };
     },
   },
 
@@ -364,4 +391,19 @@ export const fileTreeSearchFeature: FeatureImplementation = {
       },
     },
   },
+};
+
+/**
+ * Returns the set of item IDs that should be visible when `hide-non-matches`
+ * search mode is active. Returns `null` when no filtering is needed.
+ */
+export const getSearchVisibleIdSet = <T>(
+  tree: TreeInstance<T>
+): Set<string> | null => {
+  if (!tree.isSearchOpen()) return null;
+  const mode = getSearchMode(tree);
+  if (mode !== 'hide-non-matches') return null;
+  const cache = getSearchCache(tree);
+  if (cache.matchIds.length === 0) return null;
+  return cache.visibleIdSet;
 };

@@ -124,6 +124,60 @@ describe('SSR + declarative shadow DOM', () => {
     }
   });
 
+  test('FileTree.hydrate patches draggable on SSR items when DnD is enabled', () => {
+    const ssrId = 'ft_ssr_dnd_test';
+
+    // Simulate SSR-rendered shadow DOM content (without draggable, since
+    // the server renders without DnD).
+    const container = document.createElement('file-tree-container');
+    const shadowRoot =
+      container.shadowRoot ?? container.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = `
+      <div data-file-tree-id="${ssrId}">
+        <div>
+          <button data-type="item" data-item-type="file">README.md</button>
+          <button data-type="item" data-item-type="folder">src</button>
+          <button data-type="item" data-item-type="file">index.ts</button>
+        </div>
+      </div>
+    `;
+
+    // Verify SSR buttons do NOT have draggable
+    const wrapper = shadowRoot.querySelector(
+      `[data-file-tree-id="${ssrId}"]`
+    ) as HTMLElement;
+    const buttonsBefore = wrapper.querySelectorAll('button[data-type="item"]');
+    expect(buttonsBefore.length).toBe(3);
+    for (const btn of buttonsBefore) {
+      expect((btn as HTMLElement).draggable).toBe(false);
+    }
+
+    const origHydrate = preactRenderer.hydrateRoot;
+    const origRender = preactRenderer.renderRoot;
+    preactRenderer.hydrateRoot = () => {};
+    preactRenderer.renderRoot = () => {};
+
+    try {
+      // Client creates FileTree WITH dragAndDrop and hydrates
+      const ft = new FileTree({
+        initialFiles: ['README.md', 'src/index.ts'],
+        dragAndDrop: true,
+        id: ssrId,
+      });
+      ft.hydrate({ fileTreeContainer: container });
+
+      // After hydration, all item buttons should have draggable patched
+      const buttonsAfter = wrapper.querySelectorAll('button[data-type="item"]');
+      expect(buttonsAfter.length).toBe(3);
+      for (const btn of buttonsAfter) {
+        expect((btn as HTMLElement).draggable).toBe(true);
+      }
+    } finally {
+      preactRenderer.hydrateRoot = origHydrate;
+      preactRenderer.renderRoot = origRender;
+    }
+  });
+
   test('getFiles returns initialFiles from constructor', () => {
     const files = ['README.md', 'src/index.ts'];
     const ft = new FileTree({ initialFiles: files });
@@ -147,6 +201,25 @@ describe('SSR + declarative shadow DOM', () => {
     const ft = new FileTree({ initialFiles: ['a.txt'] });
     ft.setOptions({ flattenEmptyDirectories: true }, { files: ['b.txt'] });
     expect(ft.getFiles()).toEqual(['b.txt']);
+  });
+
+  test('setOptions applies fileTreeSearchMode changes at runtime', () => {
+    const ft = new FileTree({
+      initialFiles: ['a.txt'],
+      fileTreeSearchMode: 'expand-matches',
+    });
+
+    let rerenders = 0;
+    (
+      ft as unknown as {
+        rerender: () => void;
+      }
+    ).rerender = () => {
+      rerenders += 1;
+    };
+
+    ft.setOptions({ fileTreeSearchMode: 'hide-non-matches' });
+    expect(rerenders).toBe(1);
   });
 
   test('setFiles invokes onFilesChange callback', () => {

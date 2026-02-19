@@ -1,16 +1,22 @@
 import {
+  dragAndDropFeature,
   expandAllFeature,
   hotkeysCoreFeature,
+  type ItemInstance,
+  keyboardDragAndDropFeature,
   selectionFeature,
   syncDataLoaderFeature,
   type TreeInstance,
 } from '@headless-tree/core';
-import type { JSX } from 'preact';
 import { Fragment } from 'preact';
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import type { JSX } from 'preact';
+import { useCallback, useEffect, useMemo, useRef } from 'preact/hooks';
 
 import { FLATTENED_PREFIX } from '../constants';
-import { fileTreeSearchFeature } from '../features/fileTreeSearchFeature';
+import {
+  fileTreeSearchFeature,
+  getSearchVisibleIdSet,
+} from '../features/fileTreeSearchFeature';
 import type {
   FileTreeCallbacks,
   FileTreeHandle,
@@ -21,6 +27,7 @@ import type {
 import { generateLazyDataLoader } from '../loader/lazy';
 import { generateSyncDataLoader } from '../loader/sync';
 import type { FileTreeNode } from '../types';
+import { computeNewFilesAfterDrop } from '../utils/computeNewFilesAfterDrop';
 import { controlledExpandedPathsToExpandedIds } from '../utils/controlledExpandedState';
 import {
   expandPathsWithAncestors,
@@ -79,9 +86,10 @@ export function Root({
 }: FileTreeRootProps): JSX.Element {
   'use no memo';
   const {
-    config,
     initialFiles: files,
     flattenEmptyDirectories,
+    fileTreeSearchMode,
+    onCollision,
     useLazyDataLoader,
   } = fileTreeOptions;
 
@@ -190,8 +198,7 @@ export function Root({
       return { state: changed ? nextState : state, changed };
     };
 
-    // --- Map top-level state props into config ---
-    const baseConfig = config ?? {};
+    const baseConfig: TreeStateConfig = {};
 
     const mapPathToId = (path: string): string | undefined => {
       // If the caller explicitly passes a flattened path, respect it.
@@ -290,7 +297,7 @@ export function Root({
       ...(initialState.state != null && { initialState: initialState.state }),
       ...(state.state != null && { state: state.state }),
     };
-  }, [config, treeData, pathToId, stateConfig, flattenEmptyDirectories]);
+  }, [treeData, pathToId, stateConfig, flattenEmptyDirectories]);
   const dataLoader = useMemo(
     () =>
       useLazyDataLoader === true
@@ -303,8 +310,58 @@ export function Root({
     [files, flattenEmptyDirectories, useLazyDataLoader]
   );
 
+  const isDnD = fileTreeOptions.dragAndDrop === true;
+
+  const features = useMemo(() => {
+    const base = [
+      syncDataLoaderFeature,
+      selectionFeature,
+      hotkeysCoreFeature,
+      fileTreeSearchFeature,
+      expandAllFeature,
+    ];
+    if (isDnD) {
+      base.push(dragAndDropFeature, keyboardDragAndDropFeature);
+    }
+    return base;
+  }, [isDnD]);
+
+  // Keep a ref to current files so onDrop doesn't capture stale values
+  const filesRef = useRef(files);
+  filesRef.current = files;
+
+  const onDropHandler = useCallback(
+    (
+      items: ItemInstance<FileTreeNode>[],
+      target: { item: ItemInstance<FileTreeNode> }
+    ) => {
+      const draggedPaths = items.map((item) => item.getItemData().path);
+      const targetPath =
+        target.item.getId() === 'root'
+          ? 'root'
+          : target.item.getItemData().path;
+      const newFiles = computeNewFilesAfterDrop(
+        filesRef.current,
+        draggedPaths,
+        targetPath,
+        { onCollision }
+      );
+      callbacksRef?.current._onDragMoveFiles?.(newFiles);
+    },
+    [callbacksRef, onCollision]
+  );
+
+  // Track search state via ref so the canDrag callback (evaluated at event
+  // time, not render time) always reads the latest value.
+  const searchActiveRef = useRef(false);
+
+  // fileTreeSearchMode is a custom config key read by fileTreeSearchFeature
+  // via getConfig(). We spread it from a variable to bypass excess property
+  // checks on the TreeConfig object literal.
+  const searchModeConfig = { fileTreeSearchMode };
   const tree = useTree<FileTreeNode>({
     ...restTreeConfig,
+    ...searchModeConfig,
     rootItemId: 'root',
     dataLoader,
     getItemName: (item) => item.getItemData().name,
@@ -327,14 +384,20 @@ export function Root({
         },
       },
     },
-    features: [
-      syncDataLoaderFeature,
-      selectionFeature,
-      hotkeysCoreFeature,
-      fileTreeSearchFeature,
-      expandAllFeature,
-    ],
+    features,
+    ...(isDnD && {
+      canReorder: false,
+      canDrag: () => !searchActiveRef.current,
+      onDrop: onDropHandler,
+      canDrop: (
+        _items: ItemInstance<FileTreeNode>[],
+        target: { item: ItemInstance<FileTreeNode> }
+      ) => target.item.isFolder(),
+      openOnDropDelay: 800,
+    }),
   });
+
+  searchActiveRef.current = (tree.getState().search?.length ?? 0) > 0;
 
   // Populate handleRef so the FileTree class can call tree methods directly
   useEffect(() => {
@@ -469,7 +532,13 @@ export function Root({
           {...searchInputProps}
         />
       </div>
-      {tree.getItems().map((item) => {
+      {(() => {
+        const allItems = tree.getItems();
+        const visibleIdSet = getSearchVisibleIdSet(tree);
+        return visibleIdSet != null
+          ? allItems.filter((item) => visibleIdSet.has(item.getId()))
+          : allItems;
+      })().map((item) => {
         const itemData = item.getItemData();
         const itemMeta = item.getItemMeta();
         // TODO: is it possible to have empty array as children? is this valid in that case?
@@ -489,6 +558,20 @@ export function Root({
         const searchMatchProps = isSearchMatch
           ? { 'data-item-search-match': true }
           : {};
+        const isDragTarget = isDnD && item.isUnorderedDragTarget?.() === true;
+        const isDragging =
+          isDnD &&
+          tree
+            .getState()
+            .dnd?.draggedItems?.some(
+              (d: ItemInstance<FileTreeNode>) => d.getId() === item.getId()
+            ) === true;
+        const dragProps = isDnD
+          ? {
+              ...(isDragTarget && { 'data-item-drag-target': true }),
+              ...(isDragging && { 'data-item-dragging': true }),
+            }
+          : {};
         return (
           <button
             data-type="item"
@@ -496,6 +579,7 @@ export function Root({
             {...selectionProps}
             {...searchMatchProps}
             {...focusedProps}
+            {...dragProps}
             data-item-id={item.getId()}
             id={getItemDomId(item.getId())}
             {...item.getProps()}

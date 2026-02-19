@@ -1,4 +1,4 @@
-import { type TreeConfig, type TreeInstance } from '@headless-tree/core';
+import { type TreeInstance } from '@headless-tree/core';
 
 import { FileTreeContainerLoaded } from './components/web-components';
 import { FILE_TREE_TAG_NAME, FLATTENED_PREFIX } from './constants';
@@ -28,18 +28,19 @@ interface FileTreeHydrationProps {
   fileTreeContainer: HTMLElement;
 }
 
-export type FileTreeSearchMode = 'expand-matches' | 'collapse-non-matches';
+export type FileTreeSearchMode =
+  | 'expand-matches'
+  | 'collapse-non-matches'
+  | 'hide-non-matches';
 
 export type FileTreeSelectionItem = {
   path: string;
   isFolder: boolean;
 };
 
-export type HeadlessTreeConfig = Omit<
-  TreeConfig<FileTreeNode>,
-  'features' | 'dataLoader' | 'rootItemId' | 'getItemName' | 'isItemFolder'
-> & {
-  fileTreeSearchMode?: FileTreeSearchMode;
+export type FileTreeCollision = {
+  origin: string | null;
+  destination: string;
 };
 
 export interface FileTreeHandle {
@@ -53,16 +54,19 @@ export interface FileTreeCallbacks {
   onSelectedItemsChange?: (items: string[]) => void;
   onSelection?: (items: FileTreeSelectionItem[]) => void;
   onFilesChange?: (files: string[]) => void;
+  /** Internal: called when a DnD move produces a new file list. */
+  _onDragMoveFiles?: (newFiles: string[]) => void;
 }
 
 export interface FileTreeOptions {
-  initialFiles: string[];
-  id?: string;
+  dragAndDrop?: boolean;
+  fileTreeSearchMode?: FileTreeSearchMode;
   flattenEmptyDirectories?: boolean;
+  id?: string;
+  initialFiles: string[];
+  /** Return true to overwrite the destination file when a DnD move collides. */
+  onCollision?: (collision: FileTreeCollision) => boolean;
   useLazyDataLoader?: boolean;
-
-  // Advanced headless-tree config (kept for passthrough)
-  config?: HeadlessTreeConfig;
 }
 
 export interface FileTreeStateConfig {
@@ -117,6 +121,10 @@ export class FileTree {
         onSelectedItemsChange: stateConfig.onSelectedItemsChange,
         onSelection: stateConfig.onSelection,
         onFilesChange: stateConfig.onFilesChange,
+        _onDragMoveFiles:
+          options.dragAndDrop === true
+            ? (newFiles) => this.setFiles(newFiles)
+            : undefined,
       },
     };
   }
@@ -329,6 +337,16 @@ export class FileTree {
     options: Partial<FileTreeOptions>,
     state?: Partial<FileTreeStateConfig>
   ): void {
+    if (options.dragAndDrop === false) {
+      this.callbacksRef.current._onDragMoveFiles = undefined;
+    } else if (
+      options.dragAndDrop === true &&
+      this.callbacksRef.current._onDragMoveFiles == null
+    ) {
+      this.callbacksRef.current._onDragMoveFiles = (newFiles) =>
+        this.setFiles(newFiles);
+    }
+
     // Update callbacks without re-rendering
     if (state?.onExpandedItemsChange !== undefined) {
       this.callbacksRef.current.onExpandedItemsChange =
@@ -347,10 +365,12 @@ export class FileTree {
 
     // Check if structural props changed (require re-render)
     const structuralKeys = [
+      'dragAndDrop',
+      'fileTreeSearchMode',
       'initialFiles',
       'flattenEmptyDirectories',
+      'onCollision',
       'useLazyDataLoader',
-      'config',
     ] as const;
     let needsRerender = false;
     for (const key of structuralKeys) {
@@ -530,6 +550,16 @@ export class FileTree {
     } else {
       this.fileTreeContainer = fileTreeContainer;
       preactHydrateRoot(this.divWrapper, this.buildRootProps());
+      // Preact's hydrate() only attaches function props (event handlers),
+      // skipping non-function props like `draggable`. When DnD is enabled
+      // client-side but wasn't during SSR, patch the attribute manually.
+      if (this.options.dragAndDrop === true) {
+        for (const btn of this.divWrapper.querySelectorAll(
+          'button[data-type="item"]'
+        )) {
+          (btn as HTMLElement).draggable = true;
+        }
+      }
     }
   }
 
