@@ -45,6 +45,10 @@ import {
 } from '../utils/expandPaths';
 import { fileListToTree } from '../utils/fileListToTree';
 import { getGitStatusSignature } from '../utils/getGitStatusSignature';
+import {
+  buildAncestorChains,
+  buildChildToParent,
+} from '../utils/guideLineAncestors';
 import { useTree } from './hooks/useTree';
 import { Icon } from './Icon';
 
@@ -149,6 +153,16 @@ export function Root({
     }
     return { pathToId: p2i, idToPath: i2p };
   }, [treeData]);
+
+  const childToParent = useMemo(
+    () => buildChildToParent(treeData, flattenEmptyDirectories === true),
+    [treeData, flattenEmptyDirectories]
+  );
+
+  const ancestorChains = useMemo(
+    () => buildAncestorChains(treeData, childToParent),
+    [treeData, childToParent]
+  );
 
   const restTreeConfig = useMemo(() => {
     const mapId = (item: string): string => {
@@ -732,8 +746,32 @@ export function Root({
     }),
     onInput: onChange,
   };
+  // --- Dynamic guide-line highlighting for selected items ---
+  const guideStyleText = useMemo(() => {
+    const selectedIds = tree.getState().selectedItems ?? [];
+    if (selectedIds.length === 0) return '';
+    const parentIds = new Set<string>();
+    for (const id of selectedIds) {
+      const parentId = childToParent.get(id);
+      if (parentId != null && parentId !== 'root') {
+        parentIds.add(parentId);
+      }
+    }
+    if (parentIds.size === 0) return '';
+    const escape = (v: string) => v.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const selectors = Array.from(parentIds)
+      .map(
+        (id) =>
+          `[data-item-section="spacing-item"][data-ancestor-id="${escape(id)}"]`
+      )
+      .join(',\n');
+    return `:is(${selectors}) { opacity: 1; }`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectionSnapshot, childToParent]);
+
   return (
     <div {...tree.getContainerProps()} id={treeDomId}>
+      <style dangerouslySetInnerHTML={{ __html: guideStyleText }} />
       <div data-file-tree-search-container>
         <input
           placeholder="Search…"
@@ -850,6 +888,8 @@ export function Root({
           const showStatusDot =
             statusLabel == null && itemContainsGitChange === true;
 
+          const ancestors = ancestorChains.get(item.getId()) ?? [];
+
           return (
             <button
               data-type="item"
@@ -867,7 +907,11 @@ export function Root({
               {level > 0 ? (
                 <div data-item-section="spacing">
                   {Array.from({ length: level }).map((_, index) => (
-                    <div key={index} data-item-section="spacing-item" />
+                    <div
+                      key={index}
+                      data-item-section="spacing-item"
+                      data-ancestor-id={ancestors[index]}
+                    />
                   ))}
                 </div>
               ) : null}
