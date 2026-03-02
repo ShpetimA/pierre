@@ -28,4 +28,4 @@ tsconfig.tsbuildinfo
 *.sw?
 .vercel
 .claude/*
-
+.codemogger/*
