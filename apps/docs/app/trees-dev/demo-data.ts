@@ -5,6 +5,11 @@ import type {
   GitStatusEntry,
 } from '@pierre/trees';
 
+import linuxData from './linux-files.json';
+
+export const linuxKernelFiles: string[] = linuxData.files;
+export const linuxKernelAllFolders: string[] = linuxData.folders;
+
 const sampleFileList: string[] = [
   'README.md',
   'package.json',

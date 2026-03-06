@@ -16,6 +16,7 @@ import {
   preactRenderRoot,
   preactUnmountRoot,
 } from './utils/preactRenderer';
+import type { ChildrenComparator } from './utils/sortChildren';
 
 export type { GitStatusEntry } from './types';
 
@@ -84,7 +85,14 @@ export interface FileTreeOptions {
   lockedPaths?: string[];
   /** Return true to overwrite the destination file when a DnD move collides. */
   onCollision?: (collision: FileTreeCollision) => boolean;
+  /** Sort children within each directory. Defaults to `true` (folders first,
+   *  dot-prefixed next, then case-insensitive alphabetical). Pass `false` to
+   *  preserve insertion order, or `{ comparator: fn }` for custom sorting. */
+  sort?: boolean | { comparator: ChildrenComparator };
   useLazyDataLoader?: boolean;
+  /** Enable virtualized rendering. Items are only rendered when visible.
+   *  `threshold` is the minimum item count to activate virtualization. */
+  virtualize?: { threshold: number } | false;
   icons?: FileTreeIconConfig;
 }
 
@@ -405,7 +413,9 @@ export class FileTree {
       'flattenEmptyDirectories',
       'lockedPaths',
       'onCollision',
+      'sort',
       'useLazyDataLoader',
+      'virtualize',
     ] as const;
     let needsRerender = false;
     for (const key of structuralKeys) {
@@ -452,11 +462,40 @@ export class FileTree {
     };
   }
 
+  private isVirtualized(): boolean {
+    return this.options.virtualize != null && this.options.virtualize !== false;
+  }
+
+  private syncVirtualizedLayoutAttrs(
+    fileTreeContainer?: HTMLElement,
+    divWrapper?: HTMLElement
+  ): void {
+    const host = fileTreeContainer ?? this.fileTreeContainer;
+    const wrapper = divWrapper ?? this.divWrapper;
+    const isVirtualized = this.isVirtualized();
+
+    if (host != null) {
+      if (isVirtualized) {
+        host.dataset.fileTreeVirtualized = 'true';
+      } else {
+        delete host.dataset.fileTreeVirtualized;
+      }
+    }
+    if (wrapper != null) {
+      if (isVirtualized) {
+        wrapper.dataset.fileTreeVirtualizedWrapper = 'true';
+      } else {
+        delete wrapper.dataset.fileTreeVirtualizedWrapper;
+      }
+    }
+  }
+
   private rerender(): void {
     if (this.divWrapper == null) return;
     if (this.fileTreeContainer != null) {
       this.syncIconSpriteSheets(this.fileTreeContainer);
     }
+    this.syncVirtualizedLayoutAttrs(this.fileTreeContainer, this.divWrapper);
     preactRenderRoot(this.divWrapper, this.buildRootProps());
   }
 
@@ -624,6 +663,7 @@ export class FileTree {
       containerWrapper
     );
     const divWrapper = this.getOrCreateDivWrapperNode(fileTreeContainer);
+    this.syncVirtualizedLayoutAttrs(fileTreeContainer, divWrapper);
     preactRenderRoot(divWrapper, this.buildRootProps());
   }
 
@@ -662,6 +702,7 @@ export class FileTree {
 
     this.fileTreeContainer = fileTreeContainer;
     this.syncIconSpriteSheets(fileTreeContainer);
+    this.syncVirtualizedLayoutAttrs(fileTreeContainer, this.divWrapper);
 
     if (this.divWrapper == null) {
       console.warn('FileTree: expected html not found, rendering instead');
@@ -682,7 +723,11 @@ export class FileTree {
   }
 
   cleanUp(): void {
+    if (this.fileTreeContainer != null) {
+      delete this.fileTreeContainer.dataset.fileTreeVirtualized;
+    }
     if (this.divWrapper != null) {
+      delete this.divWrapper.dataset.fileTreeVirtualizedWrapper;
       preactUnmountRoot(this.divWrapper);
     }
     this.handleRef.current = null;
