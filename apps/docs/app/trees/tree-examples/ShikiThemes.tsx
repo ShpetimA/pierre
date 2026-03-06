@@ -14,7 +14,11 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
 import { FeatureHeader } from '../../diff-examples/FeatureHeader';
-import { baseTreeOptions, DEFAULT_FILE_TREE_PANEL_CLASS } from './demo-data';
+import {
+  baseTreeOptions,
+  DEFAULT_FILE_TREE_PANEL_CLASS,
+  GIT_STATUSES_A,
+} from './demo-data';
 import { TreeExampleSection } from './TreeExampleSection';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup, ButtonGroupItem } from '@/components/ui/button-group';
@@ -172,7 +176,7 @@ export function ShikiThemesSection() {
                 <IconChevronSm className="text-muted-foreground ml-auto" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="start" scrollSelectedIntoView>
               {LIGHT_THEMES.map((theme) => (
                 <DropdownMenuItem
                   key={theme}
@@ -180,9 +184,7 @@ export function ShikiThemesSection() {
                     setSelectedLightTheme(theme);
                     setColorMode('light');
                   }}
-                  className={
-                    selectedLightTheme === theme ? 'bg-accent' : undefined
-                  }
+                  selected={selectedLightTheme === theme}
                 >
                   {theme}
                   {selectedLightTheme === theme && (
@@ -204,6 +206,7 @@ export function ShikiThemesSection() {
             <DropdownMenuContent
               align="start"
               className="max-h-[550px] overflow-auto"
+              scrollSelectedIntoView
             >
               {DARK_THEMES.map((theme) => (
                 <DropdownMenuItem
@@ -212,9 +215,7 @@ export function ShikiThemesSection() {
                     setSelectedDarkTheme(theme);
                     setColorMode('dark');
                   }}
-                  className={
-                    selectedDarkTheme === theme ? 'bg-accent' : undefined
-                  }
+                  selected={selectedDarkTheme === theme}
                 >
                   {theme}
                   {selectedDarkTheme === theme ? (
@@ -262,6 +263,8 @@ export function ShikiThemesSection() {
               ...baseTreeOptions,
               id: 'shiki-themes-tree',
             }}
+            gitStatus={GIT_STATUSES_A}
+            initialExpandedItems={['src', 'src/components']}
             initialSelectedItems={['package.json']}
             style={themeStyles}
           />
