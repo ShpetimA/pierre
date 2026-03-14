@@ -9,7 +9,7 @@ export const MERGE_CONFLICT_EXAMPLE: PreloadUnresolvedFileOptions<undefined> = {
 
 export async function createSession(userId: string) {
 <<<<<<< HEAD
-  const sessionData = {
+  const data = {
 =======
   const sessionData = {
     source: 'web',
