@@ -55,7 +55,10 @@ export function DragDropSectionClient({
             drop is supported; dragging is disabled while search is active. Use{' '}
             <code>lockedPaths</code> to prevent specific paths from being
             dragged. Learn more in the{' '}
-            <Link href="/trees/docs#drag-and-drop" className="inline-link">
+            <Link
+              href="/preview/trees/docs#drag-and-drop"
+              className="inline-link"
+            >
               FileTreeOptions docs
             </Link>
             .

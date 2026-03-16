@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     "@pierre/trees is an open source file tree rendering library. It's built for performance and flexibility, is super customizable, and comes packed with features.",
 };
 
-export default function TreesHome() {
+export default function TreesHomePage() {
   return (
     <div className="mx-auto min-h-screen max-w-5xl px-5 xl:max-w-[80rem]">
       <Header className="-mb-[1px]" />

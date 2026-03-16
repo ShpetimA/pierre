@@ -218,7 +218,7 @@ export function VirtualizationSection() {
             virtualization. Only visible rows are in the DOM. Pass{' '}
             <code>virtualize</code> in{' '}
             <Link
-              href="/trees/docs#core-types-filetreeoptions"
+              href="/preview/trees/docs#core-types-filetreeoptions"
               className="inline-link"
             >
               <code>FileTreeOptions</code>

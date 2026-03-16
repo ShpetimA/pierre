@@ -82,7 +82,7 @@ export function CustomIconsSection() {
           <>
             Swap out our default icons by using a custom SVG sprite that remaps
             the built-in icon names to your custom symbols. See the{' '}
-            <a href="/trees/docs#custom-icons" className="inline-link">
+            <a href="/preview/trees/docs#custom-icons" className="inline-link">
               FileTreeIconConfig docs
             </a>{' '}
             for the full API.

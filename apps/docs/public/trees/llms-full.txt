@@ -4,7 +4,7 @@
 
 - Package: `@pierre/trees` on [npm](https://www.npmjs.com/package/@pierre/trees)
 - GitHub: https://github.com/pierrecomputer/pierre
-- Docs: https://diffs.com/trees/docs
+- Docs: https://diffs.com/preview/trees/docs
 
 ## Overview
 
@@ -118,14 +118,14 @@ folder containing `index.ts`, `utils/helpers.ts`, and a `components` folder with
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `initialFiles`            | **Required.** Array of file paths (strings). Defines the list and hierarchy.                                                                                                                                                |
 | `id`                      | Unique identifier for this instance (DOM ids, SSR). Default: e.g. `ft_brw_1`.                                                                                                                                               |
-| `flattenEmptyDirectories` | When `true`, single-child folder chains become one row (e.g. `build / assets / images` → `build · assets · images`). Default: `false`. [Live demo](/trees#flattening).                                                      |
+| `flattenEmptyDirectories` | When `true`, single-child folder chains become one row (e.g. `build / assets / images` → `build · assets · images`). Default: `false`. [Live demo](/preview/trees#flattening).                                              |
 | `fileTreeSearchMode`      | Search behavior: `'expand-matches'` (default), `'collapse-non-matches'`, or `'hide-non-matches'`.                                                                                                                           |
 | `useLazyDataLoader`       | When `true`, children load when a folder is expanded. Default: `false`.                                                                                                                                                     |
 | `dragAndDrop`             | Enables built-in drag and drop interactions. Default: `false`.                                                                                                                                                              |
 | `lockedPaths`             | Optional list of file/folder paths that cannot be dragged when drag and drop is enabled.                                                                                                                                    |
 | `onCollision`             | Optional callback for drag collisions. Return `true` to overwrite destination.                                                                                                                                              |
-| `gitStatus`               | Optional `GitStatusEntry[]` used to show Git-style file status (`added`, `modified`, `deleted`). Folders with changed descendants also receive a change indicator. [Live demo](/trees#path-colors).                         |
-| `icons`                   | Optional `FileTreeIconConfig` to provide a custom SVG sprite sheet and remap built-in icon names to your own symbols. [Live demo](/trees#custom-icons).                                                                     |
+| `gitStatus`               | Optional `GitStatusEntry[]` used to show Git-style file status (`added`, `modified`, `deleted`). Folders with changed descendants also receive a change indicator. [Live demo](/preview/trees#path-colors).                 |
+| `icons`                   | Optional `FileTreeIconConfig` to provide a custom SVG sprite sheet and remap built-in icon names to your own symbols. [Live demo](/preview/trees#custom-icons).                                                             |
 | `sort`                    | Sort children within each directory. `true` (default) uses the standard sort (folders first, dot-prefixed next, case-insensitive alphabetical). `false` preserves insertion order. `{ comparator: fn }` for custom sorting. |
 | `virtualize`              | Enable virtualized rendering so only visible items are rendered. Pass `{ threshold: number }` to activate when item count exceeds the threshold, or `false` to disable. Default: `undefined` (off).                         |
 
@@ -734,7 +734,8 @@ void refreshGitStatus();
 
 Use the `gitStatus` option to show file-level status indicators for added,
 modified, and deleted files. Folders that contain changed descendants
-automatically receive a change hint. [Try the live demo](/trees#path-colors) on
+automatically receive a change hint.
+[Try the live demo](/preview/trees#path-colors) on
 the homepage.
 
 `GitStatusEntry` pairs a file `path` with a status value:
@@ -759,7 +760,7 @@ target:
 
 Use the `icons` option inside `FileTreeOptions` to swap built-in icons with your
 own SVG symbols. Try the live demo at
-[/trees#custom-icons](/trees#custom-icons).
+[/preview/trees#custom-icons](/preview/trees#custom-icons).
 
 - `spriteSheet` — an SVG string containing `<symbol>` definitions. It is
   injected into the shadow DOM alongside the default sprite sheet.
