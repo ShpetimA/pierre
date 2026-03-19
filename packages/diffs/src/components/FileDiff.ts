@@ -62,6 +62,7 @@ export interface FileDiffRenderProps<LAnnotation> {
   oldFile?: FileContents;
   newFile?: FileContents;
   forceRender?: boolean;
+  preventEmit?: boolean;
   fileContainer?: HTMLElement;
   containerWrapper?: HTMLElement;
   lineAnnotations?: DiffLineAnnotation<LAnnotation>[];
@@ -114,6 +115,8 @@ export interface FileDiffOptions<LAnnotation>
   renderHoverUtility?(
     getHoveredRow: () => GetHoveredLineResult<'diff'> | undefined
   ): HTMLElement | null | undefined;
+
+  onPostRender?(node: HTMLElement, instance: FileDiff<LAnnotation>): unknown;
 }
 
 interface AnnotationElementCache<LAnnotation> {
@@ -466,7 +469,7 @@ export class FileDiff<LAnnotation = undefined> {
 
   public hydrate(props: FileDiffHydrationProps<LAnnotation>): void {
     const { overflow = 'scroll', diffStyle = 'split' } = this.options;
-    const { fileContainer, prerenderedHTML } = props;
+    const { fileContainer, prerenderedHTML, preventEmit = false } = props;
     prerenderHTMLIfNecessary(fileContainer, prerenderedHTML);
     for (const element of fileContainer.shadowRoot?.children ?? []) {
       if (element instanceof SVGElement) {
@@ -514,7 +517,7 @@ export class FileDiff<LAnnotation = undefined> {
     }
     // If we have no pre tag, then we should render
     if (this.pre == null) {
-      this.render(props);
+      this.render({ ...props, preventEmit: true });
     }
     // Otherwise orchestrate our setup
     else {
@@ -546,6 +549,9 @@ export class FileDiff<LAnnotation = undefined> {
           this.codeAdditions
         );
       }
+    }
+    if (!preventEmit) {
+      this.emitPostRender();
     }
   }
 
@@ -592,6 +598,7 @@ export class FileDiff<LAnnotation = undefined> {
     newFile,
     fileDiff,
     forceRender = false,
+    preventEmit = false,
     lineAnnotations,
     fileContainer,
     containerWrapper,
@@ -712,6 +719,9 @@ export class FileDiff<LAnnotation = undefined> {
           this.applyErrorToDOM(error, fileContainer);
         }
       }
+      if (!preventEmit) {
+        this.emitPostRender();
+      }
       return true;
     }
 
@@ -786,7 +796,16 @@ export class FileDiff<LAnnotation = undefined> {
         this.applyErrorToDOM(error, fileContainer);
       }
     }
+    if (!preventEmit) {
+      this.emitPostRender();
+    }
     return true;
+  }
+
+  protected emitPostRender(): void {
+    if (this.fileContainer != null) {
+      this.options.onPostRender?.(this.fileContainer, this);
+    }
   }
 
   private removeRenderedCode(): void {
