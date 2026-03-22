@@ -10,6 +10,7 @@ import { File, type FileOptions } from '../../components/File';
 import { VirtualizedFile } from '../../components/VirtualizedFile';
 import type {
   GetHoveredLineResult,
+  GetHoveredTokenResult,
   SelectedLineRange,
 } from '../../managers/InteractionManager';
 import type {
@@ -39,6 +40,7 @@ interface UseFileInstanceProps<LAnnotation> {
 interface UseFileInstanceReturn {
   ref(node: HTMLElement | null): void;
   getHoveredLine(): GetHoveredLineResult<'file'> | undefined;
+  getHoveredToken(): GetHoveredTokenResult<'file'> | undefined;
 }
 
 export function useFileInstance<LAnnotation>({
@@ -111,7 +113,14 @@ export function useFileInstance<LAnnotation>({
     | undefined => {
     return instanceRef.current?.getHoveredLine();
   }, []);
-  return { ref, getHoveredLine };
+
+  const getHoveredToken = useCallback(():
+    | GetHoveredTokenResult<'file'>
+    | undefined => {
+    return instanceRef.current?.getHoveredToken();
+  }, []);
+
+  return { ref, getHoveredLine, getHoveredToken };
 }
 
 function mergeFileOptions<LAnnotation>(

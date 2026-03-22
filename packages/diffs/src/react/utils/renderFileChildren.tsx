@@ -4,7 +4,10 @@ import {
   HEADER_METADATA_SLOT_ID,
   HEADER_PREFIX_SLOT_ID,
 } from '../../constants';
-import type { GetHoveredLineResult } from '../../managers/InteractionManager';
+import type {
+  GetHoveredLineResult,
+  GetHoveredTokenResult,
+} from '../../managers/InteractionManager';
 import type { FileContents } from '../../types';
 import { getLineAnnotationName } from '../../utils/getLineAnnotationName';
 import { GutterUtilitySlotStyles } from '../constants';
@@ -19,6 +22,7 @@ interface RenderFileChildrenProps<LAnnotation> {
   renderGutterUtility: FileProps<LAnnotation>['renderGutterUtility'];
   renderHoverUtility: FileProps<LAnnotation>['renderHoverUtility'];
   getHoveredLine(): GetHoveredLineResult<'file'> | undefined;
+  getHoveredToken(): GetHoveredTokenResult<'file'> | undefined;
 }
 
 export function renderFileChildren<LAnnotation>({

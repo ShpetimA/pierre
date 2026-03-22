@@ -3,6 +3,7 @@ import {
   transformerStyleToClass,
 } from '@shikijs/transformers';
 import type { ElementContent } from 'hast';
+import type { ThemedToken } from 'shiki';
 
 import type { SharedRenderState, ShikiTransformer } from '../types';
 import { findCodeElement } from './hast_utils';
@@ -38,6 +39,17 @@ export function createTransformerWithState(
           code.children = children;
         }
         return pre;
+      },
+      span(node, line, lineIndex, token) {
+        // token is typed as Element but is actually ThemedToken at runtime
+        const themedToken = token as unknown as ThemedToken | undefined;
+        if (themedToken?.offset != null && themedToken.content != null) {
+          node.properties['data-char-start'] = themedToken.offset;
+          node.properties['data-char-end'] =
+            themedToken.offset + themedToken.content.length;
+          node.properties['data-token-text'] = themedToken.content;
+        }
+        return node;
       },
     },
   ];

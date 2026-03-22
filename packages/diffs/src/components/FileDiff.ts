@@ -11,6 +11,7 @@ import {
 } from '../constants';
 import {
   type GetHoveredLineResult,
+  type GetHoveredTokenResult,
   type GetLineIndexUtility,
   InteractionManager,
   type InteractionManagerBaseOptions,
@@ -385,6 +386,10 @@ export class FileDiff<LAnnotation = undefined> {
 
   public getHoveredLine = (): GetHoveredLineResult<'diff'> | undefined => {
     return this.interactionManager.getHoveredLine();
+  };
+
+  public getHoveredToken = (): GetHoveredTokenResult<'diff'> | undefined => {
+    return this.interactionManager.getHoveredToken();
   };
 
   public setLineAnnotations(

@@ -14,6 +14,7 @@ import {
 } from '../../components/UnresolvedFile';
 import type {
   GetHoveredLineResult,
+  GetHoveredTokenResult,
   SelectedLineRange,
 } from '../../managers/InteractionManager';
 import type { UnresolvedFileHunksRendererOptions } from '../../renderers/UnresolvedFileHunksRenderer';
@@ -52,6 +53,7 @@ interface UseUnresolvedFileInstanceReturn<LAnnotation> {
   markerRows: MergeConflictMarkerRow[];
   ref(node: HTMLElement | null): void;
   getHoveredLine(): GetHoveredLineResult<'diff'> | undefined;
+  getHoveredToken(): GetHoveredTokenResult<'diff'> | undefined;
   getInstance(): UnresolvedFile<LAnnotation> | undefined;
 }
 
@@ -159,11 +161,25 @@ export function useUnresolvedFileInstance<LAnnotation>({
     return instanceRef.current?.getHoveredLine();
   }, []);
 
+  const getHoveredToken = useCallback(():
+    | GetHoveredTokenResult<'diff'>
+    | undefined => {
+    return instanceRef.current?.getHoveredToken();
+  }, []);
+
   const getInstance = useCallback(() => {
     return instanceRef.current ?? undefined;
   }, []);
 
-  return { ref, getHoveredLine, fileDiff, actions, markerRows, getInstance };
+  return {
+    ref,
+    getHoveredLine,
+    getHoveredToken,
+    fileDiff,
+    actions,
+    markerRows,
+    getInstance,
+  };
 }
 
 function mergeUnresolvedOptions<LAnnotation>(

@@ -32,7 +32,7 @@ export function PatchDiff<LAnnotation = undefined>({
   renderHoverUtility,
 }: PatchDiffProps<LAnnotation>): React.JSX.Element {
   const fileDiff = usePatch(patch);
-  const { ref, getHoveredLine } = useFileDiffInstance({
+  const { ref, getHoveredLine, getHoveredToken } = useFileDiffInstance({
     fileDiff,
     options,
     metrics,
@@ -51,6 +51,7 @@ export function PatchDiff<LAnnotation = undefined>({
     renderGutterUtility,
     renderHoverUtility,
     getHoveredLine,
+    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>

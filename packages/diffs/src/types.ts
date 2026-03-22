@@ -527,6 +527,27 @@ export interface DiffLineEventBaseProps extends Omit<
   lineType: LineTypes;
 }
 
+export interface TokenInfo {
+  start: number;
+  end: number;
+  text: string;
+}
+
+export interface TokenEventBaseProps extends Omit<LineEventBaseProps, 'type'> {
+  type: 'token';
+  token: TokenInfo;
+  tokenElement: HTMLElement;
+}
+
+export interface DiffTokenEventBaseProps extends Omit<
+  DiffLineEventBaseProps,
+  'type'
+> {
+  type: 'diff-token';
+  token: TokenInfo;
+  tokenElement: HTMLElement;
+}
+
 export interface ObservedAnnotationNodes {
   type: 'annotations';
   column1: {

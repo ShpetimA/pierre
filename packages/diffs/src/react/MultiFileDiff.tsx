@@ -32,7 +32,7 @@ export function MultiFileDiff<LAnnotation = undefined>({
   renderGutterUtility,
   renderHoverUtility,
 }: MultiFileDiffProps<LAnnotation>): React.JSX.Element {
-  const { ref, getHoveredLine } = useFileDiffInstance({
+  const { ref, getHoveredLine, getHoveredToken } = useFileDiffInstance({
     oldFile,
     newFile,
     options,
@@ -53,6 +53,7 @@ export function MultiFileDiff<LAnnotation = undefined>({
     renderGutterUtility,
     renderHoverUtility,
     getHoveredLine,
+    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>

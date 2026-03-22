@@ -73,17 +73,23 @@ export function UnresolvedFile<LAnnotation = undefined>({
   renderHoverUtility,
   renderMergeConflictUtility,
 }: UnresolvedFileProps<LAnnotation>): React.JSX.Element {
-  const { ref, getHoveredLine, fileDiff, actions, getInstance } =
-    useUnresolvedFileInstance({
-      file,
-      options,
-      lineAnnotations,
-      selectedLines,
-      prerenderedHTML,
-      hasConflictUtility: renderMergeConflictUtility != null,
-      hasGutterRenderUtility:
-        renderGutterUtility != null || renderHoverUtility != null,
-    });
+  const {
+    ref,
+    getHoveredLine,
+    getHoveredToken,
+    fileDiff,
+    actions,
+    getInstance,
+  } = useUnresolvedFileInstance({
+    file,
+    options,
+    lineAnnotations,
+    selectedLines,
+    prerenderedHTML,
+    hasConflictUtility: renderMergeConflictUtility != null,
+    hasGutterRenderUtility:
+      renderGutterUtility != null || renderHoverUtility != null,
+  });
   const children = renderDiffChildren({
     fileDiff,
     renderHeaderPrefix,
@@ -93,6 +99,7 @@ export function UnresolvedFile<LAnnotation = undefined>({
     renderHoverUtility,
     lineAnnotations,
     getHoveredLine,
+    getHoveredToken,
     actions,
     renderMergeConflictUtility,
     getInstance,

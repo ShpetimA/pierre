@@ -3,12 +3,15 @@ import { toHtml } from 'hast-util-to-html';
 import type {
   AnnotationSide,
   DiffLineEventBaseProps,
+  DiffTokenEventBaseProps,
   ExpansionDirections,
   LineEventBaseProps,
   LineTypes,
   MergeConflictResolution,
   SelectionPoint,
   SelectionSide,
+  TokenEventBaseProps,
+  TokenInfo,
 } from '../types';
 import { areSelectionPointsEqual } from '../utils/areSelectionPointsEqual';
 import { areSelectionsEqual } from '../utils/areSelectionsEqual';
@@ -34,6 +37,22 @@ export interface OnDiffLineEnterLeaveProps extends DiffLineEventBaseProps {
   event: PointerEvent;
 }
 
+export interface OnTokenClickProps extends TokenEventBaseProps {
+  event: PointerEvent;
+}
+
+export interface OnDiffTokenClickProps extends DiffTokenEventBaseProps {
+  event: PointerEvent;
+}
+
+export interface OnTokenEnterLeaveProps extends TokenEventBaseProps {
+  event: PointerEvent;
+}
+
+export interface OnDiffTokenEnterLeaveProps extends DiffTokenEventBaseProps {
+  event: PointerEvent;
+}
+
 export interface SelectedLineRange {
   start: number;
   side?: SelectionSide;
@@ -56,6 +75,15 @@ type EventBaseProps<TMode extends InteractionManagerMode> = TMode extends 'file'
   ? LineEventBaseProps
   : DiffLineEventBaseProps;
 
+type TokenEventClickProps<TMode extends InteractionManagerMode> =
+  TMode extends 'file' ? OnTokenClickProps : OnDiffTokenClickProps;
+
+type TokenPointerEventEnterLeaveProps<TMode extends InteractionManagerMode> =
+  TMode extends 'file' ? OnTokenEnterLeaveProps : OnDiffTokenEnterLeaveProps;
+
+type TokenEventProps<TMode extends InteractionManagerMode> =
+  TMode extends 'file' ? TokenEventBaseProps : DiffTokenEventBaseProps;
+
 interface ExpandoEventProps {
   type: 'line-info';
   hunkIndex: number;
@@ -66,6 +94,11 @@ export type GetHoveredLineResult<TMode extends InteractionManagerMode> =
   TMode extends 'file'
     ? { lineNumber: number }
     : { lineNumber: number; side: AnnotationSide };
+
+export type GetHoveredTokenResult<TMode extends InteractionManagerMode> =
+  TMode extends 'file'
+    ? { lineNumber: number; token: TokenInfo }
+    : { lineNumber: number; side: AnnotationSide; token: TokenInfo };
 
 interface SelectionPointerInfo {
   lineNumber: number;
@@ -84,6 +117,19 @@ interface ResolvedLineTarget<TMode extends InteractionManagerMode> {
   splitLineIndex: number | undefined;
 }
 
+interface ResolvedTokenTarget<TMode extends InteractionManagerMode> {
+  kind: 'token';
+  lineType: LineTypes;
+  lineElement: HTMLElement;
+  lineNumber: number;
+  numberColumn: boolean;
+  numberElement: HTMLElement;
+  side: TMode extends 'diff' ? AnnotationSide : undefined;
+  splitLineIndex: number | undefined;
+  tokenElement: HTMLElement;
+  token: TokenInfo;
+}
+
 export interface MergeConflictActionTarget {
   kind: 'merge-conflict-action';
   resolution: MergeConflictResolution;
@@ -92,11 +138,15 @@ export interface MergeConflictActionTarget {
 
 type ResolvedPointerTarget<TMode extends InteractionManagerMode> =
   | ResolvedLineTarget<TMode>
+  | ResolvedTokenTarget<TMode>
   | ExpandoEventProps
   | MergeConflictActionTarget;
 
 type LinePointerTarget<TMode extends InteractionManagerMode> =
   ResolvedLineTarget<TMode>;
+
+type TokenPointerTarget<TMode extends InteractionManagerMode> =
+  ResolvedTokenTarget<TMode>;
 
 interface SessionIdle {
   mode: 'idle';
@@ -137,6 +187,9 @@ export interface InteractionManagerBaseOptions<
   onLineNumberClick?(props: EventClickProps<TMode>): unknown;
   onLineEnter?(props: PointerEventEnterLeaveProps<TMode>): unknown;
   onLineLeave?(props: PointerEventEnterLeaveProps<TMode>): unknown;
+  onTokenClick?(props: TokenEventClickProps<TMode>): unknown;
+  onTokenEnter?(props: TokenPointerEventEnterLeaveProps<TMode>): unknown;
+  onTokenLeave?(props: TokenPointerEventEnterLeaveProps<TMode>): unknown;
   __debugPointerEvents?: LogTypes;
   enableLineSelection?: boolean;
   onLineSelected?: (range: SelectedLineRange | null) => void;
@@ -165,6 +218,7 @@ interface HandlePointerEventProps {
 
 export class InteractionManager<TMode extends InteractionManagerMode> {
   private hoveredLine: EventBaseProps<TMode> | undefined;
+  private hoveredToken: TokenEventProps<TMode> | undefined;
   private pre: HTMLPreElement | undefined;
 
   private gutterUtilityContainer: HTMLDivElement | undefined;
@@ -205,6 +259,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     this.gutterUtilityButton = undefined;
     this.gutterUtilitySlot = undefined;
     this.clearHoveredLine();
+    this.clearHoveredToken();
     this.detachDocumentPointerListeners();
     this.clearPointerSession();
     if (this.queuedSelectionRender != null) {
@@ -289,6 +344,25 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     return undefined;
   };
 
+  getHoveredToken = (): GetHoveredTokenResult<TMode> | undefined => {
+    if (this.hoveredToken != null) {
+      if (this.mode === 'diff' && this.hoveredToken.type === 'diff-token') {
+        return {
+          lineNumber: this.hoveredToken.lineNumber,
+          side: this.hoveredToken.annotationSide,
+          token: this.hoveredToken.token,
+        } as GetHoveredTokenResult<TMode>;
+      }
+      if (this.mode === 'file' && this.hoveredToken.type === 'token') {
+        return {
+          lineNumber: this.hoveredToken.lineNumber,
+          token: this.hoveredToken.token,
+        } as GetHoveredTokenResult<TMode>;
+      }
+    }
+    return undefined;
+  };
+
   handlePointerClick = (event: MouseEvent): void => {
     const {
       onHunkExpand,
@@ -324,13 +398,17 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       lineHoverHighlight = 'disabled',
       onLineEnter,
       onLineLeave,
+      onTokenEnter,
+      onTokenLeave,
       enableGutterUtility = false,
     } = this.options;
     if (
       lineHoverHighlight === 'disabled' &&
       !enableGutterUtility &&
       onLineEnter == null &&
-      onLineLeave == null
+      onLineLeave == null &&
+      onTokenEnter == null &&
+      onTokenLeave == null
     ) {
       return;
     }
@@ -346,7 +424,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
   };
 
   handlePointerLeave = (event: PointerEvent): void => {
-    const { __debugPointerEvents } = this.options;
+    const { __debugPointerEvents, onTokenLeave } = this.options;
     debugLogIfEnabled(
       __debugPointerEvents,
       'move',
@@ -361,6 +439,13 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       return;
     }
     this.gutterUtilityContainer?.remove();
+    if (this.hoveredToken != null) {
+      onTokenLeave?.({
+        ...this.hoveredToken,
+        event,
+      } as TokenPointerEventEnterLeaveProps<TMode>);
+      this.clearHoveredToken();
+    }
     this.options.onLineLeave?.({
       ...this.hoveredLine,
       event,
@@ -390,35 +475,60 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       onLineNumberClick,
       onLineEnter,
       onLineLeave,
+      onTokenClick,
+      onTokenEnter,
+      onTokenLeave,
       onHunkExpand,
       onMergeConflictActionClick,
     } = this.options;
 
     switch (eventType) {
       case 'move': {
-        if (
+        const sameLine =
           isLinePointerTarget(target) &&
-          this.hoveredLine?.lineElement === target.lineElement
-        ) {
-          break;
-        }
-        if (this.hoveredLine != null) {
-          this.gutterUtilityContainer?.remove();
-          onLineLeave?.({
-            ...this.hoveredLine,
-            event: event as PointerEvent,
-          } as PointerEventEnterLeaveProps<TMode>);
-          this.clearHoveredLine();
-        }
-        if (isLinePointerTarget(target)) {
-          this.setHoveredLine(this.toEventBaseProps(target));
-          if (this.gutterUtilityContainer != null) {
-            target.numberElement.appendChild(this.gutterUtilityContainer);
+          this.hoveredLine?.lineElement === target.lineElement;
+        const sameToken =
+          isTokenPointerTarget(target) &&
+          this.hoveredToken?.tokenElement === target.tokenElement;
+
+        // Handle token transitions
+        if (!sameToken) {
+          if (this.hoveredToken != null) {
+            onTokenLeave?.({
+              ...this.hoveredToken,
+              event: event as PointerEvent,
+            } as TokenPointerEventEnterLeaveProps<TMode>);
+            this.clearHoveredToken();
           }
-          onLineEnter?.({
-            ...this.hoveredLine,
-            event: event as PointerEvent,
-          } as PointerEventEnterLeaveProps<TMode>);
+          if (isTokenPointerTarget(target)) {
+            this.setHoveredToken(this.toTokenEventBaseProps(target));
+            onTokenEnter?.({
+              ...this.hoveredToken,
+              event: event as PointerEvent,
+            } as TokenPointerEventEnterLeaveProps<TMode>);
+          }
+        }
+
+        // Handle line transitions
+        if (!sameLine) {
+          if (this.hoveredLine != null) {
+            this.gutterUtilityContainer?.remove();
+            onLineLeave?.({
+              ...this.hoveredLine,
+              event: event as PointerEvent,
+            } as PointerEventEnterLeaveProps<TMode>);
+            this.clearHoveredLine();
+          }
+          if (isLinePointerTarget(target)) {
+            this.setHoveredLine(this.toEventBaseProps(target));
+            if (this.gutterUtilityContainer != null) {
+              target.numberElement.appendChild(this.gutterUtilityContainer);
+            }
+            onLineEnter?.({
+              ...this.hoveredLine,
+              event: event as PointerEvent,
+            } as PointerEventEnterLeaveProps<TMode>);
+          }
         }
         break;
       }
@@ -439,6 +549,13 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
             event.shiftKey ? 'both' : target.direction,
             event.shiftKey ? Number.POSITIVE_INFINITY : undefined
           );
+          break;
+        }
+        if (isTokenPointerTarget(target) && onTokenClick != null) {
+          onTokenClick({
+            ...this.toTokenEventBaseProps(target),
+            event: event as PointerEvent,
+          } as TokenEventClickProps<TMode>);
           break;
         }
         if (!isLinePointerTarget(target)) {
@@ -470,6 +587,9 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       onLineNumberClick,
       onLineEnter,
       onLineLeave,
+      onTokenClick,
+      onTokenEnter,
+      onTokenLeave,
       onHunkExpand,
       onMergeConflictActionClick,
       enableGutterUtility = false,
@@ -481,10 +601,13 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       lineHoverHighlight !== 'disabled' ||
       onLineClick != null ||
       onLineNumberClick != null ||
-      onHunkExpand != null ||
-      onMergeConflictActionClick != null ||
       onLineEnter != null ||
       onLineLeave != null ||
+      onTokenClick != null ||
+      onTokenEnter != null ||
+      onTokenLeave != null ||
+      onHunkExpand != null ||
+      onMergeConflictActionClick != null ||
       enableGutterUtility ||
       enableLineSelection ||
       enableGutterSelection;
@@ -883,6 +1006,22 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     }
   }
 
+  private clearHoveredToken() {
+    if (this.hoveredToken == null) {
+      return;
+    }
+    this.hoveredToken.tokenElement.removeAttribute('data-token-hovered');
+    this.hoveredToken = undefined;
+  }
+
+  private setHoveredToken(hoveredToken: TokenEventProps<TMode>) {
+    if (this.hoveredToken != null) {
+      this.clearHoveredToken();
+    }
+    this.hoveredToken = hoveredToken;
+    this.hoveredToken.tokenElement.setAttribute('data-token-hovered', '');
+  }
+
   private ensureGutterUtilityNode(useCustomGutterUtility: boolean): void {
     if (this.gutterUtilityContainer == null) {
       this.gutterUtilityContainer = document.createElement('div');
@@ -1201,6 +1340,34 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     } as EventBaseProps<TMode>;
   }
 
+  private toTokenEventBaseProps(
+    target: TokenPointerTarget<TMode>
+  ): TokenEventProps<TMode> {
+    if (this.mode === 'file') {
+      return {
+        type: 'token',
+        lineElement: target.lineElement,
+        lineNumber: target.lineNumber,
+        numberColumn: target.numberColumn,
+        numberElement: target.numberElement,
+        tokenElement: target.tokenElement,
+        token: target.token,
+      } as TokenEventProps<TMode>;
+    }
+
+    return {
+      type: 'diff-token',
+      annotationSide: target.side as AnnotationSide,
+      lineType: target.lineType,
+      lineElement: target.lineElement,
+      numberElement: target.numberElement,
+      lineNumber: target.lineNumber,
+      numberColumn: target.numberColumn,
+      tokenElement: target.tokenElement,
+      token: target.token,
+    } as TokenEventProps<TMode>;
+  }
+
   private buildSelectedLineRange(
     anchor: SelectionPoint,
     current: SelectionPoint
@@ -1236,6 +1403,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     let lineElement: HTMLElement | undefined;
     let lineIndexValue: string | undefined;
     let numberElement: HTMLElement | undefined;
+    let tokenElement: HTMLElement | undefined;
+    let tokenInfo: TokenInfo | undefined;
     let expandInfo:
       | {
           hunkIndex: number | undefined;
@@ -1272,6 +1441,29 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
             resolution: resolutionValue,
             conflictIndex,
           };
+        }
+      }
+
+      // Check for token element (has data-char-start attribute)
+      if (
+        tokenElement == null &&
+        element.hasAttribute('data-char-start') &&
+        element.hasAttribute('data-char-end')
+      ) {
+        tokenElement = element;
+        const startAttr = element.getAttribute('data-char-start');
+        const endAttr = element.getAttribute('data-char-end');
+        const textAttr = element.getAttribute('data-token-text');
+        if (startAttr != null && endAttr != null) {
+          const start = Number.parseInt(startAttr, 10);
+          const end = Number.parseInt(endAttr, 10);
+          if (!Number.isNaN(start) && !Number.isNaN(end)) {
+            tokenInfo = {
+              start,
+              end,
+              text: textAttr ?? element.textContent ?? '',
+            };
+          }
         }
       }
 
@@ -1374,6 +1566,51 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
 
     const splitLineIndex = this.parseLineIndex(lineElement, this.isSplitDiff());
 
+    // If we found a token, return token target
+    if (tokenElement != null && tokenInfo != null) {
+      if (this.mode === 'file') {
+        return {
+          kind: 'token',
+          lineType,
+          lineElement,
+          lineNumber,
+          numberColumn,
+          numberElement,
+          side: undefined,
+          splitLineIndex,
+          tokenElement,
+          token: tokenInfo,
+        } as ResolvedPointerTarget<TMode>;
+      }
+
+      const annotationSide: AnnotationSide = (() => {
+        switch (lineType) {
+          case 'change-deletion':
+            return 'deletions';
+          case 'change-addition':
+            return 'additions';
+          default:
+            return codeElement.hasAttribute('data-deletions')
+              ? 'deletions'
+              : 'additions';
+        }
+      })();
+
+      return {
+        kind: 'token',
+        lineType,
+        lineElement,
+        lineNumber,
+        numberColumn,
+        numberElement,
+        side: annotationSide,
+        splitLineIndex,
+        tokenElement,
+        token: tokenInfo,
+      } as ResolvedPointerTarget<TMode>;
+    }
+
+    // Otherwise return line target
     if (this.mode === 'file') {
       return {
         kind: 'line',
@@ -1456,6 +1693,9 @@ export function pluckInteractionOptions<TMode extends InteractionManagerMode>(
     onLineEnter,
     onLineLeave,
     onLineNumberClick,
+    onTokenClick,
+    onTokenEnter,
+    onTokenLeave,
     renderGutterUtility,
     renderHoverUtility,
     __debugPointerEvents,
@@ -1492,6 +1732,9 @@ export function pluckInteractionOptions<TMode extends InteractionManagerMode>(
     onLineEnter,
     onLineLeave,
     onLineNumberClick,
+    onTokenClick,
+    onTokenEnter,
+    onTokenLeave,
     __debugPointerEvents,
 
     enableLineSelection,
@@ -1545,6 +1788,12 @@ function isLinePointerTarget<TMode extends InteractionManagerMode>(
   target: ResolvedPointerTarget<TMode> | undefined
 ): target is LinePointerTarget<TMode> {
   return target != null && 'kind' in target && target.kind === 'line';
+}
+
+function isTokenPointerTarget<TMode extends InteractionManagerMode>(
+  target: ResolvedPointerTarget<TMode> | undefined
+): target is TokenPointerTarget<TMode> {
+  return target != null && 'kind' in target && target.kind === 'token';
 }
 
 function isExpandoPointerTarget<TMode extends InteractionManagerMode>(

@@ -10,6 +10,7 @@ import { FileDiff, type FileDiffOptions } from '../../components/FileDiff';
 import { VirtualizedFileDiff } from '../../components/VirtualizedFileDiff';
 import type {
   GetHoveredLineResult,
+  GetHoveredTokenResult,
   SelectedLineRange,
 } from '../../managers/InteractionManager';
 import type {
@@ -42,6 +43,7 @@ interface UseFileDiffInstanceProps<LAnnotation> {
 interface UseFileDiffInstanceReturn {
   ref(node: HTMLElement | null): void;
   getHoveredLine(): GetHoveredLineResult<'diff'> | undefined;
+  getHoveredToken(): GetHoveredTokenResult<'diff'> | undefined;
 }
 
 export function useFileDiffInstance<LAnnotation>({
@@ -119,13 +121,19 @@ export function useFileDiffInstance<LAnnotation>({
     }
   });
 
+  const getHoveredToken = useCallback(():
+    | GetHoveredTokenResult<'diff'>
+    | undefined => {
+    return instanceRef.current?.getHoveredToken();
+  }, []);
+
   const getHoveredLine = useCallback(():
     | GetHoveredLineResult<'diff'>
     | undefined => {
     return instanceRef.current?.getHoveredLine();
   }, []);
 
-  return { ref, getHoveredLine };
+  return { ref, getHoveredLine, getHoveredToken };
 }
 
 function mergeFileDiffOptions<LAnnotation>(

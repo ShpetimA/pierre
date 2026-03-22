@@ -4,7 +4,10 @@ import {
   HEADER_METADATA_SLOT_ID,
   HEADER_PREFIX_SLOT_ID,
 } from '../../constants';
-import type { GetHoveredLineResult } from '../../managers/InteractionManager';
+import type {
+  GetHoveredLineResult,
+  GetHoveredTokenResult,
+} from '../../managers/InteractionManager';
 import type { FileContents, FileDiffMetadata } from '../../types';
 import { getLineAnnotationName } from '../../utils/getLineAnnotationName';
 import { getMergeConflictActionSlotName } from '../../utils/getMergeConflictActionSlotName';
@@ -31,6 +34,7 @@ interface RenderDiffChildrenProps<LAnnotation, T> {
   ): ReactNode;
   lineAnnotations: DiffBasePropsReact<LAnnotation>['lineAnnotations'];
   getHoveredLine(): GetHoveredLineResult<'diff'> | undefined;
+  getHoveredToken(): GetHoveredTokenResult<'diff'> | undefined;
   getInstance?(): T | undefined;
 }
 
