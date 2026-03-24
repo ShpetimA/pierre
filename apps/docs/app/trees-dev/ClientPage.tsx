@@ -6,7 +6,11 @@ import {
   FileTree,
   HEADER_SLOT_NAME,
 } from '@pierre/trees';
-import type { FileTreeOptions, FileTreeStateConfig } from '@pierre/trees';
+import type {
+  ContextMenuOpenContext,
+  FileTreeOptions,
+  FileTreeStateConfig,
+} from '@pierre/trees';
 import { FileTree as FileTreeReact } from '@pierre/trees/react';
 import '@pierre/trees/web-components';
 import {
@@ -1878,19 +1882,38 @@ function ReactSSRCustomIcons({
 
 type ContextMenuDemoItem = { path: string; isFolder: boolean };
 
+function makeDemoRenamingOptions(label: string) {
+  return {
+    onError: (error: string) => {
+      window.alert(error);
+    },
+    onRename: (event: {
+      sourcePath: string;
+      destinationPath: string;
+      isFolder: boolean;
+    }) => {
+      console.log(
+        `[trees-dev][${label}] rename ${event.isFolder ? 'folder' : 'file'}: ${event.sourcePath} -> ${event.destinationPath}`
+      );
+    },
+  };
+}
+
 function TreeDemoContextMenu({
   item,
-  onClose,
+  context,
 }: {
   item: ContextMenuDemoItem;
-  onClose: () => void;
+  context: ContextMenuOpenContext;
 }) {
   const itemType = item.isFolder ? 'Folder' : 'File';
+  const handleRenameSelect = () => context.startRenaming?.();
+
   return (
     <DropdownMenu
       open
       modal={false}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => !open && context.close()}
     >
       <DropdownMenuTrigger asChild>
         <button
@@ -1917,10 +1940,15 @@ function TreeDemoContextMenu({
           {itemType}: {item.path}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={onClose}>Open</DropdownMenuItem>
-        <DropdownMenuItem onSelect={onClose}>Rename</DropdownMenuItem>
+        <DropdownMenuItem onSelect={context.close}>Open</DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={onClose}
+          onSelect={handleRenameSelect}
+          disabled={context.canRename !== true}
+        >
+          Rename
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={context.close}
           className="text-destructive focus:text-destructive"
         >
           Delete
@@ -1934,17 +1962,17 @@ function renderVanillaContextMenuSlot({
   slotElement,
   menuRootRef,
   item,
-  onClose,
+  context,
 }: {
   slotElement: HTMLDivElement;
   menuRootRef: { current: ReactDomRoot | null };
   item: ContextMenuDemoItem;
-  onClose: () => void;
+  context: ContextMenuOpenContext;
 }): void {
   menuRootRef.current ??= createRoot(slotElement);
   slotElement.style.display = 'block';
   menuRootRef.current.render(
-    <TreeDemoContextMenu item={item} onClose={onClose} />
+    <TreeDemoContextMenu item={item} context={context} />
   );
 }
 
@@ -2183,6 +2211,16 @@ function VanillaSSRContextMenu({
   const instanceRef = useRef<FileTree | null>(null);
   const hasHydratedRef = useRef(false);
   const menuRootRef = useRef<ReactDomRoot | null>(null);
+  const [files, setFiles] = useState<string[]>(options.initialFiles);
+  const filesRef = useRef(files);
+  const renamingOptions = useMemo(
+    () => makeDemoRenamingOptions('vanilla-ssr'),
+    []
+  );
+
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
 
   const ref = useCallback(
     (node: HTMLDivElement | null) => {
@@ -2207,20 +2245,32 @@ function VanillaSSRContextMenu({
         });
       };
 
-      const fileTree = new FileTree(options, {
-        ...stateConfig,
-        onContextMenuOpen: (item, context) => {
-          renderVanillaContextMenuSlot({
-            slotElement,
-            menuRootRef,
-            item,
-            onClose: context.close,
-          });
+      const fileTree = new FileTree(
+        {
+          ...options,
+          initialFiles: filesRef.current,
+          renaming: renamingOptions,
         },
-        onContextMenuClose: () => {
-          closeMenu();
-        },
-      });
+        {
+          ...stateConfig,
+          onFilesChange: (nextFiles) => {
+            filesRef.current = nextFiles;
+            setFiles(nextFiles);
+            stateConfig?.onFilesChange?.(nextFiles);
+          },
+          onContextMenuOpen: (item, context) => {
+            renderVanillaContextMenuSlot({
+              slotElement,
+              menuRootRef,
+              item,
+              context,
+            });
+          },
+          onContextMenuClose: () => {
+            closeMenu();
+          },
+        }
+      );
 
       if (!hasHydratedRef.current) {
         fileTree.hydrate({
@@ -2244,7 +2294,7 @@ function VanillaSSRContextMenu({
         instanceRef.current = null;
       };
     },
-    [options, stateConfig]
+    [options, renamingOptions, stateConfig]
   );
 
   return (
@@ -2270,15 +2320,22 @@ function ReactSSRContextMenu({
   stateConfig?: FileTreeStateConfig;
   prerenderedHTML: string;
 }) {
+  const [files, setFiles] = useState<string[]>(() => initialFiles ?? []);
+  const renamingOptions = useMemo(
+    () => makeDemoRenamingOptions('react-ssr'),
+    []
+  );
+
   return (
     <FileTreeReact
-      options={options}
-      initialFiles={initialFiles}
+      options={{ ...options, renaming: renamingOptions }}
+      files={files}
+      onFilesChange={setFiles}
       prerenderedHTML={prerenderedHTML}
       initialExpandedItems={stateConfig?.initialExpandedItems}
       onSelection={stateConfig?.onSelection}
       renderContextMenu={(item, context) => (
-        <TreeDemoContextMenu item={item} onClose={context.close} />
+        <TreeDemoContextMenu item={item} context={context} />
       )}
     />
   );
@@ -2291,56 +2348,67 @@ function ReactSSRContextMenu({
 function VirtualizedLinuxKernelCard() {
   const [mounted, setMounted] = useState(false);
   const menuRootRef = useRef<ReactDomRoot | null>(null);
+  const instanceRef = useRef<FileTree | null>(null);
+  const renamingOptions = useMemo(
+    () => makeDemoRenamingOptions('vanilla-virtualized'),
+    []
+  );
 
-  const ref = useCallback((node: HTMLDivElement | null) => {
-    if (node == null) return;
+  const ref = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node == null) return;
 
-    const slotElement = document.createElement('div');
-    slotElement.setAttribute('slot', CONTEXT_MENU_SLOT_NAME);
-    slotElement.style.display = 'none';
+      const slotElement = document.createElement('div');
+      slotElement.setAttribute('slot', CONTEXT_MENU_SLOT_NAME);
+      slotElement.style.display = 'none';
 
-    const fileTree = new FileTree(
-      {
-        initialFiles: linuxKernelFiles,
-        virtualize: { threshold: 0 },
-        flattenEmptyDirectories: true,
-        sort: false,
-      },
-      {
-        initialExpandedItems: linuxKernelAllFolders,
-        onContextMenuOpen: (item, context) => {
-          renderVanillaContextMenuSlot({
-            slotElement,
-            menuRootRef,
-            item,
-            onClose: context.close,
-          });
+      const fileTree = new FileTree(
+        {
+          initialFiles: linuxKernelFiles,
+          virtualize: { threshold: 0 },
+          flattenEmptyDirectories: true,
+          sort: false,
+          renaming: renamingOptions,
         },
-        onContextMenuClose: () => {
-          clearVanillaContextMenuSlot({
-            slotElement,
-            menuRootRef,
-          });
-        },
+        {
+          initialExpandedItems: linuxKernelAllFolders,
+          onContextMenuOpen: (item, context) => {
+            renderVanillaContextMenuSlot({
+              slotElement,
+              menuRootRef,
+              item,
+              context,
+            });
+          },
+          onContextMenuClose: () => {
+            clearVanillaContextMenuSlot({
+              slotElement,
+              menuRootRef,
+            });
+          },
+        }
+      );
+      fileTree.render({ containerWrapper: node });
+      instanceRef.current = fileTree;
+
+      const container = fileTree.getFileTreeContainer();
+      if (container != null) {
+        container.appendChild(slotElement);
       }
-    );
-    fileTree.render({ containerWrapper: node });
 
-    const container = fileTree.getFileTreeContainer();
-    if (container != null) {
-      container.appendChild(slotElement);
-    }
-
-    return () => {
-      clearVanillaContextMenuSlot({
-        slotElement,
-        menuRootRef,
-        unmount: true,
-      });
-      slotElement.remove();
-      fileTree.cleanUp();
-    };
-  }, []);
+      return () => {
+        clearVanillaContextMenuSlot({
+          slotElement,
+          menuRootRef,
+          unmount: true,
+        });
+        slotElement.remove();
+        fileTree.cleanUp();
+        instanceRef.current = null;
+      };
+    },
+    [renamingOptions]
+  );
 
   return (
     <ExampleCard

@@ -38,12 +38,14 @@ import {
   getGitStatusMap,
   gitStatusFeature,
 } from '../features/gitStatusFeature';
-import type {
-  FileTreeCallbacks,
-  FileTreeHandle,
-  FileTreeOptions,
-  FileTreeSelectionItem,
-  FileTreeStateConfig,
+import { renamingFeature } from '../features/renamingFeature';
+import {
+  type FileTreeCallbacks,
+  type FileTreeHandle,
+  type FileTreeOptions,
+  type FileTreeSelectionItem,
+  type FileTreeStateConfig,
+  isRenamingEnabled,
 } from '../FileTree';
 import { generateLazyDataLoader } from '../loader/lazy';
 import { generateSyncDataLoaderFromTreeData } from '../loader/sync';
@@ -58,6 +60,10 @@ import {
 import { fileListToTree } from '../utils/fileListToTree';
 import { getGitStatusSignature } from '../utils/getGitStatusSignature';
 import { getSelectionPath } from '../utils/getSelectionPath';
+import {
+  remapExpandedPathsForFolderRename,
+  renameFileTreePaths,
+} from '../utils/renameFileTreePaths';
 import type { ChildrenSortOption } from '../utils/sortChildren';
 import { useContextMenuController } from './hooks/useContextMenuController';
 import { useTree } from './hooks/useTree';
@@ -99,16 +105,55 @@ const getFilesSignature = (files: string[]): string =>
 
 const EMPTY_ANCESTORS: string[] = [];
 
+function resolvePathToRenderedId(
+  path: string,
+  pathToId: Map<string, string>,
+  flattenEmptyDirectories: boolean
+): string | null {
+  if (path.startsWith(FLATTENED_PREFIX)) {
+    return pathToId.get(path) ?? null;
+  }
+  if (flattenEmptyDirectories) {
+    return pathToId.get(FLATTENED_PREFIX + path) ?? pathToId.get(path) ?? null;
+  }
+  return pathToId.get(path) ?? null;
+}
+
+function RenameInput({
+  ariaLabel,
+  isFlattened,
+  renameInputProps,
+}: {
+  ariaLabel: string;
+  isFlattened?: boolean;
+  renameInputProps: Record<string, unknown>;
+}): JSX.Element {
+  return (
+    <input
+      data-item-rename-input
+      {...(isFlattened === true
+        ? { 'data-item-flattened-rename-input': true }
+        : {})}
+      aria-label={ariaLabel}
+      onClick={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+      {...renameInputProps}
+    />
+  );
+}
+
 function FlattenedDirectoryName({
   tree,
   idToPath,
   flattens,
   fallbackName,
+  renameInputProps,
 }: {
   tree: TreeInstance<FileTreeNode>;
   idToPath: Map<string, string>;
   flattens: string[];
   fallbackName: string;
+  renameInputProps?: Record<string, unknown> | null;
 }): JSX.Element {
   'use no memo';
   const segments = useMemo(() => {
@@ -127,6 +172,15 @@ function FlattenedDirectoryName({
   }, [flattens, tree, idToPath]);
 
   if (segments.length === 0) {
+    if (renameInputProps != null) {
+      return (
+        <RenameInput
+          ariaLabel={`Rename ${fallbackName}`}
+          isFlattened
+          renameInputProps={renameInputProps}
+        />
+      );
+    }
     return (
       <span data-item-flattened-subitems>
         {fallbackName.replace(/\//g, ' / ')}
@@ -141,7 +195,15 @@ function FlattenedDirectoryName({
         return (
           <Fragment key={id}>
             <span data-item-flattened-subitem={id}>
-              <Truncate>{label}</Truncate>
+              {isLast && renameInputProps != null ? (
+                <RenameInput
+                  ariaLabel={`Rename ${label}`}
+                  isFlattened
+                  renameInputProps={renameInputProps}
+                />
+              ) : (
+                <Truncate>{label}</Truncate>
+              )}
             </span>
             {!isLast ? ' / ' : ''}
           </Fragment>
@@ -165,6 +227,7 @@ interface TreeItemProps {
   isDragTarget: boolean;
   isDragging: boolean;
   isDnD: boolean;
+  isRenaming: boolean;
   isFlattenedDirectory: boolean;
   isLocked: boolean;
   gitStatus: string | undefined;
@@ -200,6 +263,7 @@ function treeItemPropsAreEqual(
     prev.isDragTarget === next.isDragTarget &&
     prev.isDragging === next.isDragging &&
     prev.isDnD === next.isDnD &&
+    prev.isRenaming === next.isRenaming &&
     prev.isFlattenedDirectory === next.isFlattenedDirectory &&
     prev.isLocked === next.isLocked &&
     prev.gitStatus === next.gitStatus &&
@@ -223,6 +287,7 @@ function TreeItemInner({
   isDragTarget,
   isDragging,
   isDnD,
+  isRenaming,
   isFlattenedDirectory,
   isLocked,
   gitStatus: itemGitStatus,
@@ -290,6 +355,10 @@ function TreeItemInner({
           ? 'M'
           : null;
   const showStatusDot = statusLabel == null && itemContainsGitChange;
+  const renameInputProps =
+    isRenaming && item.getRenameInputProps != null
+      ? item.getRenameInputProps()
+      : null;
 
   const getItemDomId = (id: string) => `${treeDomId}-${id}`;
 
@@ -336,6 +405,12 @@ function TreeItemInner({
             idToPath={idToPath}
             flattens={flattens ?? []}
             fallbackName={itemName}
+            renameInputProps={renameInputProps}
+          />
+        ) : renameInputProps != null ? (
+          <RenameInput
+            ariaLabel={`Rename ${itemName}`}
+            renameInputProps={renameInputProps}
           />
         ) : (
           <MiddleTruncate minimumLength={5} split="extension">
@@ -376,11 +451,17 @@ export function Root({
     gitStatus,
     lockedPaths,
     onCollision,
+    renaming,
     search,
     sort: sortOption,
     useLazyDataLoader,
     virtualize,
   } = fileTreeOptions;
+  const renamingEnabled = isRenamingEnabled(renaming);
+  const renamingConfig =
+    renaming != null && renaming !== true && renaming !== false
+      ? renaming
+      : undefined;
 
   const iconRemap = fileTreeOptions.icons?.remap;
   const remapIcon = useCallback(
@@ -407,6 +488,13 @@ export function Root({
     return `ft-${safe}`;
   }, [fileTreeOptions.id]);
   const getItemDomId = (itemId: string) => `${treeDomId}-${itemId}`;
+  const lockedPathSet = useMemo(
+    () =>
+      lockedPaths != null && lockedPaths.length > 0
+        ? new Set(lockedPaths)
+        : null,
+    [lockedPaths]
+  );
 
   // Resolve sort option to a comparator (or undefined for default behavior).
   // `false` → preserve insertion order and skip sort work.
@@ -674,9 +762,12 @@ export function Root({
     if (isDnD) {
       base.push(dragAndDropFeature, keyboardDragAndDropFeature);
     }
+    if (renamingEnabled) {
+      base.push(renamingFeature);
+    }
     base.push(propMemoizationFeature);
     return base;
-  }, [isDnD]);
+  }, [isDnD, renamingEnabled]);
 
   // Keep a ref to current files so onDrop doesn't capture stale values
   const filesRef = useRef(files);
@@ -769,6 +860,18 @@ export function Root({
   // is applied to files.
   const pendingDropTargetExpandRef = useRef<{
     path: string;
+    expectedFilesSignature: string;
+  } | null>(null);
+  // Rename-only: stores the old/new folder path so the expand-migration
+  // effect can remap expanded children once the new idToPath is available.
+  const pendingRenameExpandedRemapRef = useRef<{
+    sourcePath: string;
+    destinationPath: string;
+  } | null>(null);
+  // Rename-only: stores the renamed destination path so focus can be moved
+  // to the remapped item ID once files/pathToId have updated.
+  const pendingRenameFocusRestoreRef = useRef<{
+    destinationPath: string;
     expectedFilesSignature: string;
   } | null>(null);
 
@@ -869,15 +972,68 @@ export function Root({
       },
     },
     features,
+    ...(renamingEnabled && {
+      canRename: (item: ItemInstance<FileTreeNode>) => {
+        const path = getSelectionPath(item.getItemData().path);
+        if (lockedPathSet?.has(path) === true) {
+          return false;
+        }
+        return (
+          renamingConfig?.canRename?.({
+            path,
+            isFolder: item.getItemData().children?.direct != null,
+          }) ?? true
+        );
+      },
+      onRename: (item: ItemInstance<FileTreeNode>, nextBasename: string) => {
+        const data = item.getItemData();
+        const result = renameFileTreePaths({
+          files: filesRef.current,
+          path: getSelectionPath(data.path),
+          isFolder: data.children?.direct != null,
+          nextBasename,
+        });
+        if ('error' in result) {
+          renamingConfig?.onError?.(result.error);
+          return;
+        }
+        if (result.isFolder && result.sourcePath !== result.destinationPath) {
+          pendingRenameExpandedRemapRef.current = {
+            sourcePath: result.sourcePath,
+            destinationPath: result.destinationPath,
+          };
+        } else {
+          pendingRenameExpandedRemapRef.current = null;
+        }
+        if (result.sourcePath !== result.destinationPath) {
+          pendingRenameFocusRestoreRef.current = {
+            destinationPath: result.destinationPath,
+            expectedFilesSignature: getFilesSignature(result.nextFiles),
+          };
+        } else {
+          pendingRenameFocusRestoreRef.current = null;
+        }
+        if (result.sourcePath === result.destinationPath) {
+          return;
+        }
+        renamingConfig?.onRename?.({
+          sourcePath: result.sourcePath,
+          destinationPath: result.destinationPath,
+          isFolder: result.isFolder,
+        });
+        if (result.nextFiles !== filesRef.current) {
+          callbacksRef?.current._onRenameFiles?.(result.nextFiles);
+        }
+      },
+    }),
     ...(isDnD && {
       canReorder: false,
       canDrag: (items: ItemInstance<FileTreeNode>[]) => {
         if (searchActiveRef.current) return false;
-        if (lockedPaths == null || lockedPaths.length === 0) return true;
-        const lockedSet = new Set(lockedPaths);
+        if (lockedPathSet == null) return true;
         for (const item of items) {
           const path = item.getItemData().path;
-          if (path != null && lockedSet.has(getSelectionPath(path)))
+          if (path != null && lockedPathSet.has(getSelectionPath(path)))
             return false;
         }
         return true;
@@ -963,6 +1119,14 @@ export function Root({
         .map((p: string) =>
           p.startsWith(FLATTENED_PREFIX) ? p.slice(FLATTENED_PREFIX.length) : p
         );
+      const pendingRename = pendingRenameExpandedRemapRef.current;
+      if (pendingRename != null) {
+        pendingExpandMigrationRef.current = remapExpandedPathsForFolderRename({
+          expandedPaths: pendingExpandMigrationRef.current,
+          sourcePath: pendingRename.sourcePath,
+          destinationPath: pendingRename.destinationPath,
+        });
+      }
     }
   }
   prevIdToPathRef.current = idToPath;
@@ -987,42 +1151,74 @@ export function Root({
   // previously-expanded paths to new IDs and optionally expands a drop target
   // when the applied files match a pending drop result.
   useEffect(() => {
+    const filesSignature = getFilesSignature(files);
     const previousPaths = pendingExpandMigrationRef.current;
     const pendingDropTarget = pendingDropTargetExpandRef.current;
+    const pendingRenameFocus = pendingRenameFocusRestoreRef.current;
     const dropTarget =
       pendingDropTarget != null &&
-      pendingDropTarget.expectedFilesSignature === getFilesSignature(files)
+      pendingDropTarget.expectedFilesSignature === filesSignature
         ? pendingDropTarget.path
+        : null;
+    const renameFocusPath =
+      pendingRenameFocus != null &&
+      pendingRenameFocus.expectedFilesSignature === filesSignature
+        ? pendingRenameFocus.destinationPath
         : null;
     pendingExpandMigrationRef.current = null;
     pendingDropTargetExpandRef.current = null;
-
-    if (previousPaths == null && dropTarget == null) return;
-
-    const pathsToExpand = previousPaths != null ? [...previousPaths] : [];
-    if (dropTarget != null) {
-      pathsToExpand.push(dropTarget);
+    pendingRenameExpandedRemapRef.current = null;
+    if (renameFocusPath != null) {
+      pendingRenameFocusRestoreRef.current = null;
     }
 
-    const expandIds = expandPathsWithAncestors(pathsToExpand, pathToId, {
-      flattenEmptyDirectories,
-    });
-
-    if (previousPaths != null) {
-      // Full replacement — re-map all expanded paths to new IDs.
-      tree.applySubStateUpdate('expandedItems', () => expandIds);
-    } else {
-      // Just adding the drop target — merge with existing expanded state.
-      const currentExpanded = tree.getState().expandedItems ?? [];
-      const currentSet = new Set(currentExpanded);
-      const newIds = expandIds.filter((id) => !currentSet.has(id));
-      if (newIds.length === 0) return;
-      tree.applySubStateUpdate('expandedItems', (prev) => [
-        ...(prev ?? []),
-        ...newIds,
-      ]);
+    if (
+      previousPaths == null &&
+      dropTarget == null &&
+      renameFocusPath == null
+    ) {
+      return;
     }
-    tree.rebuildTree();
+
+    if (previousPaths != null || dropTarget != null) {
+      const pathsToExpand = previousPaths != null ? [...previousPaths] : [];
+      if (dropTarget != null) {
+        pathsToExpand.push(dropTarget);
+      }
+
+      const expandIds = expandPathsWithAncestors(pathsToExpand, pathToId, {
+        flattenEmptyDirectories,
+      });
+
+      if (previousPaths != null) {
+        // Full replacement — re-map all expanded paths to new IDs.
+        tree.applySubStateUpdate('expandedItems', () => expandIds);
+      } else {
+        // Just adding the drop target — merge with existing expanded state.
+        const currentExpanded = tree.getState().expandedItems ?? [];
+        const currentSet = new Set(currentExpanded);
+        const newIds = expandIds.filter((id) => !currentSet.has(id));
+        if (newIds.length > 0) {
+          tree.applySubStateUpdate('expandedItems', (prev) => [
+            ...(prev ?? []),
+            ...newIds,
+          ]);
+        }
+      }
+      tree.rebuildTree();
+    }
+
+    if (renameFocusPath != null) {
+      const nextFocusedId = resolvePathToRenderedId(
+        renameFocusPath,
+        pathToId,
+        flattenEmptyDirectories === true
+      );
+      if (nextFocusedId != null) {
+        tree.applySubStateUpdate('focusedItem', nextFocusedId);
+        tree.updateDomFocus();
+      }
+    }
   }, [files, pathToId, tree, flattenEmptyDirectories]);
 
   // --- Selection change callback ---
@@ -1212,10 +1408,6 @@ export function Root({
           visibleIdSet != null
             ? allItems.filter((item) => visibleIdSet.has(item.getId()))
             : allItems;
-        const lockedPathSet =
-          lockedPaths != null && lockedPaths.length > 0
-            ? new Set(lockedPaths)
-            : null;
 
         const renderItemAtIndex = (index: number) => {
           const item = items[index];
@@ -1237,6 +1429,7 @@ export function Root({
           const isSearchMatch = item.isMatchingSearch();
           const isFocused = hasFocusedItem && item.isFocused();
           const isDragTarget = isDnD && item.isUnorderedDragTarget?.() === true;
+          const isRenaming = item.isRenaming?.() === true;
           const isDragging =
             isDnD &&
             tree
@@ -1266,6 +1459,7 @@ export function Root({
               isDragTarget={isDragTarget}
               isDragging={isDragging}
               isDnD={isDnD}
+              isRenaming={isRenaming}
               isFlattenedDirectory={isFlattenedDirectory}
               isLocked={isLocked}
               gitStatus={itemGitStatus}
