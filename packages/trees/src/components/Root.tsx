@@ -62,6 +62,7 @@ import type { ChildrenSortOption } from '../utils/sortChildren';
 import { useContextMenuController } from './hooks/useContextMenuController';
 import { useTree } from './hooks/useTree';
 import { Icon } from './Icon';
+import { MiddleTruncate, Truncate } from './OverflowText';
 import { VirtualizedList } from './VirtualizedList';
 
 export interface FileTreeRootProps {
@@ -139,7 +140,9 @@ function FlattenedDirectoryName({
         const isLast = index === segments.length - 1;
         return (
           <Fragment key={id}>
-            <span data-item-flattened-subitem={id}>{label}</span>
+            <span data-item-flattened-subitem={id}>
+              <Truncate>{label}</Truncate>
+            </span>
             {!isLast ? ' / ' : ''}
           </Fragment>
         );
@@ -294,6 +297,7 @@ function TreeItemInner({
     <button
       data-type="item"
       data-item-type={hasChildren ? 'folder' : 'file'}
+      aria-label={itemName}
       {...selectionProps}
       {...searchMatchProps}
       {...focusedProps}
@@ -334,7 +338,9 @@ function TreeItemInner({
             fallbackName={itemName}
           />
         ) : (
-          itemName
+          <MiddleTruncate minimumLength={5} split="extension">
+            {itemName}
+          </MiddleTruncate>
         )}
       </div>
 
