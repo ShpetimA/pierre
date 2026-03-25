@@ -1,20 +1,14 @@
+import { FLATTENED_PREFIX } from '../../constants';
 import type {
   FeatureImplementation,
   TreeConfig,
   TreeInstance,
-} from '@headless-tree/core';
+} from '../../core/types/core';
+import type { FileTreeNode, GitStatus, GitStatusEntry } from '../../types';
+import { getGitStatusSignature } from '../../utils/getGitStatusSignature';
+import type { GitStatusConfig } from './types';
 
-import { FLATTENED_PREFIX } from '../constants';
-import type { FileTreeNode, GitStatus, GitStatusEntry } from '../types';
-import { getGitStatusSignature } from '../utils/getGitStatusSignature';
-
-export type { GitStatusEntry } from '../types';
-
-type GitStatusConfig = {
-  gitStatus?: GitStatusEntry[];
-  gitStatusSignature?: string;
-  gitStatusPathToId?: Map<string, string>;
-};
+export type { GitStatusEntry } from '../../types';
 
 type GitStatusCache = {
   gitStatusSignature: string;
@@ -190,7 +184,7 @@ export const gitStatusFeature: FeatureImplementation = {
   },
 };
 
-declare module '@headless-tree/core' {
+declare module '../../core/types/core' {
   // oxlint-disable-next-line @typescript-oxlint/no-unused-vars
   interface ItemInstance<T> {
     getGitStatus(): GitStatus | null;

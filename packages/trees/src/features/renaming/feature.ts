@@ -1,8 +1,10 @@
-import { makeStateUpdater } from '@headless-tree/core';
-import type { FeatureImplementation, ItemInstance } from '@headless-tree/core';
-
-import type { FileTreeNode } from '../types';
-import { getSelectionPath } from '../utils/getSelectionPath';
+import type {
+  FeatureImplementation,
+  ItemInstance,
+} from '../../core/types/core';
+import { makeStateUpdater } from '../../core/utils';
+import type { FileTreeNode } from '../../types';
+import { getSelectionPath } from '../../utils/getSelectionPath';
 
 type InputEvent = {
   target?: {

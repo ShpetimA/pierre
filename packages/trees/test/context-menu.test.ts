@@ -1,14 +1,12 @@
-import {
-  createTree,
-  hotkeysCoreFeature,
-  selectionFeature,
-  syncDataLoaderFeature,
-} from '@headless-tree/core';
 import { beforeAll, describe, expect, test } from 'bun:test';
 // @ts-expect-error -- no @types/jsdom; only used in tests
 import { JSDOM } from 'jsdom';
 
-import { renamingFeature } from '../src/features/renamingFeature';
+import { createTree } from '../src/core/create-tree';
+import { hotkeysCoreFeature } from '../src/features/hotkeys-core/feature';
+import { renamingFeature } from '../src/features/renaming/feature';
+import { selectionFeature } from '../src/features/selection/feature';
+import { syncDataLoaderFeature } from '../src/features/sync-data-loader/feature';
 import { generateSyncDataLoader } from '../src/loader/sync';
 import type { ContextMenuOpenContext } from '../src/types';
 import type { FileTreeNode } from '../src/types';

@@ -1,14 +1,4 @@
 /** @jsxImportSource preact */
-import {
-  expandAllFeature,
-  hotkeysCoreFeature,
-  type ItemInstance,
-  keyboardDragAndDropFeature,
-  propMemoizationFeature,
-  selectionFeature,
-  syncDataLoaderFeature,
-  type TreeInstance,
-} from '@headless-tree/core';
 import { Component, createElement, Fragment } from 'preact';
 import type { FunctionComponent, JSX } from 'preact';
 import {
@@ -25,20 +15,27 @@ import {
   FLATTENED_PREFIX,
   HEADER_SLOT_NAME,
 } from '../constants';
+import type { ItemInstance, TreeInstance } from '../core/types/core';
 import {
   contextMenuFeature,
   type ContextMenuRequest,
-} from '../features/contextMenuFeature';
-import { dragAndDropFeature } from '../features/dragAndDropFeature';
-import {
-  fileTreeSearchFeature,
-  getSearchVisibleIdSet,
-} from '../features/fileTreeSearchFeature';
+} from '../features/context-menu/feature';
+import { dragAndDropFeature } from '../features/drag-and-drop/feature';
+// import { expandAllFeature } from '../features/expand-all/feature';
 import {
   getGitStatusMap,
   gitStatusFeature,
-} from '../features/gitStatusFeature';
-import { renamingFeature } from '../features/renamingFeature';
+} from '../features/git-status/feature';
+import { hotkeysCoreFeature } from '../features/hotkeys-core/feature';
+import { keyboardDragAndDropFeature } from '../features/keyboard-drag-and-drop/feature';
+import { propMemoizationFeature } from '../features/prop-memoization/feature';
+import { renamingFeature } from '../features/renaming/feature';
+import {
+  fileTreeSearchFeature,
+  getSearchVisibleIdSet,
+} from '../features/search/feature';
+import { selectionFeature } from '../features/selection/feature';
+import { syncDataLoaderFeature } from '../features/sync-data-loader/feature';
 import {
   type FileTreeCallbacks,
   type FileTreeHandle,
@@ -755,7 +752,7 @@ export function Root({
       selectionFeature,
       hotkeysCoreFeature,
       fileTreeSearchFeature,
-      expandAllFeature,
+      // expandAllFeature,
       gitStatusFeature,
       contextMenuFeature,
     ];
@@ -950,6 +947,8 @@ export function Root({
     ...gitStatusConfig,
     ...contextMenuFeatureConfig,
     rootItemId: 'root',
+    // TODO: consider if this ever makes sense to turn on for large trees
+    // instanceBuilder: buildProxiedInstance,
     dataLoader,
     getItemName: (item) => item.getItemData().name,
     isItemFolder: (item) => {
@@ -958,18 +957,18 @@ export function Root({
     },
     hotkeys: {
       // Begin the hotkey name with "custom" to satisfy the type checker
-      customExpandAll: {
-        hotkey: 'KeyQ',
-        handler: (_e, tree) => {
-          void tree.expandAll();
-        },
-      },
-      customCollapseAll: {
-        hotkey: 'KeyW',
-        handler: (_e, tree) => {
-          void tree.collapseAll();
-        },
-      },
+      // customExpandAll: {
+      //   hotkey: 'KeyQ',
+      //   handler: (_e, tree) => {
+      //     void tree.expandAll();
+      //   },
+      // },
+      // customCollapseAll: {
+      //   hotkey: 'KeyW',
+      //   handler: (_e, tree) => {
+      //     void tree.collapseAll();
+      //   },
+      // },
     },
     features,
     ...(renamingEnabled && {
