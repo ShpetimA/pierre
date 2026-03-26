@@ -207,6 +207,7 @@ From `packages/trees`:
 bun test
 bun run benchmark
 bun run benchmark:core
+bun run benchmark:render
 bun run test:e2e
 bun run tsc
 bun run build
@@ -300,6 +301,39 @@ It also supports `--json`, `--compare`, and `--case` filters, plus:
 
 Those batching flags improve confidence for fast operations by reducing timer
 jitter while still reporting per-call milliseconds.
+
+For an end-to-end view of the virtualized Linux file-tree render path, use the
+dedicated render benchmark:
+
+```bash
+bun ws trees benchmark:render
+```
+
+By default this benchmark runs only the Linux kernel fixture with all folders
+expanded, matching the trees-dev virtualization workload while keeping the
+virtualizer itself out of scope. The runner rebuilds `dist/` first and then
+measures the production bundle with a benchmark-local static window adapter. It
+still exercises the full render pipeline:
+
+- `new FileTree(...)`
+- `fileListToTree(...)`
+- core tree creation through the same built hooks and features that power `Root`
+- SSR rendering of a fixed first window (30 rows by default) through the built
+  `TreeItem` path
+
+The fixed window avoids the misleading cost of serializing ~93k rows to HTML
+while still forcing the tree to process the full dataset before deciding which
+items to render.
+
+No baseline is required for normal runs. `--compare` is optional and only used
+when you want to validate a saved baseline.
+
+Useful flags:
+
+- `--window-size` to change the simulated visible row count
+- `--window-start` to benchmark a later virtualized slice
+- `--case` to run a different fixture or synthetic shape while iterating
+- `--json` and `--compare` for saved baselines and regression checks
 
 # Credits and Acknolwedgements
 

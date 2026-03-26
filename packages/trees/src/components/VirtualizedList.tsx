@@ -218,6 +218,21 @@ export function computeStickyWindowLayout({
   };
 }
 
+function renderRangeChildren(
+  range: VirtualRange,
+  renderItem: (index: number) => JSX.Element | null
+): JSX.Element[] {
+  const { start: startIndex, end: endIndex } = range;
+  const children: JSX.Element[] = [];
+  for (let index = startIndex; index <= endIndex; index++) {
+    const item = renderItem(index);
+    if (item != null) {
+      children.push(item);
+    }
+  }
+  return children;
+}
+
 export function VirtualizedList({
   itemCount,
   renderItem,
@@ -368,15 +383,6 @@ export function VirtualizedList({
     }
   }, [totalHeight, offsetHeight, windowHeight, stickyInset]);
 
-  const { start: startIndex, end: endIndex } = range;
-  const children: JSX.Element[] = [];
-  for (let i = startIndex; i <= endIndex; i++) {
-    const item = renderItem(i);
-    if (item != null) {
-      children.push(item);
-    }
-  }
-
   return (
     <div ref={containerRef} data-file-tree-virtualized-list="true">
       <div
@@ -385,7 +391,7 @@ export function VirtualizedList({
         aria-hidden="true"
       />
       <div ref={stickyWindowRef} data-file-tree-virtualized-sticky="true">
-        {children}
+        {renderRangeChildren(range, renderItem)}
       </div>
     </div>
   );
