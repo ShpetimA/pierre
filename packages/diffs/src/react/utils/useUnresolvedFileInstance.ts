@@ -16,7 +16,6 @@ import type {
   GetHoveredLineResult,
   SelectedLineRange,
 } from '../../managers/InteractionManager';
-import type { UnresolvedFileHunksRendererOptions } from '../../renderers/UnresolvedFileHunksRenderer';
 import type {
   DiffLineAnnotation,
   FileContents,
@@ -30,6 +29,7 @@ import {
   parseMergeConflictDiffFromFile,
 } from '../../utils/parseMergeConflictDiffFromFile';
 import { noopRender } from '../constants';
+import type { UnresolvedFileReactOptions } from '../UnresolvedFile';
 import { WorkerPoolContext } from '../WorkerPoolContext';
 import { useStableCallback } from './useStableCallback';
 
@@ -38,7 +38,7 @@ const useIsometricEffect =
 
 interface UseUnresolvedFileInstanceProps<LAnnotation> {
   file: FileContents;
-  options?: Omit<UnresolvedFileHunksRendererOptions, 'onMergeConflictAction'>;
+  options?: UnresolvedFileReactOptions<LAnnotation>;
   lineAnnotations: DiffLineAnnotation<LAnnotation>[] | undefined;
   selectedLines: SelectedLineRange | null | undefined;
   prerenderedHTML: string | undefined;
@@ -65,8 +65,10 @@ export function useUnresolvedFileInstance<LAnnotation>({
   hasGutterRenderUtility,
 }: UseUnresolvedFileInstanceProps<LAnnotation>): UseUnresolvedFileInstanceReturn<LAnnotation> {
   const [{ fileDiff, actions, markerRows }, setState] = useState(() => {
-    const { fileDiff, actions, markerRows } =
-      parseMergeConflictDiffFromFile(file);
+    const { fileDiff, actions, markerRows } = parseMergeConflictDiffFromFile(
+      file,
+      options?.maxContextLines
+    );
     return { fileDiff, actions, markerRows };
   });
   // UnresolvedFile is intentionally uncontrolled in React. Keep an internal
@@ -167,7 +169,7 @@ export function useUnresolvedFileInstance<LAnnotation>({
 }
 
 function mergeUnresolvedOptions<LAnnotation>(
-  options: UnresolvedFileHunksRendererOptions | undefined,
+  options: UnresolvedFileReactOptions<LAnnotation> | undefined,
   onMergeConflictAction: UnresolvedFileOptions<LAnnotation>['onMergeConflictAction'],
   hasConflictUtility: boolean,
   hasGutterRenderUtility: boolean
