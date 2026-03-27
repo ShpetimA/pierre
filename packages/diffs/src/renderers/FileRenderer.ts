@@ -13,6 +13,7 @@ import type {
   BaseCodeOptions,
   DiffsHighlighter,
   FileContents,
+  FileHeaderRenderMode,
   LineAnnotation,
   RenderedFileASTCache,
   RenderFileOptions,
@@ -20,7 +21,6 @@ import type {
   RenderRange,
   SupportedLanguages,
   ThemedFileResult,
-  ThemeTypes,
 } from '../types';
 import { areRenderRangesEqual } from '../utils/areRenderRangesEqual';
 import { areThemesEqual } from '../utils/areThemesEqual';
@@ -72,8 +72,9 @@ interface LineCache {
   lines: string[];
 }
 
-// oxlint-disable-next-line typescript/no-empty-object-type
-export interface FileRendererOptions extends BaseCodeOptions {}
+export interface FileRendererOptions extends BaseCodeOptions {
+  headerRenderMode?: FileHeaderRenderMode;
+}
 
 let instanceId = -1;
 
@@ -102,16 +103,8 @@ export class FileRenderer<LAnnotation = undefined> {
     this.options = options;
   }
 
-  private mergeOptions(options: Partial<FileRendererOptions>): void {
+  public mergeOptions(options: Partial<FileRendererOptions>): void {
     this.options = { ...this.options, ...options };
-  }
-
-  public setThemeType(themeType: ThemeTypes): void {
-    const currentThemeType = this.options.themeType ?? 'system';
-    if (currentThemeType === themeType) {
-      return;
-    }
-    this.mergeOptions({ themeType });
   }
 
   public setLineAnnotations(
@@ -398,30 +391,23 @@ export class FileRenderer<LAnnotation = undefined> {
     return {
       gutterAST: gutter.children ?? [],
       contentAST: contentArray,
-      preAST: this.createPreElement(lines.length, themeStyles, baseThemeType),
-      headerAST: !disableFileHeader
-        ? this.renderHeader(file, themeStyles, baseThemeType)
-        : undefined,
+      preAST: this.createPreElement(lines.length),
+      headerAST: !disableFileHeader ? this.renderHeader(file) : undefined,
       totalLines: lines.length,
       rowCount,
       themeStyles: themeStyles,
-      baseThemeType: baseThemeType,
+      baseThemeType,
       bufferBefore: renderRange.bufferBefore,
       bufferAfter: renderRange.bufferAfter,
       css: '',
     };
   }
 
-  private renderHeader(
-    file: FileContents,
-    themeStyles: string,
-    baseThemeType: 'light' | 'dark' | undefined
-  ) {
-    const { themeType = 'system' } = this.options;
+  private renderHeader(file: FileContents) {
+    const { headerRenderMode = 'default' } = this.options;
     return createFileHeaderElement({
       fileOrDiff: file,
-      themeStyles,
-      themeType: baseThemeType ?? themeType,
+      mode: headerRenderMode,
     });
   }
 
@@ -507,24 +493,14 @@ export class FileRenderer<LAnnotation = undefined> {
     console.error(error);
   }
 
-  private createPreElement(
-    totalLines: number,
-    themeStyles: string,
-    baseThemeType: 'light' | 'dark' | undefined
-  ): HASTElement {
-    const {
-      disableLineNumbers = false,
-      overflow = 'scroll',
-      themeType = 'system',
-    } = this.options;
+  private createPreElement(totalLines: number): HASTElement {
+    const { disableLineNumbers = false, overflow = 'scroll' } = this.options;
     return createPreElement({
       type: 'file',
       diffIndicators: 'none',
       disableBackground: true,
       disableLineNumbers,
       overflow,
-      themeStyles,
-      themeType: baseThemeType ?? themeType,
       split: false,
       totalLines,
     });

@@ -1,7 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { DIFFS_TAG_NAME } from '../constants';
 import type { FileContents } from '../types';
+import { parseDiffFromFile } from '../utils/parseDiffFromFile';
 import type { DiffBasePropsReact } from './types';
 import { renderDiffChildren } from './utils/renderDiffChildren';
 import { templateRender } from './utils/templateRender';
@@ -27,14 +30,17 @@ export function MultiFileDiff<LAnnotation = undefined>({
   style,
   prerenderedHTML,
   renderAnnotation,
+  renderCustomHeader,
   renderHeaderPrefix,
   renderHeaderMetadata,
   renderGutterUtility,
   renderHoverUtility,
 }: MultiFileDiffProps<LAnnotation>): React.JSX.Element {
+  const fileDiff = useMemo(() => {
+    return parseDiffFromFile(oldFile, newFile);
+  }, [oldFile, newFile]);
   const { ref, getHoveredLine } = useFileDiffInstance({
-    oldFile,
-    newFile,
+    fileDiff,
     options,
     metrics,
     lineAnnotations,
@@ -42,10 +48,11 @@ export function MultiFileDiff<LAnnotation = undefined>({
     prerenderedHTML,
     hasGutterRenderUtility:
       renderGutterUtility != null || renderHoverUtility != null,
+    hasCustomHeader: renderCustomHeader != null,
   });
   const children = renderDiffChildren({
-    deletionFile: oldFile,
-    additionFile: newFile,
+    fileDiff,
+    renderCustomHeader,
     renderHeaderPrefix,
     renderHeaderMetadata,
     renderAnnotation,
