@@ -57,6 +57,7 @@ import {
   createHastElement,
 } from '../utils/hast_utils';
 import { isDefaultRenderRange } from '../utils/isDefaultRenderRange';
+import { isDiffPlainText } from '../utils/isDiffPlainText';
 import type { DiffLineMetadata } from '../utils/iterateOverDiff';
 import { iterateOverDiff } from '../utils/iterateOverDiff';
 import { renderDiffWithHighlighter } from '../utils/renderDiffWithHighlighter';
@@ -394,7 +395,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
     }
     this.renderCache ??= {
       diff,
-      highlighted: true,
+      highlighted: !isDiffPlainText(diff),
       options,
       result: cache?.result,
       renderRange: undefined,
@@ -461,8 +462,10 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       if (
         this.renderCache.result == null ||
         (!this.renderCache.highlighted &&
-          !areRenderRangesEqual(this.renderCache.renderRange, renderRange))
+          (diff !== this.renderCache.diff ||
+            !areRenderRangesEqual(this.renderCache.renderRange, renderRange)))
       ) {
+        this.renderCache.diff = diff;
         this.renderCache.result = this.workerManager.getPlainDiffAST(
           diff,
           renderRange.startingLine,
