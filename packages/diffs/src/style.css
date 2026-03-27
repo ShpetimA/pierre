@@ -1353,6 +1353,7 @@
 
   [data-diffs-header='default'] {
     position: relative;
+    background-color: var(--diffs-bg);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
