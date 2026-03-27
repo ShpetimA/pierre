@@ -35,42 +35,33 @@ import type { ProductId } from './product-config';
 import Footer from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { PierreCompanySection } from '@/components/PierreCompanySection';
+import { WorkerPoolContext } from '@/components/WorkerPoolContext';
 
 const PRODUCT_ID: ProductId = 'diffs';
 
 export default function Home() {
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-5 xl:max-w-[80rem]">
-      <Header className="-mb-[1px]" />
-      <Hero productId={PRODUCT_ID} />
-      <section className="space-y-12 pb-8">
-        <SplitUnifiedSection />
-        <ShikiThemesSection />
-        <DiffStylesSection />
-        <FontStylesSection />
-        <CustomHunkSeparatorsSection />
-        <CustomHeaderSection />
-        <MergeConflictSection />
-        {/* <PrebuiltReact /> */}
-        <AnnotationsSection />
-        <AcceptRejectSection />
-        <LineSelectionSection />
-        <ArbitraryFilesSection />
-      </section>
-
-      {/* TODO: add this back once we add the migration APIs
-
-      <section className="max-w-4xl mx-auto px-8 py-12 space-y-4">
-        <h2 className="text-3xl font-bold">Migrate to @pierre/diffs</h2>
-        <p className="text-muted-foreground">
-          Already using git-diff-viewer? Learn how to migrate your diff
-          rendering to @pierre/diffs.
-        </p>
-      </section> */}
-
-      <PierreCompanySection />
-      <Footer />
-    </div>
+    <WorkerPoolContext>
+      <div className="mx-auto min-h-screen max-w-5xl px-5 xl:max-w-[80rem]">
+        <Header className="-mb-[1px]" />
+        <Hero productId={PRODUCT_ID} />
+        <section className="space-y-12 pb-8">
+          <SplitUnifiedSection />
+          <ShikiThemesSection />
+          <DiffStylesSection />
+          <FontStylesSection />
+          <CustomHunkSeparatorsSection />
+          <CustomHeaderSection />
+          <MergeConflictSection />
+          <AnnotationsSection />
+          <AcceptRejectSection />
+          <LineSelectionSection />
+          <ArbitraryFilesSection />
+        </section>
+        <PierreCompanySection />
+        <Footer />
+      </div>
+    </WorkerPoolContext>
   );
 }
 
@@ -109,9 +100,13 @@ async function CustomHeaderSection() {
 async function CustomHunkSeparatorsSection() {
   return (
     <CustomHunkSeparators
-      prerenderedDiff={await preloadMultiFileDiff(
-        CUSTOM_HUNK_SEPARATORS_EXAMPLE
-      )}
+      prerenderedDiff={await preloadMultiFileDiff({
+        ...CUSTOM_HUNK_SEPARATORS_EXAMPLE,
+        options: {
+          ...CUSTOM_HUNK_SEPARATORS_EXAMPLE.options,
+          themeType: 'dark',
+        },
+      })}
     />
   );
 }
