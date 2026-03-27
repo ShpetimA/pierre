@@ -43,6 +43,12 @@ import {
   type FileTreeStateConfig,
   isRenamingEnabled,
 } from '../FileTree';
+import {
+  attachBenchmarkInstrumentation,
+  getBenchmarkInstrumentation,
+  setBenchmarkCounter,
+  withBenchmarkPhase,
+} from '../internal/benchmarkInstrumentation';
 import { generateLazyDataLoader } from '../loader/lazy';
 import { generateSyncDataLoaderFromTreeData } from '../loader/sync';
 import type { SVGSpriteNames } from '../sprite';
@@ -109,6 +115,7 @@ export function Root({
     useLazyDataLoader,
     virtualize,
   } = fileTreeOptions;
+  const benchmarkInstrumentation = getBenchmarkInstrumentation(fileTreeOptions);
   const renamingEnabled = isRenamingEnabled(renaming);
   const renamingConfig =
     renaming != null && renaming !== true && renaming !== false
@@ -163,23 +170,39 @@ export function Root({
   );
 
   const treeData = useMemo(
-    () => fileListToTree(files, { sortComparator }),
-    [files, sortComparator]
+    () =>
+      withBenchmarkPhase(benchmarkInstrumentation, 'root.fileListToTree', () =>
+        fileListToTree(
+          files,
+          attachBenchmarkInstrumentation(
+            { sortComparator },
+            benchmarkInstrumentation
+          )
+        )
+      ),
+    [benchmarkInstrumentation, files, sortComparator]
   );
 
   // Build the hot path->id map with a direct for-in scan and answer id->path
   // lookups straight from treeData so we do not duplicate the whole tree into a
   // second Map on every fresh mount.
   const pathToId = useMemo(() => {
-    const next = new Map<string, string>();
-    for (const id in treeData) {
-      const node = treeData[id];
-      if (node != null) {
-        next.set(node.path, id);
+    return withBenchmarkPhase(benchmarkInstrumentation, 'root.pathToId', () => {
+      const next = new Map<string, string>();
+      for (const id in treeData) {
+        const node = treeData[id];
+        if (node != null) {
+          next.set(node.path, id);
+        }
       }
-    }
-    return next;
-  }, [treeData]);
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.pathToIdEntries',
+        next.size
+      );
+      return next;
+    });
+  }, [benchmarkInstrumentation, treeData]);
   const idToPath = useMemo<Pick<Map<string, string>, 'get' | 'has'>>(
     () => ({
       get: (id: string) => treeData[id]?.path,
@@ -199,19 +222,23 @@ export function Root({
     pathToId,
     stateConfig,
     flattenEmptyDirectories,
+    benchmarkInstrumentation,
   });
 
   const dataLoader = useMemo(
     () =>
-      useLazyDataLoader === true
-        ? generateLazyDataLoader(files, {
-            flattenEmptyDirectories,
-            sortComparator,
-          })
-        : generateSyncDataLoaderFromTreeData(treeData, {
-            flattenEmptyDirectories,
-          }),
+      withBenchmarkPhase(benchmarkInstrumentation, 'root.dataLoader', () =>
+        useLazyDataLoader === true
+          ? generateLazyDataLoader(files, {
+              flattenEmptyDirectories,
+              sortComparator,
+            })
+          : generateSyncDataLoaderFromTreeData(treeData, {
+              flattenEmptyDirectories,
+            })
+      ),
     [
+      benchmarkInstrumentation,
       files,
       flattenEmptyDirectories,
       sortComparator,
@@ -341,112 +368,119 @@ export function Root({
     onContextMenuRequest: handleContextMenuFeatureRequest,
   };
 
-  const tree = useTree<FileTreeNode>({
-    ...restTreeConfig,
-    ...searchModeConfig,
-    ...gitStatusConfig,
-    ...contextMenuFeatureConfig,
-    rootItemId: 'root',
-    // TODO: consider if this ever makes sense to turn on for large trees
-    // instanceBuilder: buildProxiedInstance,
-    dataLoader,
-    getItemName: (item) => item.getItemData().name,
-    isItemFolder: (item) => {
-      const children = item.getItemData()?.children?.direct;
-      return children != null;
-    },
-    hotkeys: {
-      // Begin the hotkey name with "custom" to satisfy the type checker
-      // customExpandAll: {
-      //   hotkey: 'KeyQ',
-      //   handler: (_e, tree) => {
-      //     void tree.expandAll();
-      //   },
-      // },
-      // customCollapseAll: {
-      //   hotkey: 'KeyW',
-      //   handler: (_e, tree) => {
-      //     void tree.collapseAll();
-      //   },
-      // },
-    },
-    features,
-    ...(renamingEnabled && {
-      canRename: (item: ItemInstance<FileTreeNode>) => {
-        const path = getSelectionPath(item.getItemData().path);
-        if (lockedPathSet?.has(path) === true) {
-          return false;
-        }
-        return (
-          renamingConfig?.canRename?.({
-            path,
-            isFolder: item.getItemData().children?.direct != null,
-          }) ?? true
-        );
+  const treeConfig = attachBenchmarkInstrumentation(
+    {
+      ...restTreeConfig,
+      ...searchModeConfig,
+      ...gitStatusConfig,
+      ...contextMenuFeatureConfig,
+      rootItemId: 'root',
+      // TODO: consider if this ever makes sense to turn on for large trees
+      // instanceBuilder: buildProxiedInstance,
+      dataLoader,
+      getItemName: (item: ItemInstance<FileTreeNode>) =>
+        item.getItemData().name,
+      isItemFolder: (item: ItemInstance<FileTreeNode>) => {
+        const children = item.getItemData()?.children?.direct;
+        return children != null;
       },
-      onRename: (item: ItemInstance<FileTreeNode>, nextBasename: string) => {
-        const data = item.getItemData();
-        const result = renameFileTreePaths({
-          files: filesRef.current,
-          path: getSelectionPath(data.path),
-          isFolder: data.children?.direct != null,
-          nextBasename,
-        });
-        if ('error' in result) {
-          renamingConfig?.onError?.(result.error);
-          return;
-        }
-        if (result.isFolder && result.sourcePath !== result.destinationPath) {
-          pendingRenameExpandedRemapRef.current = {
+      hotkeys: {
+        // Begin the hotkey name with "custom" to satisfy the type checker
+        // customExpandAll: {
+        //   hotkey: 'KeyQ',
+        //   handler: (_e, tree) => {
+        //     void tree.expandAll();
+        //   },
+        // },
+        // customCollapseAll: {
+        //   hotkey: 'KeyW',
+        //   handler: (_e, tree) => {
+        //     void tree.collapseAll();
+        //   },
+        // },
+      },
+      features,
+      ...(renamingEnabled && {
+        canRename: (item: ItemInstance<FileTreeNode>) => {
+          const path = getSelectionPath(item.getItemData().path);
+          if (lockedPathSet?.has(path) === true) {
+            return false;
+          }
+
+          return (
+            renamingConfig?.canRename?.({
+              path,
+              isFolder: item.getItemData().children?.direct != null,
+            }) ?? true
+          );
+        },
+        onRename: (item: ItemInstance<FileTreeNode>, nextBasename: string) => {
+          const data = item.getItemData();
+          const result = renameFileTreePaths({
+            files: filesRef.current,
+            path: getSelectionPath(data.path),
+            isFolder: data.children?.direct != null,
+            nextBasename,
+          });
+          if ('error' in result) {
+            renamingConfig?.onError?.(result.error);
+            return;
+          }
+          if (result.isFolder && result.sourcePath !== result.destinationPath) {
+            pendingRenameExpandedRemapRef.current = {
+              sourcePath: result.sourcePath,
+              destinationPath: result.destinationPath,
+            };
+          } else {
+            pendingRenameExpandedRemapRef.current = null;
+          }
+          if (result.sourcePath !== result.destinationPath) {
+            pendingRenameFocusRestoreRef.current = {
+              destinationPath: result.destinationPath,
+              expectedFilesSignature: getFilesSignature(result.nextFiles),
+            };
+          } else {
+            pendingRenameFocusRestoreRef.current = null;
+          }
+          if (result.sourcePath === result.destinationPath) {
+            return;
+          }
+          renamingConfig?.onRename?.({
             sourcePath: result.sourcePath,
             destinationPath: result.destinationPath,
-          };
-        } else {
-          pendingRenameExpandedRemapRef.current = null;
-        }
-        if (result.sourcePath !== result.destinationPath) {
-          pendingRenameFocusRestoreRef.current = {
-            destinationPath: result.destinationPath,
-            expectedFilesSignature: getFilesSignature(result.nextFiles),
-          };
-        } else {
-          pendingRenameFocusRestoreRef.current = null;
-        }
-        if (result.sourcePath === result.destinationPath) {
-          return;
-        }
-        renamingConfig?.onRename?.({
-          sourcePath: result.sourcePath,
-          destinationPath: result.destinationPath,
-          isFolder: result.isFolder,
-        });
-        if (result.nextFiles !== filesRef.current) {
-          callbacksRef?.current._onRenameFiles?.(result.nextFiles);
-        }
-      },
-    }),
-    ...(isDnD && {
-      canReorder: false,
-      canDrag: (items: ItemInstance<FileTreeNode>[]) => {
-        if (searchActiveRef.current) return false;
-        if (lockedPathSet == null) return true;
-        for (const item of items) {
-          const path = item.getItemData().path;
-          if (path != null && lockedPathSet.has(getSelectionPath(path)))
-            return false;
-        }
-        return true;
-      },
-      onDrop: onDropHandler,
-      canDrop: (
-        _items: ItemInstance<FileTreeNode>[],
-        target: { item: ItemInstance<FileTreeNode> }
-      ) => target.item.isFolder(),
-      openOnDropDelay: 800,
-      _onTouchDragMove: detectFlattenedSubfolderFromPoint,
-      _onTouchDragEnd: clearFlattenedSubfolder,
-    }),
-  });
+            isFolder: result.isFolder,
+          });
+          if (result.nextFiles !== filesRef.current) {
+            callbacksRef?.current._onRenameFiles?.(result.nextFiles);
+          }
+        },
+      }),
+      ...(isDnD && {
+        canReorder: false,
+        canDrag: (items: ItemInstance<FileTreeNode>[]) => {
+          if (searchActiveRef.current) return false;
+          if (lockedPathSet == null) return true;
+          for (const item of items) {
+            const path = item.getItemData().path;
+            if (path != null && lockedPathSet.has(getSelectionPath(path))) {
+              return false;
+            }
+          }
+          return true;
+        },
+        onDrop: onDropHandler,
+        canDrop: (
+          _items: ItemInstance<FileTreeNode>[],
+          target: { item: ItemInstance<FileTreeNode> }
+        ) => target.item.isFolder(),
+        openOnDropDelay: 800,
+        _onTouchDragMove: detectFlattenedSubfolderFromPoint,
+        _onTouchDragEnd: clearFlattenedSubfolder,
+      }),
+    },
+    benchmarkInstrumentation
+  );
+  const tree = useTree<FileTreeNode>(treeConfig);
   treeRef.current = tree;
 
   // --- Expansion migration ---
@@ -626,6 +660,16 @@ export function Root({
           visibleIdSet != null
             ? allItemIds.filter((itemId) => visibleIdSet.has(itemId))
             : allItemIds;
+        setBenchmarkCounter(
+          benchmarkInstrumentation,
+          'workload.visibleItemIds',
+          allItemIds.length
+        );
+        setBenchmarkCounter(
+          benchmarkInstrumentation,
+          'workload.renderItemIds',
+          itemIds.length
+        );
         const draggedItemIdSet = isDnD
           ? new Set(
               (tree.getState().dnd?.draggedItems ?? []).map(

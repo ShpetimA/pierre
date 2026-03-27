@@ -1,3 +1,9 @@
+import {
+  getBenchmarkInstrumentation,
+  setBenchmarkCounter,
+  withBenchmarkPhase,
+} from '../internal/benchmarkInstrumentation';
+
 /**
  * Removes paths whose ancestor directories are not also in the expanded set.
  * When a parent folder is collapsed, its descendants become "orphaned" — they
@@ -131,13 +137,21 @@ export interface ExpandPathsOptions {
   cache?: Map<string, string[]>;
 }
 
+interface ExpandPathsStats {
+  ancestorCacheHitCount: number;
+  ancestorCacheMissCount: number;
+  pathCacheHitCount: number;
+  pathCacheMissCount: number;
+}
+
 // Resolves each ancestor segment in a path using a shared cache so expanding a
 // large folder set does not repeatedly rebuild the same prefix strings.
 function resolveAncestorIdsForPath(
   path: string,
   pathToId: Map<string, string>,
   flatten: boolean,
-  ancestorIdCache: Map<string, string | null>
+  ancestorIdCache: Map<string, string | null>,
+  stats: ExpandPathsStats | null
 ): string[] {
   const resolvedIds: string[] = [];
   let segmentStart = 0;
@@ -149,11 +163,17 @@ function resolveAncestorIdsForPath(
 
     if (ancestor.length > 0) {
       if (ancestorIdCache.has(ancestor)) {
+        if (stats != null) {
+          stats.ancestorCacheHitCount += 1;
+        }
         const cachedId = ancestorIdCache.get(ancestor);
         if (cachedId != null) {
           resolvedIds.push(cachedId);
         }
       } else {
+        if (stats != null) {
+          stats.ancestorCacheMissCount += 1;
+        }
         let resolvedId: string | null;
         if (flatten) {
           // Prefer the flattened (f::) ID when it exists — that's the actual
@@ -191,26 +211,84 @@ export function expandPathsWithAncestors(
   pathToId: Map<string, string>,
   options?: ExpandPathsOptions
 ): string[] {
-  const cache = options?.cache;
-  const flatten = options?.flattenEmptyDirectories !== false;
-  const ids = new Set<string>();
-  const ancestorIdCache = new Map<string, string | null>();
+  const benchmarkInstrumentation =
+    getBenchmarkInstrumentation(options) ??
+    getBenchmarkInstrumentation(pathToId);
 
-  for (const path of paths) {
-    let expanded = cache?.get(path);
-    if (expanded == null) {
-      expanded = resolveAncestorIdsForPath(
-        path,
-        pathToId,
-        flatten,
-        ancestorIdCache
+  return withBenchmarkPhase(
+    benchmarkInstrumentation,
+    'expandPathsWithAncestors',
+    () => {
+      const cache = options?.cache;
+      const flatten = options?.flattenEmptyDirectories !== false;
+      const ids = new Set<string>();
+      const ancestorIdCache = new Map<string, string | null>();
+      const stats: ExpandPathsStats | null =
+        benchmarkInstrumentation == null
+          ? null
+          : {
+              ancestorCacheHitCount: 0,
+              ancestorCacheMissCount: 0,
+              pathCacheHitCount: 0,
+              pathCacheMissCount: 0,
+            };
+
+      for (const path of paths) {
+        let expanded = cache?.get(path);
+        if (expanded != null) {
+          if (stats != null) {
+            stats.pathCacheHitCount += 1;
+          }
+        } else {
+          if (stats != null) {
+            stats.pathCacheMissCount += 1;
+          }
+          expanded = resolveAncestorIdsForPath(
+            path,
+            pathToId,
+            flatten,
+            ancestorIdCache,
+            stats
+          );
+          cache?.set(path, expanded);
+        }
+
+        for (const id of expanded) {
+          ids.add(id);
+        }
+      }
+
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsInputCount',
+        paths.length
       );
-      cache?.set(path, expanded);
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsResolvedIds',
+        ids.size
+      );
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsPathCacheHits',
+        stats?.pathCacheHitCount ?? 0
+      );
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsPathCacheMisses',
+        stats?.pathCacheMissCount ?? 0
+      );
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsAncestorCacheHits',
+        stats?.ancestorCacheHitCount ?? 0
+      );
+      setBenchmarkCounter(
+        benchmarkInstrumentation,
+        'workload.expandPathsAncestorCacheMisses',
+        stats?.ancestorCacheMissCount ?? 0
+      );
+      return Array.from(ids);
     }
-
-    for (const id of expanded) {
-      ids.add(id);
-    }
-  }
-  return Array.from(ids);
+  );
 }

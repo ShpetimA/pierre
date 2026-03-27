@@ -6,6 +6,11 @@ import {
   FLATTENED_PREFIX,
 } from './constants';
 import type { TreeInstance } from './core/types/core';
+import {
+  getBenchmarkInstrumentation,
+  inheritBenchmarkInstrumentation,
+  withBenchmarkPhase,
+} from './internal/benchmarkInstrumentation';
 import { SVGSpriteSheet } from './sprite';
 import type {
   ContextMenuItem,
@@ -417,7 +422,10 @@ export class FileTree {
   // --- Git status ---
 
   setGitStatus(entries: GitStatusEntry[] | undefined): void {
-    this.options = { ...this.options, gitStatus: entries };
+    this.options = inheritBenchmarkInstrumentation(this.options, {
+      ...this.options,
+      gitStatus: entries,
+    });
     this.rerender();
   }
 
@@ -431,7 +439,10 @@ export class FileTree {
     if (this.options.initialFiles === files) {
       return;
     }
-    this.options = { ...this.options, initialFiles: files };
+    this.options = inheritBenchmarkInstrumentation(this.options, {
+      ...this.options,
+      initialFiles: files,
+    });
     this.callbacksRef.current.onFilesChange?.(files);
     this.rerender();
   }
@@ -513,13 +524,16 @@ export class FileTree {
     const nextFiles = state?.files;
     const stateFilesChanged =
       nextFiles !== undefined && this.options.initialFiles !== nextFiles;
-    this.options = {
+    this.options = inheritBenchmarkInstrumentation(this.options, {
       ...this.options,
       ...options,
       ...(nextFiles !== undefined && { initialFiles: nextFiles }),
-    };
+    });
     if (state != null) {
-      this.stateConfig = { ...this.stateConfig, ...state };
+      this.stateConfig = inheritBenchmarkInstrumentation(this.options, {
+        ...this.stateConfig,
+        ...state,
+      });
     }
 
     const hasContextMenu = this.callbacksRef.current.onContextMenuOpen != null;
@@ -808,9 +822,14 @@ export class FileTree {
     const initialViewportHeight =
       containerWrapper?.clientHeight ?? fileTreeContainer.clientHeight;
 
-    preactRenderRoot(
-      divWrapper,
-      this.buildRootProps({ initialViewportHeight })
+    withBenchmarkPhase(
+      getBenchmarkInstrumentation(this.options),
+      'fileTree.render.mount',
+      () =>
+        preactRenderRoot(
+          divWrapper,
+          this.buildRootProps({ initialViewportHeight })
+        )
     );
   }
 
@@ -844,7 +863,10 @@ export class FileTree {
 
     if (discoveredId != null && this.__id !== discoveredId) {
       this.__id = discoveredId;
-      this.options = { ...this.options, id: discoveredId };
+      this.options = inheritBenchmarkInstrumentation(this.options, {
+        ...this.options,
+        id: discoveredId,
+      });
     }
 
     this.fileTreeContainer = fileTreeContainer;
