@@ -59,13 +59,10 @@ export function renderDiffWithHighlighter(
     totalLines = Infinity;
   }
   const isWindowedHighlight = startingLine > 0 || totalLines < Infinity;
-  const baseThemeType = (() => {
-    const theme = options.theme ?? DEFAULT_THEMES;
-    if (typeof theme === 'string') {
-      return highlighter.getTheme(theme).type;
-    }
-    return undefined;
-  })();
+  const baseThemeType =
+    typeof options.theme === 'string'
+      ? highlighter.getTheme(options.theme).type
+      : undefined;
   const themeStyles = getHighlighterThemeStyles({
     theme: options.theme,
     highlighter,

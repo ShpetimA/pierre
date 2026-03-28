@@ -17,7 +17,6 @@ import type {
   GetHoveredTokenResult,
   SelectedLineRange,
 } from '../../managers/InteractionManager';
-import type { UnresolvedFileHunksRendererOptions } from '../../renderers/UnresolvedFileHunksRenderer';
 import type {
   DiffLineAnnotation,
   FileContents,
@@ -31,6 +30,7 @@ import {
   parseMergeConflictDiffFromFile,
 } from '../../utils/parseMergeConflictDiffFromFile';
 import { noopRender } from '../constants';
+import type { UnresolvedFileReactOptions } from '../UnresolvedFile';
 import { WorkerPoolContext } from '../WorkerPoolContext';
 import { useStableCallback } from './useStableCallback';
 
@@ -39,12 +39,14 @@ const useIsometricEffect =
 
 interface UseUnresolvedFileInstanceProps<LAnnotation> {
   file: FileContents;
-  options?: Omit<UnresolvedFileHunksRendererOptions, 'onMergeConflictAction'>;
+  options?: UnresolvedFileReactOptions<LAnnotation>;
   lineAnnotations: DiffLineAnnotation<LAnnotation>[] | undefined;
   selectedLines: SelectedLineRange | null | undefined;
   prerenderedHTML: string | undefined;
   hasConflictUtility: boolean;
   hasGutterRenderUtility: boolean;
+  hasCustomHeader: boolean;
+  disableWorkerPool: boolean;
 }
 
 interface UseUnresolvedFileInstanceReturn<LAnnotation> {
@@ -65,10 +67,14 @@ export function useUnresolvedFileInstance<LAnnotation>({
   prerenderedHTML,
   hasConflictUtility,
   hasGutterRenderUtility,
+  hasCustomHeader,
+  disableWorkerPool,
 }: UseUnresolvedFileInstanceProps<LAnnotation>): UseUnresolvedFileInstanceReturn<LAnnotation> {
   const [{ fileDiff, actions, markerRows }, setState] = useState(() => {
-    const { fileDiff, actions, markerRows } =
-      parseMergeConflictDiffFromFile(file);
+    const { fileDiff, actions, markerRows } = parseMergeConflictDiffFromFile(
+      file,
+      options?.maxContextLines
+    );
     return { fileDiff, actions, markerRows };
   });
   // UnresolvedFile is intentionally uncontrolled in React. Keep an internal
@@ -104,13 +110,14 @@ export function useUnresolvedFileInstance<LAnnotation>({
         );
       }
       instanceRef.current = new UnresolvedFileClass(
-        mergeUnresolvedOptions(
-          options,
-          onMergeConflictAction,
+        mergeUnresolvedOptions({
           hasConflictUtility,
-          hasGutterRenderUtility
-        ),
-        poolManager,
+          hasCustomHeader,
+          hasGutterRenderUtility,
+          onMergeConflictAction,
+          options,
+        }),
+        !disableWorkerPool ? poolManager : undefined,
         true
       );
       void instanceRef.current.hydrate({
@@ -135,12 +142,13 @@ export function useUnresolvedFileInstance<LAnnotation>({
   useIsometricEffect(() => {
     if (instanceRef.current == null) return;
     const instance = instanceRef.current;
-    const newOptions = mergeUnresolvedOptions(
-      options,
-      onMergeConflictAction,
+    const newOptions = mergeUnresolvedOptions({
       hasConflictUtility,
-      hasGutterRenderUtility
-    );
+      hasCustomHeader,
+      hasGutterRenderUtility,
+      onMergeConflictAction,
+      options,
+    });
     const forceRender = !areOptionsEqual(instance.options, newOptions);
     instance.setOptions(newOptions);
     void instance.render({
@@ -182,12 +190,21 @@ export function useUnresolvedFileInstance<LAnnotation>({
   };
 }
 
-function mergeUnresolvedOptions<LAnnotation>(
-  options: UnresolvedFileHunksRendererOptions | undefined,
-  onMergeConflictAction: UnresolvedFileOptions<LAnnotation>['onMergeConflictAction'],
-  hasConflictUtility: boolean,
-  hasGutterRenderUtility: boolean
-): UnresolvedFileOptions<LAnnotation> {
+interface MergeUnresolvedOptionsProps<LAnnotation> {
+  options: UnresolvedFileReactOptions<LAnnotation> | undefined;
+  onMergeConflictAction: UnresolvedFileOptions<LAnnotation>['onMergeConflictAction'];
+  hasConflictUtility: boolean;
+  hasGutterRenderUtility: boolean;
+  hasCustomHeader: boolean;
+}
+
+function mergeUnresolvedOptions<LAnnotation>({
+  options,
+  onMergeConflictAction,
+  hasConflictUtility,
+  hasCustomHeader,
+  hasGutterRenderUtility,
+}: MergeUnresolvedOptionsProps<LAnnotation>): UnresolvedFileOptions<LAnnotation> {
   return {
     ...options,
     onMergeConflictAction,
@@ -200,6 +217,7 @@ function mergeUnresolvedOptions<LAnnotation>(
       hasConflictUtility || options?.mergeConflictActionsType === 'custom'
         ? noopRender
         : options?.mergeConflictActionsType,
+    renderCustomHeader: hasCustomHeader ? noopRender : undefined,
     renderGutterUtility: hasGutterRenderUtility ? noopRender : undefined,
   };
 }
