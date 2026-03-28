@@ -39,12 +39,12 @@ export function createTransformerWithState(
         }
         return pre;
       },
-      span(hast, line, col, lineElement, token) {
+      span(hast, _line, _col, _lineElement, token) {
         if (token?.offset != null && token.content != null) {
+          hast.properties['data-token'] = token.content;
           hast.properties['data-char-start'] = token.offset;
           hast.properties['data-char-end'] =
             token.offset + token.content.length;
-          hast.properties['data-token-text'] = token.content;
         }
         return hast;
       },

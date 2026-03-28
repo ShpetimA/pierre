@@ -148,6 +148,10 @@ type LinePointerTarget<TMode extends InteractionManagerMode> =
 type TokenPointerTarget<TMode extends InteractionManagerMode> =
   ResolvedTokenTarget<TMode>;
 
+type HoverableLinePointerTarget<TMode extends InteractionManagerMode> =
+  | LinePointerTarget<TMode>
+  | TokenPointerTarget<TMode>;
+
 interface SessionIdle {
   mode: 'idle';
 }
@@ -368,13 +372,15 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       onHunkExpand,
       onLineClick,
       onLineNumberClick,
+      onTokenClick,
       onMergeConflictActionClick,
     } = this.options;
     if (
       onHunkExpand == null &&
       onLineClick == null &&
       onLineNumberClick == null &&
-      onMergeConflictActionClick == null
+      onMergeConflictActionClick == null &&
+      onTokenClick == null
     ) {
       return;
     }
@@ -424,33 +430,36 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
   };
 
   handlePointerLeave = (event: PointerEvent): void => {
-    const { __debugPointerEvents, onTokenLeave } = this.options;
+    const { __debugPointerEvents } = this.options;
     debugLogIfEnabled(
       __debugPointerEvents,
       'move',
       'FileDiff.DEBUG.handlePointerLeave: no event'
     );
-    if (this.hoveredLine == null) {
+    if (this.hoveredLine == null && this.hoveredToken == null) {
       debugLogIfEnabled(
         __debugPointerEvents,
         'move',
-        'FileDiff.DEBUG.handlePointerLeave: returned early, no .hoveredLine'
+        'FileDiff.DEBUG.handlePointerLeave: returned early, no hovered line or token'
       );
       return;
     }
     this.gutterUtilityContainer?.remove();
     if (this.hoveredToken != null) {
-      onTokenLeave?.({
+      this.options.onTokenClick?.({
         ...this.hoveredToken,
         event,
       } as TokenPointerEventEnterLeaveProps<TMode>);
       this.clearHoveredToken();
     }
-    this.options.onLineLeave?.({
-      ...this.hoveredLine,
-      event,
-    } as PointerEventEnterLeaveProps<TMode>);
-    this.clearHoveredLine();
+
+    if (this.hoveredLine != null) {
+      this.options.onLineLeave?.({
+        ...this.hoveredLine,
+        event,
+      } as PointerEventEnterLeaveProps<TMode>);
+      this.clearHoveredLine();
+    }
   };
 
   private handlePointerEvent({ eventType, event }: HandlePointerEventProps) {
@@ -485,7 +494,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     switch (eventType) {
       case 'move': {
         const sameLine =
-          isLinePointerTarget(target) &&
+          isHoverableLinePointerTarget(target) &&
           this.hoveredLine?.lineElement === target.lineElement;
         const sameToken =
           isTokenPointerTarget(target) &&
@@ -519,7 +528,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
             } as PointerEventEnterLeaveProps<TMode>);
             this.clearHoveredLine();
           }
-          if (isLinePointerTarget(target)) {
+          if (isHoverableLinePointerTarget(target)) {
             this.setHoveredLine(this.toEventBaseProps(target));
             if (this.gutterUtilityContainer != null) {
               target.numberElement.appendChild(this.gutterUtilityContainer);
@@ -551,15 +560,16 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
           );
           break;
         }
+
+        if (!isHoverableLinePointerTarget(target)) {
+          break;
+        }
+
         if (isTokenPointerTarget(target) && onTokenClick != null) {
           onTokenClick({
             ...this.toTokenEventBaseProps(target),
             event: event as PointerEvent,
           } as TokenEventClickProps<TMode>);
-          break;
-        }
-        if (!isLinePointerTarget(target)) {
-          break;
         }
 
         const eventBase = this.toEventBaseProps(target);
@@ -1317,7 +1327,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
   }
 
   private toEventBaseProps(
-    target: LinePointerTarget<TMode>
+    target: HoverableLinePointerTarget<TMode>
   ): EventBaseProps<TMode> {
     if (this.mode === 'file') {
       return {
@@ -1444,7 +1454,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         }
       }
 
-      // Check for token element (has data-char-start attribute)
       if (
         tokenElement == null &&
         element.hasAttribute('data-char-start') &&
@@ -1453,7 +1462,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         tokenElement = element;
         const startAttr = element.getAttribute('data-char-start');
         const endAttr = element.getAttribute('data-char-end');
-        const textAttr = element.getAttribute('data-token-text');
+        const textAttr = element.getAttribute('data-token');
+
         if (startAttr != null && endAttr != null) {
           const start = Number.parseInt(startAttr, 10);
           const end = Number.parseInt(endAttr, 10);
@@ -1463,6 +1473,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
               end,
               text: textAttr ?? element.textContent ?? '',
             };
+            continue;
           }
         }
       }
@@ -1566,7 +1577,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
 
     const splitLineIndex = this.parseLineIndex(lineElement, this.isSplitDiff());
 
-    // If we found a token, return token target
     if (tokenElement != null && tokenInfo != null) {
       if (this.mode === 'file') {
         return {
@@ -1583,19 +1593,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         } as ResolvedPointerTarget<TMode>;
       }
 
-      const annotationSide: AnnotationSide = (() => {
-        switch (lineType) {
-          case 'change-deletion':
-            return 'deletions';
-          case 'change-addition':
-            return 'additions';
-          default:
-            return codeElement.hasAttribute('data-deletions')
-              ? 'deletions'
-              : 'additions';
-        }
-      })();
-
       return {
         kind: 'token',
         lineType,
@@ -1603,7 +1600,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         lineNumber,
         numberColumn,
         numberElement,
-        side: annotationSide,
+        side: getAnnotationSide(lineType, codeElement),
         splitLineIndex,
         tokenElement,
         token: tokenInfo,
@@ -1624,19 +1621,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       } as ResolvedPointerTarget<TMode>;
     }
 
-    const annotationSide: AnnotationSide = (() => {
-      switch (lineType) {
-        case 'change-deletion':
-          return 'deletions';
-        case 'change-addition':
-          return 'additions';
-        default:
-          return codeElement.hasAttribute('data-deletions')
-            ? 'deletions'
-            : 'additions';
-      }
-    })();
-
     return {
       kind: 'line',
       lineType,
@@ -1644,7 +1628,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       lineNumber,
       numberColumn,
       numberElement,
-      side: annotationSide,
+      side: getAnnotationSide(lineType, codeElement),
       splitLineIndex,
     } as ResolvedPointerTarget<TMode>;
   }
@@ -1796,6 +1780,12 @@ function isTokenPointerTarget<TMode extends InteractionManagerMode>(
   return target != null && 'kind' in target && target.kind === 'token';
 }
 
+function isHoverableLinePointerTarget<TMode extends InteractionManagerMode>(
+  target: ResolvedPointerTarget<TMode> | undefined
+): target is HoverableLinePointerTarget<TMode> {
+  return isLinePointerTarget(target) || isTokenPointerTarget(target);
+}
+
 function isExpandoPointerTarget<TMode extends InteractionManagerMode>(
   target: ResolvedPointerTarget<TMode>
 ): target is ExpandoEventProps {
@@ -1820,6 +1810,22 @@ function queryHTMLElement(
 ): HTMLElement | undefined {
   const element = parent?.querySelector(query);
   return element instanceof HTMLElement ? element : undefined;
+}
+
+function getAnnotationSide(
+  lineType: LineTypes,
+  codeElement: HTMLElement
+): AnnotationSide {
+  switch (lineType) {
+    case 'change-deletion':
+      return 'deletions';
+    case 'change-addition':
+      return 'additions';
+    default:
+      return codeElement.hasAttribute('data-deletions')
+        ? 'deletions'
+        : 'additions';
+  }
 }
 
 function getLineTypeFromElement(element: HTMLElement): LineTypes | undefined {
