@@ -446,7 +446,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     }
     this.gutterUtilityContainer?.remove();
     if (this.hoveredToken != null) {
-      this.options.onTokenClick?.({
+      this.options.onTokenLeave?.({
         ...this.hoveredToken,
         event,
       } as TokenPointerEventEnterLeaveProps<TMode>);
