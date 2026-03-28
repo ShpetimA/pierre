@@ -217,6 +217,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -226,7 +229,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 17,
+                "data-char-start": 7,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -239,7 +257,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 22,
+                "data-char-start": 18,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -252,7 +285,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 37,
+                "data-char-start": 23,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -269,6 +317,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 38,
+            "data-char-start": 37,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -294,6 +345,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 45,
+            "data-char-start": 39,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -322,6 +376,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 58,
+                "data-char-start": 46,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -339,7 +396,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 63,
+                "data-char-start": 59,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -352,7 +424,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " '.",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'.",
+                },
+              ],
+              "properties": {
+                "data-char-end": 66,
+                "data-char-start": 64,
+                "data-token": "'.",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -371,6 +458,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 91,
+                "data-char-start": 66,
+                "data-token": "./components/HeaderSimple",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -392,6 +482,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 92,
+            "data-char-start": 91,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -405,6 +498,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 93,
+            "data-char-start": 92,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -430,6 +526,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 100,
+            "data-char-start": 94,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -439,7 +538,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " Hero",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Hero",
+                },
+              ],
+              "properties": {
+                "data-char-end": 105,
+                "data-char-start": 101,
+                "data-token": "Hero",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -452,7 +566,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 110,
+                "data-char-start": 106,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -465,7 +594,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " '../components/Hero'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'../components/Hero'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 131,
+                "data-char-start": 111,
+                "data-token": "'../components/Hero'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -482,6 +626,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 132,
+            "data-char-start": 131,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -526,6 +673,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 140,
+            "data-char-start": 134,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -535,7 +685,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 148,
+                "data-char-start": 141,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -548,7 +713,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 157,
+                "data-char-start": 149,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -561,7 +741,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 158,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -578,6 +773,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 164,
+            "data-char-start": 162,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -587,7 +785,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 166,
+                "data-char-start": 165,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -612,7 +825,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 175,
+                "data-char-start": 169,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -625,7 +853,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 177,
+                "data-char-start": 176,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -650,7 +893,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 182,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -667,6 +925,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 186,
+            "data-char-start": 183,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -680,6 +941,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 187,
+            "data-char-start": 186,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -701,7 +965,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 195,
+                "data-char-start": 194,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -720,6 +999,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 207,
+                "data-char-start": 195,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -737,7 +1019,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 210,
+                "data-char-start": 208,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -762,7 +1059,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 218,
+                "data-char-start": 217,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -779,6 +1091,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 228,
+            "data-char-start": 218,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -788,7 +1103,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 231,
+                "data-char-start": 229,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -813,7 +1143,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 239,
+                "data-char-start": 238,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -830,6 +1175,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 241,
+            "data-char-start": 239,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -843,6 +1191,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 250,
+            "data-char-start": 241,
+            "data-token": ">Hello!</",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -856,6 +1207,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 252,
+            "data-char-start": 250,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -869,6 +1223,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 253,
+            "data-char-start": 252,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -890,7 +1247,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 260,
+                "data-char-start": 258,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -907,6 +1279,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 263,
+            "data-char-start": 260,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -920,6 +1295,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 264,
+            "data-char-start": 263,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -941,7 +1319,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 269,
+                "data-char-start": 267,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -970,6 +1363,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 271,
+            "data-char-start": 270,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1326,6 +1722,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -1335,7 +1734,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " *",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "*",
+                },
+              ],
+              "properties": {
+                "data-char-end": 8,
+                "data-char-start": 7,
+                "data-token": "*",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1348,7 +1762,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " as",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "as",
+                },
+              ],
+              "properties": {
+                "data-char-end": 11,
+                "data-char-start": 9,
+                "data-token": "as",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1361,7 +1790,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " 'react'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'react'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 19,
+                "data-char-start": 12,
+                "data-token": "'react'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1378,6 +1822,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 20,
+            "data-char-start": 19,
+            "data-token": ";",
             "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
           },
           "tagName": "span",
@@ -1403,6 +1850,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 27,
+            "data-char-start": 21,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
           },
           "tagName": "span",
@@ -1412,7 +1862,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 38,
+                "data-char-start": 28,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1425,7 +1890,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 43,
+                "data-char-start": 39,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1438,7 +1918,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 58,
+                "data-char-start": 44,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1455,6 +1950,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 59,
+            "data-char-start": 58,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1480,6 +1978,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 66,
+            "data-char-start": 60,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -1508,6 +2009,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 73,
+                "data-char-start": 67,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -1525,7 +2029,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 78,
+                "data-char-start": 74,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1538,7 +2057,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " './",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./",
+                },
+              ],
+              "properties": {
+                "data-char-end": 82,
+                "data-char-start": 79,
+                "data-token": "'./",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1557,6 +2091,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 88,
+                "data-char-start": 82,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -1578,6 +2115,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 89,
+            "data-char-start": 88,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1591,6 +2131,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 90,
+            "data-char-start": 89,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1645,6 +2188,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 98,
+            "data-char-start": 92,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -1654,7 +2200,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 106,
+                "data-char-start": 99,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1667,7 +2228,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 115,
+                "data-char-start": 107,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1680,7 +2256,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 120,
+                "data-char-start": 116,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1697,6 +2288,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 122,
+            "data-char-start": 120,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1706,7 +2300,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 124,
+                "data-char-start": 123,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1731,7 +2340,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 133,
+                "data-char-start": 127,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1744,7 +2368,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 135,
+                "data-char-start": 134,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1769,7 +2408,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 141,
+                "data-char-start": 140,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1786,6 +2440,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 144,
+            "data-char-start": 141,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1799,6 +2456,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 145,
+            "data-char-start": 144,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1820,7 +2480,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 153,
+                "data-char-start": 152,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1839,6 +2514,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
                 },
               ],
               "properties": {
+                "data-char-end": 159,
+                "data-char-start": 153,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -1856,7 +2534,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 160,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1881,7 +2574,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 170,
+                "data-char-start": 169,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1898,6 +2606,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 180,
+            "data-char-start": 170,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -1907,7 +2618,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 181,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1942,7 +2668,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 190,
+                "data-char-start": 188,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -1959,6 +2700,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 193,
+            "data-char-start": 190,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1972,6 +2716,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 194,
+            "data-char-start": 193,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1993,7 +2740,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 199,
+                "data-char-start": 197,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2022,6 +2784,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to additions colum
             },
           ],
           "properties": {
+            "data-char-end": 201,
+            "data-char-start": 200,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2688,6 +3453,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -2697,7 +3465,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " *",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "*",
+                },
+              ],
+              "properties": {
+                "data-char-end": 8,
+                "data-char-start": 7,
+                "data-token": "*",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2710,7 +3493,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " as",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "as",
+                },
+              ],
+              "properties": {
+                "data-char-end": 11,
+                "data-char-start": 9,
+                "data-token": "as",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2723,7 +3521,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " 'react'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'react'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 19,
+                "data-char-start": 12,
+                "data-token": "'react'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2740,6 +3553,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 20,
+            "data-char-start": 19,
+            "data-token": ";",
             "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
           },
           "tagName": "span",
@@ -2765,6 +3581,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 27,
+            "data-char-start": 21,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
           },
           "tagName": "span",
@@ -2774,7 +3593,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 38,
+                "data-char-start": 28,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2787,7 +3621,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 43,
+                "data-char-start": 39,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2800,7 +3649,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 58,
+                "data-char-start": 44,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2817,6 +3681,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 59,
+            "data-char-start": 58,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2842,6 +3709,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 66,
+            "data-char-start": 60,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -2870,6 +3740,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 73,
+                "data-char-start": 67,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -2887,7 +3760,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 78,
+                "data-char-start": 74,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2900,7 +3788,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " './",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./",
+                },
+              ],
+              "properties": {
+                "data-char-end": 82,
+                "data-char-start": 79,
+                "data-token": "'./",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -2919,6 +3822,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 88,
+                "data-char-start": 82,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -2940,6 +3846,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 89,
+            "data-char-start": 88,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -2953,6 +3862,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 90,
+            "data-char-start": 89,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3007,6 +3919,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 98,
+            "data-char-start": 92,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -3016,7 +3931,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 106,
+                "data-char-start": 99,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3029,7 +3959,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 115,
+                "data-char-start": 107,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3042,7 +3987,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 120,
+                "data-char-start": 116,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3059,6 +4019,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 122,
+            "data-char-start": 120,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3068,7 +4031,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 124,
+                "data-char-start": 123,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3093,7 +4071,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 133,
+                "data-char-start": 127,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3106,7 +4099,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 135,
+                "data-char-start": 134,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3131,7 +4139,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 141,
+                "data-char-start": 140,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3148,6 +4171,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 144,
+            "data-char-start": 141,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -3161,6 +4187,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 145,
+            "data-char-start": 144,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3182,7 +4211,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 153,
+                "data-char-start": 152,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3201,6 +4245,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 159,
+                "data-char-start": 153,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -3218,7 +4265,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 160,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3243,7 +4305,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 170,
+                "data-char-start": 169,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3260,6 +4337,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 180,
+            "data-char-start": 170,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -3269,7 +4349,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 181,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3304,7 +4399,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 190,
+                "data-char-start": 188,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3321,6 +4431,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 193,
+            "data-char-start": 190,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -3334,6 +4447,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 194,
+            "data-char-start": 193,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3355,7 +4471,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 199,
+                "data-char-start": 197,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3384,6 +4515,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 201,
+            "data-char-start": 200,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3737,6 +4871,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -3746,7 +4883,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 17,
+                "data-char-start": 7,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3759,7 +4911,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 22,
+                "data-char-start": 18,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3772,7 +4939,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 37,
+                "data-char-start": 23,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3789,6 +4971,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 38,
+            "data-char-start": 37,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3814,6 +4999,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 45,
+            "data-char-start": 39,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -3842,6 +5030,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 58,
+                "data-char-start": 46,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -3859,7 +5050,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 63,
+                "data-char-start": 59,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3872,7 +5078,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " '.",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'.",
+                },
+              ],
+              "properties": {
+                "data-char-end": 66,
+                "data-char-start": 64,
+                "data-token": "'.",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3891,6 +5112,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 91,
+                "data-char-start": 66,
+                "data-token": "./components/HeaderSimple",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -3912,6 +5136,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 92,
+            "data-char-start": 91,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -3925,6 +5152,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 93,
+            "data-char-start": 92,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -3950,6 +5180,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 100,
+            "data-char-start": 94,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -3959,7 +5192,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " Hero",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Hero",
+                },
+              ],
+              "properties": {
+                "data-char-end": 105,
+                "data-char-start": 101,
+                "data-token": "Hero",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3972,7 +5220,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 110,
+                "data-char-start": 106,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -3985,7 +5248,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " '../components/Hero'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'../components/Hero'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 131,
+                "data-char-start": 111,
+                "data-token": "'../components/Hero'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4002,6 +5280,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 132,
+            "data-char-start": 131,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4046,6 +5327,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 140,
+            "data-char-start": 134,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -4055,7 +5339,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 148,
+                "data-char-start": 141,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4068,7 +5367,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 157,
+                "data-char-start": 149,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4081,7 +5395,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 158,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4098,6 +5427,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 164,
+            "data-char-start": 162,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4107,7 +5439,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 166,
+                "data-char-start": 165,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4132,7 +5479,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 175,
+                "data-char-start": 169,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4145,7 +5507,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 177,
+                "data-char-start": 176,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4170,7 +5547,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 182,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4187,6 +5579,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 186,
+            "data-char-start": 183,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -4200,6 +5595,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 187,
+            "data-char-start": 186,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4221,7 +5619,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 195,
+                "data-char-start": 194,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4240,6 +5653,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
                 },
               ],
               "properties": {
+                "data-char-end": 207,
+                "data-char-start": 195,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -4257,7 +5673,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 210,
+                "data-char-start": 208,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4282,7 +5713,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 218,
+                "data-char-start": 217,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4299,6 +5745,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 228,
+            "data-char-start": 218,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -4308,7 +5757,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 231,
+                "data-char-start": 229,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4333,7 +5797,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 239,
+                "data-char-start": 238,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4350,6 +5829,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 241,
+            "data-char-start": 239,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -4363,6 +5845,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 250,
+            "data-char-start": 241,
+            "data-token": ">Hello!</",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4376,6 +5861,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 252,
+            "data-char-start": 250,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -4389,6 +5877,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 253,
+            "data-char-start": 252,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4410,7 +5901,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 260,
+                "data-char-start": 258,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4427,6 +5933,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 263,
+            "data-char-start": 260,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -4440,6 +5949,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 264,
+            "data-char-start": 263,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -4461,7 +5973,22 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 269,
+                "data-char-start": 267,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -4490,6 +6017,9 @@ exports[`DiffHunksRenderer proper buffers should be prepended to deletions colum
             },
           ],
           "properties": {
+            "data-char-end": 271,
+            "data-char-start": 270,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5303,6 +6833,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5312,7 +6845,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " *",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "*",
+                },
+              ],
+              "properties": {
+                "data-char-end": 8,
+                "data-char-start": 7,
+                "data-token": "*",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5325,7 +6873,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " as",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "as",
+                },
+              ],
+              "properties": {
+                "data-char-end": 11,
+                "data-char-start": 9,
+                "data-token": "as",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5338,7 +6901,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " 'react'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'react'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 19,
+                "data-char-start": 12,
+                "data-token": "'react'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5355,6 +6933,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 20,
+            "data-char-start": 19,
+            "data-token": ";",
             "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
           },
           "tagName": "span",
@@ -5380,6 +6961,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5389,7 +6973,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 17,
+                "data-char-start": 7,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5402,7 +7001,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 22,
+                "data-char-start": 18,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5415,7 +7029,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 37,
+                "data-char-start": 23,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5432,6 +7061,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 38,
+            "data-char-start": 37,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5457,6 +7089,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 66,
+            "data-char-start": 60,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5485,6 +7120,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 73,
+                "data-char-start": 67,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -5502,7 +7140,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 78,
+                "data-char-start": 74,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5515,7 +7168,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " './",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./",
+                },
+              ],
+              "properties": {
+                "data-char-end": 82,
+                "data-char-start": 79,
+                "data-token": "'./",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5534,6 +7202,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 88,
+                "data-char-start": 82,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -5555,6 +7226,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 89,
+            "data-char-start": 88,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -5568,6 +7242,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 90,
+            "data-char-start": 89,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5593,6 +7270,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 45,
+            "data-char-start": 39,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5621,6 +7301,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 58,
+                "data-char-start": 46,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
               },
               "tagName": "span",
@@ -5638,7 +7321,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 63,
+                "data-char-start": 59,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5651,7 +7349,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " '.",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'.",
+                },
+              ],
+              "properties": {
+                "data-char-end": 66,
+                "data-char-start": 64,
+                "data-token": "'.",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5670,6 +7383,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 91,
+                "data-char-start": 66,
+                "data-token": "./components/HeaderSimple",
                 "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
               },
               "tagName": "span",
@@ -5691,6 +7407,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 92,
+            "data-char-start": 91,
+            "data-token": "'",
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -5704,6 +7423,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 93,
+            "data-char-start": 92,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5729,6 +7451,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 100,
+            "data-char-start": 94,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5738,7 +7463,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " Hero",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Hero",
+                },
+              ],
+              "properties": {
+                "data-char-end": 105,
+                "data-char-start": 101,
+                "data-token": "Hero",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5751,7 +7491,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 110,
+                "data-char-start": 106,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5764,7 +7519,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " '../components/Hero'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'../components/Hero'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 131,
+                "data-char-start": 111,
+                "data-token": "'../components/Hero'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5781,6 +7551,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 132,
+            "data-char-start": 131,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5825,6 +7598,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 140,
+            "data-char-start": 134,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -5834,7 +7610,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 148,
+                "data-char-start": 141,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5847,7 +7638,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 157,
+                "data-char-start": 149,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5860,7 +7666,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 158,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5877,6 +7698,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 164,
+            "data-char-start": 162,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -5886,7 +7710,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 166,
+                "data-char-start": 165,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5911,7 +7750,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 175,
+                "data-char-start": 169,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5924,7 +7778,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 177,
+                "data-char-start": 176,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5949,7 +7818,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 182,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -5966,6 +7850,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 186,
+            "data-char-start": 183,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -5979,6 +7866,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 187,
+            "data-char-start": 186,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6000,7 +7890,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 153,
+                "data-char-start": 152,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6019,6 +7924,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 159,
+                "data-char-start": 153,
+                "data-token": "Header",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -6036,7 +7944,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 160,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6061,7 +7984,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 195,
+                "data-char-start": 194,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6080,6 +8018,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
                 },
               ],
               "properties": {
+                "data-char-end": 207,
+                "data-char-start": 195,
+                "data-token": "HeaderSimple",
                 "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
               },
               "tagName": "span",
@@ -6097,7 +8038,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 210,
+                "data-char-start": 208,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6122,7 +8078,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 218,
+                "data-char-start": 217,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6139,6 +8110,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 228,
+            "data-char-start": 218,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -6148,7 +8122,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 231,
+                "data-char-start": 229,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6173,7 +8162,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 239,
+                "data-char-start": 238,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6190,6 +8194,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 241,
+            "data-char-start": 239,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -6203,6 +8210,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 250,
+            "data-char-start": 241,
+            "data-token": ">Hello!</",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6216,6 +8226,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 252,
+            "data-char-start": 250,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -6229,6 +8242,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 253,
+            "data-char-start": 252,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6250,7 +8266,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 260,
+                "data-char-start": 258,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6267,6 +8298,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 263,
+            "data-char-start": 260,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -6280,6 +8314,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 264,
+            "data-char-start": 263,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6301,7 +8338,22 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 269,
+                "data-char-start": 267,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6330,6 +8382,9 @@ exports[`DiffHunksRenderer additions and deletions should be empty when unified:
             },
           ],
           "properties": {
+            "data-char-end": 271,
+            "data-char-start": 270,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6848,6 +8903,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -6857,7 +8915,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 17,
+                "data-char-start": 7,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6870,7 +8943,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 22,
+                "data-char-start": 18,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6883,7 +8971,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 37,
+                "data-char-start": 23,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6900,6 +9003,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 38,
+            "data-char-start": 37,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -6925,6 +9031,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 45,
+            "data-char-start": 39,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -6934,7 +9043,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " HeaderSimple",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "HeaderSimple",
+                },
+              ],
+              "properties": {
+                "data-char-end": 58,
+                "data-char-start": 46,
+                "data-token": "HeaderSimple",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6947,7 +9071,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 63,
+                "data-char-start": 59,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6960,7 +9099,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " '../components/HeaderSimple'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'../components/HeaderSimple'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 92,
+                "data-char-start": 64,
+                "data-token": "'../components/HeaderSimple'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -6977,6 +9131,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 93,
+            "data-char-start": 92,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7002,6 +9159,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 100,
+            "data-char-start": 94,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -7011,7 +9171,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " Hero",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Hero",
+                },
+              ],
+              "properties": {
+                "data-char-end": 105,
+                "data-char-start": 101,
+                "data-token": "Hero",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7024,7 +9199,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 110,
+                "data-char-start": 106,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7037,7 +9227,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " '../components/Hero'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'../components/Hero'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 131,
+                "data-char-start": 111,
+                "data-token": "'../components/Hero'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7054,6 +9259,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 132,
+            "data-char-start": 131,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7098,6 +9306,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 140,
+            "data-char-start": 134,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -7107,7 +9318,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 148,
+                "data-char-start": 141,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7120,7 +9346,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 157,
+                "data-char-start": 149,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7133,7 +9374,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 158,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7150,6 +9406,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 164,
+            "data-char-start": 162,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7159,7 +9418,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 166,
+                "data-char-start": 165,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7184,7 +9458,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 175,
+                "data-char-start": 169,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7197,7 +9486,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 177,
+                "data-char-start": 176,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7222,7 +9526,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 182,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7239,6 +9558,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 186,
+            "data-char-start": 183,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -7252,6 +9574,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 187,
+            "data-char-start": 186,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7273,7 +9598,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 195,
+                "data-char-start": 194,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7290,6 +9630,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 207,
+            "data-char-start": 195,
+            "data-token": "HeaderSimple",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -7299,7 +9642,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 210,
+                "data-char-start": 208,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7324,7 +9682,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 218,
+                "data-char-start": 217,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7341,6 +9714,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 228,
+            "data-char-start": 218,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -7350,7 +9726,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 231,
+                "data-char-start": 229,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7375,7 +9766,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 239,
+                "data-char-start": 238,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7392,6 +9798,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 241,
+            "data-char-start": 239,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -7405,6 +9814,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 250,
+            "data-char-start": 241,
+            "data-token": ">Hello!</",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7418,6 +9830,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 252,
+            "data-char-start": 250,
+            "data-token": "h1",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -7431,6 +9846,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 253,
+            "data-char-start": 252,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7452,7 +9870,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 260,
+                "data-char-start": 258,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7469,6 +9902,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 263,
+            "data-char-start": 260,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -7482,6 +9918,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 264,
+            "data-char-start": 263,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -7503,7 +9942,22 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 269,
+                "data-char-start": 267,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -7532,6 +9986,9 @@ exports[`DiffHunksRenderer a diff with only additions should have an empty delet
             },
           ],
           "properties": {
+            "data-char-end": 271,
+            "data-char-start": 270,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8101,6 +10558,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 6,
+            "data-char-start": 0,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -8110,7 +10570,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " *",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "*",
+                },
+              ],
+              "properties": {
+                "data-char-end": 8,
+                "data-char-start": 7,
+                "data-token": "*",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8123,7 +10598,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " as",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "as",
+                },
+              ],
+              "properties": {
+                "data-char-end": 11,
+                "data-char-start": 9,
+                "data-token": "as",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8136,7 +10626,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " 'react'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'react'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 19,
+                "data-char-start": 12,
+                "data-token": "'react'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8153,6 +10658,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 20,
+            "data-char-start": 19,
+            "data-token": ";",
             "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
           },
           "tagName": "span",
@@ -8178,6 +10686,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 27,
+            "data-char-start": 21,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FFA359;--diffs-token-light:#D47628",
           },
           "tagName": "span",
@@ -8187,7 +10698,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " IconSprite",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "IconSprite",
+                },
+              ],
+              "properties": {
+                "data-char-end": 38,
+                "data-char-start": 28,
+                "data-token": "IconSprite",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8200,7 +10726,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 43,
+                "data-char-start": 39,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8213,7 +10754,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " './IconSprite'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./IconSprite'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 58,
+                "data-char-start": 44,
+                "data-token": "'./IconSprite'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8230,6 +10786,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 59,
+            "data-char-start": 58,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8255,6 +10814,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 66,
+            "data-char-start": 60,
+            "data-token": "import",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -8264,7 +10826,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " Header",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Header",
+                },
+              ],
+              "properties": {
+                "data-char-end": 73,
+                "data-char-start": 67,
+                "data-token": "Header",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8277,7 +10854,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " from",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "from",
+                },
+              ],
+              "properties": {
+                "data-char-end": 78,
+                "data-char-start": 74,
+                "data-token": "from",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8290,7 +10882,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " './Header'",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "'./Header'",
+                },
+              ],
+              "properties": {
+                "data-char-end": 89,
+                "data-char-start": 79,
+                "data-token": "'./Header'",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8307,6 +10914,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 90,
+            "data-char-start": 89,
+            "data-token": ";",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8351,6 +10961,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 98,
+            "data-char-start": 92,
+            "data-token": "export",
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -8360,7 +10973,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " default",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "default",
+                },
+              ],
+              "properties": {
+                "data-char-end": 106,
+                "data-char-start": 99,
+                "data-token": "default",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8373,7 +11001,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " function",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "function",
+                },
+              ],
+              "properties": {
+                "data-char-end": 115,
+                "data-char-start": 107,
+                "data-token": "function",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8386,7 +11029,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " Home",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Home",
+                },
+              ],
+              "properties": {
+                "data-char-end": 120,
+                "data-char-start": 116,
+                "data-token": "Home",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8403,6 +11061,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 122,
+            "data-char-start": 120,
+            "data-token": "()",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8412,7 +11073,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " {",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{",
+                },
+              ],
+              "properties": {
+                "data-char-end": 124,
+                "data-char-start": 123,
+                "data-token": "{",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8437,7 +11113,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "  return",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "return",
+                },
+              ],
+              "properties": {
+                "data-char-end": 133,
+                "data-char-start": 127,
+                "data-token": "return",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8450,7 +11141,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " (",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "(",
+                },
+              ],
+              "properties": {
+                "data-char-end": 135,
+                "data-char-start": 134,
+                "data-token": "(",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8475,7 +11181,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "    <",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 141,
+                "data-char-start": 140,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8492,6 +11213,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 144,
+            "data-char-start": 141,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -8505,6 +11229,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 145,
+            "data-char-start": 144,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8526,7 +11253,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 153,
+                "data-char-start": 152,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8543,6 +11285,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 159,
+            "data-char-start": 153,
+            "data-token": "Header",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -8552,7 +11297,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 162,
+                "data-char-start": 160,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8577,7 +11337,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "      <",
+              "value": "      ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "<",
+                },
+              ],
+              "properties": {
+                "data-char-end": 170,
+                "data-char-start": 169,
+                "data-token": "<",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8594,6 +11369,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 180,
+            "data-char-start": 170,
+            "data-token": "IconSprite",
             "style": "--diffs-token-dark:#D568EA;--diffs-token-light:#C635E4",
           },
           "tagName": "span",
@@ -8603,7 +11381,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": " />",
+              "value": " ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "/>",
+                },
+              ],
+              "properties": {
+                "data-char-end": 183,
+                "data-char-start": 181,
+                "data-token": "/>",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8628,7 +11421,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "    </",
+              "value": "    ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": "</",
+                },
+              ],
+              "properties": {
+                "data-char-end": 190,
+                "data-char-start": 188,
+                "data-token": "</",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8645,6 +11453,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 193,
+            "data-char-start": 190,
+            "data-token": "div",
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -8658,6 +11469,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 194,
+            "data-char-start": 193,
+            "data-token": ">",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -8679,7 +11493,22 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
           "children": [
             {
               "type": "text",
-              "value": "  );",
+              "value": "  ",
+            },
+            {
+              "children": [
+                {
+                  "type": "text",
+                  "value": ");",
+                },
+              ],
+              "properties": {
+                "data-char-end": 199,
+                "data-char-start": 197,
+                "data-token": ");",
+              },
+              "tagName": "span",
+              "type": "element",
             },
           ],
           "properties": {
@@ -8708,6 +11537,9 @@ exports[`DiffHunksRenderer a diff with only deletions should have an empty addit
             },
           ],
           "properties": {
+            "data-char-end": 201,
+            "data-char-start": 200,
+            "data-token": "}",
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
