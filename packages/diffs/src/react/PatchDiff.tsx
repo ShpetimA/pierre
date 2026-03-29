@@ -35,7 +35,7 @@ export function PatchDiff<LAnnotation = undefined>({
   disableWorkerPool = false,
 }: PatchDiffProps<LAnnotation>): React.JSX.Element {
   const fileDiff = usePatch(patch);
-  const { ref, getHoveredLine, getHoveredToken } = useFileDiffInstance({
+  const { ref, getHoveredLine } = useFileDiffInstance({
     fileDiff,
     options,
     metrics,
@@ -57,7 +57,6 @@ export function PatchDiff<LAnnotation = undefined>({
     renderGutterUtility,
     renderHoverUtility,
     getHoveredLine,
-    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>

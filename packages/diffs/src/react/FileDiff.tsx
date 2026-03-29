@@ -33,7 +33,7 @@ export function FileDiff<LAnnotation = undefined>({
   renderHoverUtility,
   disableWorkerPool = false,
 }: FileDiffProps<LAnnotation>): React.JSX.Element {
-  const { ref, getHoveredLine, getHoveredToken } = useFileDiffInstance({
+  const { ref, getHoveredLine } = useFileDiffInstance({
     fileDiff,
     options,
     metrics,
@@ -55,7 +55,6 @@ export function FileDiff<LAnnotation = undefined>({
     lineAnnotations,
     renderHoverUtility,
     getHoveredLine,
-    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>

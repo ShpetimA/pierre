@@ -26,7 +26,7 @@ export function File<LAnnotation = undefined>({
   renderHoverUtility,
   disableWorkerPool = false,
 }: FileProps<LAnnotation>): React.JSX.Element {
-  const { ref, getHoveredLine, getHoveredToken } = useFileInstance({
+  const { ref, getHoveredLine } = useFileInstance({
     file,
     options,
     metrics,
@@ -48,7 +48,6 @@ export function File<LAnnotation = undefined>({
     renderHoverUtility,
     lineAnnotations,
     getHoveredLine,
-    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>

@@ -41,7 +41,7 @@ export function MultiFileDiff<LAnnotation = undefined>({
   const fileDiff = useMemo(() => {
     return parseDiffFromFile(oldFile, newFile);
   }, [oldFile, newFile]);
-  const { ref, getHoveredLine, getHoveredToken } = useFileDiffInstance({
+  const { ref, getHoveredLine } = useFileDiffInstance({
     fileDiff,
     options,
     metrics,
@@ -63,7 +63,6 @@ export function MultiFileDiff<LAnnotation = undefined>({
     renderGutterUtility,
     renderHoverUtility,
     getHoveredLine,
-    getHoveredToken,
   });
   return (
     <DIFFS_TAG_NAME ref={ref} className={className} style={style}>
