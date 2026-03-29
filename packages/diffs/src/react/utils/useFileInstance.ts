@@ -127,7 +127,6 @@ export function useFileInstance<LAnnotation>({
     | undefined => {
     return instanceRef.current?.getHoveredLine();
   }, []);
-
   return { ref, getHoveredLine };
 }
 

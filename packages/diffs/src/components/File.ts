@@ -13,7 +13,6 @@ import {
 } from '../constants';
 import {
   type GetHoveredLineResult,
-  type GetHoveredTokenResult,
   InteractionManager,
   type InteractionManagerBaseOptions,
   pluckInteractionOptions,
@@ -218,10 +217,6 @@ export class File<LAnnotation = undefined> {
 
   public getHoveredLine = (): GetHoveredLineResult<'file'> | undefined => {
     return this.interactionManager.getHoveredLine();
-  };
-
-  public getHoveredToken = (): GetHoveredTokenResult<'file'> | undefined => {
-    return this.interactionManager.getHoveredToken();
   };
 
   public setLineAnnotations(
