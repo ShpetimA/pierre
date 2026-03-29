@@ -409,7 +409,10 @@ function renderTwoFiles({
     languageOverride ?? getFiletypeFromFileName(deletionFile.name);
   const additionLang =
     languageOverride ?? getFiletypeFromFileName(additionFile.name);
-  const { state, transformers } = createTransformerWithState();
+  const { state, transformers } = createTransformerWithState(
+    false,
+    options.useTokenTransformer
+  );
   const hastConfig: CodeToHastOptions<DiffsThemeNames> = (() => {
     return typeof themeOrThemes === 'string'
       ? {

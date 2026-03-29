@@ -98,13 +98,19 @@ export class WorkerPoolManager {
     {
       langs,
       theme = DEFAULT_THEMES,
+      useTokenTransformer = false,
       lineDiffType = 'word-alt',
       tokenizeMaxLineLength = 1000,
       preferredHighlighter = 'shiki-js',
     }: WorkerInitializationRenderOptions
   ) {
     this.preferredHighlighter = preferredHighlighter;
-    this.renderOptions = { theme, lineDiffType, tokenizeMaxLineLength };
+    this.renderOptions = {
+      theme,
+      useTokenTransformer,
+      lineDiffType,
+      tokenizeMaxLineLength,
+    };
     this.fileCache = new LRUMapPkg.LRUMap(options.totalASTLRUCacheSize ?? 100);
     this.diffCache = new LRUMapPkg.LRUMap(options.totalASTLRUCacheSize ?? 100);
     void this.initialize(langs);
@@ -149,11 +155,13 @@ export class WorkerPoolManager {
 
   async setRenderOptions({
     theme = DEFAULT_THEMES,
+    useTokenTransformer = false,
     lineDiffType = 'word-alt',
     tokenizeMaxLineLength = 1000,
   }: Partial<WorkerRenderingOptions>): Promise<void> {
     const newRenderOptions: WorkerRenderingOptions = {
       theme,
+      useTokenTransformer,
       lineDiffType,
       tokenizeMaxLineLength,
     };
@@ -166,6 +174,8 @@ export class WorkerPoolManager {
     );
     if (
       themesEqual &&
+      newRenderOptions.useTokenTransformer ===
+        this.renderOptions.useTokenTransformer &&
       newRenderOptions.lineDiffType === this.renderOptions.lineDiffType &&
       newRenderOptions.tokenizeMaxLineLength ===
         this.renderOptions.tokenizeMaxLineLength
@@ -208,8 +218,9 @@ export class WorkerPoolManager {
   }
 
   getFileRenderOptions(): RenderFileOptions {
-    const { tokenizeMaxLineLength, theme } = this.renderOptions;
-    return { theme, tokenizeMaxLineLength };
+    const { tokenizeMaxLineLength, theme, useTokenTransformer } =
+      this.renderOptions;
+    return { theme, useTokenTransformer, tokenizeMaxLineLength };
   }
 
   getDiffRenderOptions(): RenderDiffOptions {

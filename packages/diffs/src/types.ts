@@ -372,6 +372,7 @@ export interface BaseCodeOptions {
   // Shiki config options, ignored if you're using a WorkerPoolManager
   preferredHighlighter?: HighlighterTypes;
   useCSSClasses?: boolean;
+  useTokenTransformer?: boolean;
   tokenizeMaxLineLength?: number;
 
   // Custom CSS injection
@@ -623,11 +624,13 @@ export interface ForceFilePlainTextOptions {
 
 export interface RenderFileOptions {
   theme: DiffsThemeNames | Record<'dark' | 'light', DiffsThemeNames>;
+  useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
 }
 
 export interface RenderDiffOptions {
   theme: DiffsThemeNames | Record<'dark' | 'light', DiffsThemeNames>;
+  useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
   lineDiffType: LineDiffTypes;
 }

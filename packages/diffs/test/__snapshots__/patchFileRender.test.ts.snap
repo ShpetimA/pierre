@@ -449,7 +449,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 2,
             "style": "--diffs-token-dark:#84848A;--diffs-token-light:#84848A",
           },
           "tagName": "span",
@@ -475,7 +474,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 32,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -485,25 +483,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " airflow",
             },
           ],
           "properties": {
-            "data-char-start": 33,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "airflow",
-            },
-          ],
-          "properties": {
-            "data-char-start": 34,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -517,7 +500,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 41,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -539,25 +521,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    environment",
             },
           ],
           "properties": {
-            "data-char-start": 43,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "environment",
-            },
-          ],
-          "properties": {
-            "data-char-start": 47,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -571,7 +538,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 58,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -581,25 +547,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " prod",
             },
           ],
           "properties": {
-            "data-char-start": 59,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "prod",
-            },
-          ],
-          "properties": {
-            "data-char-start": 60,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -621,25 +572,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    dag",
             },
           ],
           "properties": {
-            "data-char-start": 65,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "dag",
-            },
-          ],
-          "properties": {
-            "data-char-start": 69,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -653,7 +589,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 72,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -675,25 +610,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      start_date",
             },
           ],
           "properties": {
-            "data-char-start": 74,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "start_date",
-            },
-          ],
-          "properties": {
-            "data-char-start": 80,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -707,7 +627,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 90,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -717,25 +636,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " "2025-12-25T00:00:00Z"",
             },
           ],
           "properties": {
-            "data-char-start": 91,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": ""2025-12-25T00:00:00Z"",
-            },
-          ],
-          "properties": {
-            "data-char-start": 92,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -757,25 +661,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      schedule",
             },
           ],
           "properties": {
-            "data-char-start": 115,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "schedule",
-            },
-          ],
-          "properties": {
-            "data-char-start": 121,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -789,7 +678,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 129,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -799,25 +687,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " "@daily"",
             },
           ],
           "properties": {
-            "data-char-start": 130,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": ""@daily"",
-            },
-          ],
-          "properties": {
-            "data-char-start": 131,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -839,25 +712,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      audience",
             },
           ],
           "properties": {
-            "data-char-start": 140,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "audience",
-            },
-          ],
-          "properties": {
-            "data-char-start": 146,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -871,7 +729,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 154,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -881,25 +738,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " INTERNAL_APPLIED",
             },
           ],
           "properties": {
-            "data-char-start": 155,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "INTERNAL_APPLIED",
-            },
-          ],
-          "properties": {
-            "data-char-start": 156,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -921,25 +763,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      urgency",
             },
           ],
           "properties": {
-            "data-char-start": 173,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "urgency",
-            },
-          ],
-          "properties": {
-            "data-char-start": 179,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -953,7 +780,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 186,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -963,25 +789,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " MEDIUM",
             },
           ],
           "properties": {
-            "data-char-start": 187,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "MEDIUM",
-            },
-          ],
-          "properties": {
-            "data-char-start": 188,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1003,25 +814,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      notification",
             },
           ],
           "properties": {
-            "data-char-start": 195,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "notification",
-            },
-          ],
-          "properties": {
-            "data-char-start": 201,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1035,7 +831,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 213,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1057,25 +852,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        email",
             },
           ],
           "properties": {
-            "data-char-start": 215,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "email",
-            },
-          ],
-          "properties": {
-            "data-char-start": 223,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1089,7 +869,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 228,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1099,25 +878,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " shijie.rao@openai.com",
             },
           ],
           "properties": {
-            "data-char-start": 229,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "shijie.rao@openai.com",
-            },
-          ],
-          "properties": {
-            "data-char-start": 230,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1139,25 +903,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        pagerduty",
             },
           ],
           "properties": {
-            "data-char-start": 252,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "pagerduty",
-            },
-          ],
-          "properties": {
-            "data-char-start": 260,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1171,7 +920,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 269,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1181,25 +929,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " pagerduty-chatgpt-growth-retention-oncall",
             },
           ],
           "properties": {
-            "data-char-start": 270,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "pagerduty-chatgpt-growth-retention-oncall",
-            },
-          ],
-          "properties": {
-            "data-char-start": 271,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1221,25 +954,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      airflow_dataset_sensors",
             },
           ],
           "properties": {
-            "data-char-start": 313,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "airflow_dataset_sensors",
-            },
-          ],
-          "properties": {
-            "data-char-start": 319,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1253,7 +971,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 342,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1275,25 +992,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        -",
             },
           ],
           "properties": {
-            "data-char-start": 344,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "-",
-            },
-          ],
-          "properties": {
-            "data-char-start": 352,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1303,25 +1005,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " fully_qualified_table_name",
             },
           ],
           "properties": {
-            "data-char-start": 353,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "fully_qualified_table_name",
-            },
-          ],
-          "properties": {
-            "data-char-start": 354,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1335,7 +1022,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 380,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1345,25 +1031,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " analytics.scratch.shijie_codex_2025_holiday_campaign_user_id",
             },
           ],
           "properties": {
-            "data-char-start": 381,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "analytics.scratch.shijie_codex_2025_holiday_campaign_user_id",
-            },
-          ],
-          "properties": {
-            "data-char-start": 382,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1385,25 +1056,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "  ",
+              "value": "  databricks_source",
             },
           ],
           "properties": {
-            "data-char-start": 443,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "databricks_source",
-            },
-          ],
-          "properties": {
-            "data-char-start": 445,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1417,7 +1073,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 462,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1439,25 +1094,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    spark_sql",
             },
           ],
           "properties": {
-            "data-char-start": 464,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "spark_sql",
-            },
-          ],
-          "properties": {
-            "data-char-start": 468,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1471,7 +1111,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 477,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1481,25 +1120,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " |",
             },
           ],
           "properties": {
-            "data-char-start": 478,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "|",
-            },
-          ],
-          "properties": {
-            "data-char-start": 479,
             "style": "--diffs-token-dark:#FF678D;--diffs-token-light:#FC2B73",
           },
           "tagName": "span",
@@ -1521,24 +1145,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      SELECT DISTINCT",
             },
           ],
           "properties": {
-            "data-char-start": 481,
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "SELECT DISTINCT",
-            },
-          ],
-          "properties": {
-            "data-char-start": 487,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1560,24 +1170,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        user_id",
             },
           ],
           "properties": {
-            "data-char-start": 503,
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "user_id",
-            },
-          ],
-          "properties": {
-            "data-char-start": 511,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1599,24 +1195,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      FROM",
             },
           ],
           "properties": {
-            "data-char-start": 519,
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "FROM",
-            },
-          ],
-          "properties": {
-            "data-char-start": 525,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1638,24 +1220,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        analytics.scratch.shijie_codex_2025_holiday_campaign_user_id",
             },
           ],
           "properties": {
-            "data-char-start": 530,
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "analytics.scratch.shijie_codex_2025_holiday_campaign_user_id",
-            },
-          ],
-          "properties": {
-            "data-char-start": 538,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1677,25 +1245,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "  ",
+              "value": "  azure_blob_storage_stage",
             },
           ],
           "properties": {
-            "data-char-start": 599,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "azure_blob_storage_stage",
-            },
-          ],
-          "properties": {
-            "data-char-start": 601,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1709,7 +1262,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 625,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1731,25 +1283,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    storage_account",
             },
           ],
           "properties": {
-            "data-char-start": 627,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "storage_account",
-            },
-          ],
-          "properties": {
-            "data-char-start": 631,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1763,7 +1300,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 646,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1773,25 +1309,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " oailodestoneprod",
             },
           ],
           "properties": {
-            "data-char-start": 647,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "oailodestoneprod",
-            },
-          ],
-          "properties": {
-            "data-char-start": 648,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1813,25 +1334,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    container",
             },
           ],
           "properties": {
-            "data-char-start": 665,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "container",
-            },
-          ],
-          "properties": {
-            "data-char-start": 669,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1845,7 +1351,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 678,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1855,25 +1360,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " notifications",
             },
           ],
           "properties": {
-            "data-char-start": 679,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "notifications",
-            },
-          ],
-          "properties": {
-            "data-char-start": 680,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -1895,25 +1385,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "  ",
+              "value": "  rockset_sink",
             },
           ],
           "properties": {
-            "data-char-start": 694,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "rockset_sink",
-            },
-          ],
-          "properties": {
-            "data-char-start": 696,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1927,7 +1402,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 708,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1949,25 +1423,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    workspace",
             },
           ],
           "properties": {
-            "data-char-start": 710,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "workspace",
-            },
-          ],
-          "properties": {
-            "data-char-start": 714,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -1981,7 +1440,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 723,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -1991,25 +1449,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " campaigns",
             },
           ],
           "properties": {
-            "data-char-start": 724,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "campaigns",
-            },
-          ],
-          "properties": {
-            "data-char-start": 725,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -2031,25 +1474,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    collection_alias",
             },
           ],
           "properties": {
-            "data-char-start": 735,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "collection_alias",
-            },
-          ],
-          "properties": {
-            "data-char-start": 739,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2063,7 +1491,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 755,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2073,25 +1500,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " codex_2025_holiday",
             },
           ],
           "properties": {
-            "data-char-start": 756,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "codex_2025_holiday",
-            },
-          ],
-          "properties": {
-            "data-char-start": 757,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -2113,25 +1525,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    deployments",
             },
           ],
           "properties": {
-            "data-char-start": 776,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "deployments",
-            },
-          ],
-          "properties": {
-            "data-char-start": 780,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2145,7 +1542,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 791,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2167,25 +1563,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "      ",
+              "value": "      -",
             },
           ],
           "properties": {
-            "data-char-start": 793,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "-",
-            },
-          ],
-          "properties": {
-            "data-char-start": 799,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2195,25 +1576,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " deployment_rrn",
             },
           ],
           "properties": {
-            "data-char-start": 800,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "deployment_rrn",
-            },
-          ],
-          "properties": {
-            "data-char-start": 801,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2227,7 +1593,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 815,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2237,25 +1602,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " rrn:rsd:rs6:c74bab26-bcfd-4e9b-82f8-1417bea02b8d",
             },
           ],
           "properties": {
-            "data-char-start": 816,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "rrn:rsd:rs6:c74bab26-bcfd-4e9b-82f8-1417bea02b8d",
-            },
-          ],
-          "properties": {
-            "data-char-start": 817,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -2277,25 +1627,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "        ",
+              "value": "        assumed_role_rrn",
             },
           ],
           "properties": {
-            "data-char-start": 866,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "assumed_role_rrn",
-            },
-          ],
-          "properties": {
-            "data-char-start": 874,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2309,7 +1644,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 890,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2319,25 +1653,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " rrn:role:rs6:68fb7059-b1d7-46f6-bd4e-0d11088735f9",
             },
           ],
           "properties": {
-            "data-char-start": 891,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "rrn:role:rs6:68fb7059-b1d7-46f6-bd4e-0d11088735f9",
-            },
-          ],
-          "properties": {
-            "data-char-start": 892,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",
@@ -2359,25 +1678,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "    ",
+              "value": "    shard_count_minimum",
             },
           ],
           "properties": {
-            "data-char-start": 942,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "shard_count_minimum",
-            },
-          ],
-          "properties": {
-            "data-char-start": 946,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2391,7 +1695,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 965,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2401,25 +1704,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " 4",
             },
           ],
           "properties": {
-            "data-char-start": 966,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "4",
-            },
-          ],
-          "properties": {
-            "data-char-start": 967,
             "style": "--diffs-token-dark:#68CDF2;--diffs-token-light:#1CA1C7",
           },
           "tagName": "span",
@@ -2441,25 +1729,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": "  ",
+              "value": "  owner",
             },
           ],
           "properties": {
-            "data-char-start": 969,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "owner",
-            },
-          ],
-          "properties": {
-            "data-char-start": 971,
             "style": "--diffs-token-dark:#FF6762;--diffs-token-light:#D52C36",
           },
           "tagName": "span",
@@ -2473,7 +1746,6 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
             },
           ],
           "properties": {
-            "data-char-start": 976,
             "style": "--diffs-token-dark:#79797F;--diffs-token-light:#79797F",
           },
           "tagName": "span",
@@ -2483,25 +1755,10 @@ exports[`file.patch fixture parses and renders the patch file: rendered patch 1`
           "children": [
             {
               "type": "text",
-              "value": " ",
+              "value": " growth",
             },
           ],
           "properties": {
-            "data-char-start": 977,
-            "style": "--diffs-token-dark:#FBFBFB;--diffs-token-light:#070707",
-          },
-          "tagName": "span",
-          "type": "element",
-        },
-        {
-          "children": [
-            {
-              "type": "text",
-              "value": "growth",
-            },
-          ],
-          "properties": {
-            "data-char-start": 978,
             "style": "--diffs-token-dark:#5ECC71;--diffs-token-light:#199F43",
           },
           "tagName": "span",

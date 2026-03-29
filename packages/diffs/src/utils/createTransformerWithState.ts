@@ -22,24 +22,12 @@ type TokenWithOriginalRange = ThemedToken & {
 };
 
 export function createTransformerWithState(
-  useCSSClasses = false
+  useCSSClasses = false,
+  useTokenTransformer = false
 ): CreateTransformerWithStateReturn {
   const state: SharedRenderState = { lineInfo: [] };
   const transformers: ShikiTransformer[] = [
     {
-      tokens(lines) {
-        for (const line of lines) {
-          let col = 0;
-          for (const token of line) {
-            const tokenWithOriginalRange = token as TokenWithOriginalRange;
-            tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ??= col;
-            col += token.content.length;
-          }
-        }
-      },
-      // preprocess(_code, options) {
-      //   options.mergeWhitespaces = 'never';
-      // },
       line(node) {
         // Remove the default class
         delete node.properties.class;
@@ -52,7 +40,9 @@ export function createTransformerWithState(
           let index = 1;
           for (const node of code.children) {
             if (node.type !== 'element') continue;
-            wrapTokenFragments(node);
+            if (useTokenTransformer) {
+              wrapTokenFragments(node);
+            }
             children.push(processLine(node, index, state));
             index++;
           }
@@ -60,15 +50,33 @@ export function createTransformerWithState(
         }
         return pre;
       },
-      span(hast, _line, col, _lineElement, token) {
-        if (token?.offset != null && token.content != null) {
-          const tokenWithOriginalRange = token as TokenWithOriginalRange;
-          hast.properties['data-token-col-start'] =
-            tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ?? col;
-          return hast;
-        }
-        return hast;
-      },
+      ...(useTokenTransformer
+        ? {
+            tokens(lines) {
+              for (const line of lines) {
+                let col = 0;
+                for (const token of line) {
+                  const tokenWithOriginalRange =
+                    token as TokenWithOriginalRange;
+                  tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ??= col;
+                  col += token.content.length;
+                }
+              }
+            },
+            preprocess(_code, options) {
+              options.mergeWhitespaces = 'never';
+            },
+            span(hast, _line, col, _lineElement, token) {
+              if (token?.offset != null && token.content != null) {
+                const tokenWithOriginalRange = token as TokenWithOriginalRange;
+                hast.properties['data-token-col-start'] =
+                  tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ?? col;
+                return hast;
+              }
+              return hast;
+            },
+          }
+        : null),
     },
   ];
   if (useCSSClasses) {

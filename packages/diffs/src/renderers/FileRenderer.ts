@@ -41,6 +41,7 @@ import {
 import { isFilePlainText } from '../utils/isFilePlainText';
 import { iterateOverFile } from '../utils/iterateOverFile';
 import { renderFileWithHighlighter } from '../utils/renderFileWithHighlighter';
+import { shouldUseTokenTransformer } from '../utils/shouldUseTokenTransformer';
 import { splitFileContents } from '../utils/splitFileContents';
 import type { WorkerPoolManager } from '../worker';
 
@@ -157,7 +158,11 @@ export class FileRenderer<LAnnotation = undefined> {
       }
       const { theme = DEFAULT_THEMES, tokenizeMaxLineLength = 1000 } =
         this.options;
-      return { theme, tokenizeMaxLineLength };
+      return {
+        theme,
+        useTokenTransformer: shouldUseTokenTransformer(this.options),
+        tokenizeMaxLineLength,
+      };
     })();
     const { renderCache } = this;
     if (renderCache?.result == null) {
@@ -511,6 +516,7 @@ function areRenderOptionsEqual(
 ): boolean {
   return (
     areThemesEqual(optionsA.theme, optionsB.theme) &&
+    optionsA.useTokenTransformer === optionsB.useTokenTransformer &&
     optionsA.tokenizeMaxLineLength === optionsB.tokenizeMaxLineLength
   );
 }
