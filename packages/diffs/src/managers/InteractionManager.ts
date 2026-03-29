@@ -1454,9 +1454,12 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         }
       }
 
-      if (tokenElement == null && element.hasAttribute('data-char-start')) {
+      if (
+        tokenElement == null &&
+        element.hasAttribute('data-token-col-start')
+      ) {
         tokenElement = element;
-        const startAttr = element.getAttribute('data-char-start');
+        const startAttr = element.getAttribute('data-token-col-start');
 
         if (startAttr != null) {
           const start = Number.parseInt(startAttr, 10);

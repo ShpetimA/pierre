@@ -1185,7 +1185,7 @@
       );
     }
 
-    > [data-diff-span] {
+    [data-diff-span] {
       background-color: var(--diffs-bg-addition-emphasis);
     }
   }
