@@ -1454,24 +1454,20 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         }
       }
 
-      if (
-        tokenElement == null &&
-        element.hasAttribute('data-char-start') &&
-        element.hasAttribute('data-char-end')
-      ) {
+      if (tokenElement == null && element.hasAttribute('data-char-start')) {
         tokenElement = element;
         const startAttr = element.getAttribute('data-char-start');
-        const endAttr = element.getAttribute('data-char-end');
-        const textAttr = element.getAttribute('data-token');
 
-        if (startAttr != null && endAttr != null) {
+        if (startAttr != null) {
           const start = Number.parseInt(startAttr, 10);
-          const end = Number.parseInt(endAttr, 10);
-          if (!Number.isNaN(start) && !Number.isNaN(end)) {
+          if (!Number.isNaN(start)) {
+            const tokenText = element.textContent ?? '';
+            const end = start + tokenText.length;
+
             tokenInfo = {
               start,
               end,
-              text: textAttr ?? element.textContent ?? '',
+              text: element.textContent ?? '',
             };
             continue;
           }

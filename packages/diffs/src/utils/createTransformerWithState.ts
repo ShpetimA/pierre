@@ -7,7 +7,6 @@ import type { ElementContent } from 'hast';
 import type { SharedRenderState, ShikiTransformer } from '../types';
 import { findCodeElement } from './hast_utils';
 import { processLine } from './processLine';
-import { processToken } from './processToken';
 
 interface CreateTransformerWithStateReturn {
   state: SharedRenderState;
@@ -21,6 +20,9 @@ export function createTransformerWithState(
   const state: SharedRenderState = { lineInfo: [] };
   const transformers: ShikiTransformer[] = [
     {
+      preprocess(_code, options) {
+        options.mergeWhitespaces = 'never';
+      },
       line(node) {
         // Remove the default class
         delete node.properties.class;
@@ -42,7 +44,8 @@ export function createTransformerWithState(
       },
       span(hast, _line, _col, _lineElement, token) {
         if (token?.offset != null && token.content != null) {
-          return processToken(hast, token);
+          hast.properties['data-char-start'] = token.offset;
+          return hast;
         }
         return hast;
       },
