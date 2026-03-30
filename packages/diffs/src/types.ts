@@ -12,6 +12,8 @@ import type {
   ThemeRegistrationResolved,
 } from 'shiki';
 
+export type { CreatePatchOptionsNonabortable };
+
 /**
  * Represents a file's contents for generating diffs via `parseDiffFromFile` or
  * for when rendering a file directly using the File components
