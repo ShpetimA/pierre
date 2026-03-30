@@ -1,3 +1,4 @@
+import type { CreatePatchOptionsNonabortable } from 'diff';
 import type { ElementContent } from 'hast';
 import type {
   BundledLanguage,
@@ -393,10 +394,19 @@ export interface BaseDiffOptions extends BaseCodeOptions {
 
   // How many lines to expand per click
   expansionLineCount?: number; // 100 is default
+
+  /**
+   * Options forwarded to the underlying diff algorithm when computing diffs
+   * from file contents (oldFile/newFile). Has no effect on pre-parsed patches.
+   */
+  parseDiffOptions?: CreatePatchOptionsNonabortable;
 }
 
 export type BaseDiffOptionsWithDefaults = Required<
-  Omit<BaseDiffOptions, 'unsafeCSS' | 'preferredHighlighter'>
+  Omit<
+    BaseDiffOptions,
+    'unsafeCSS' | 'preferredHighlighter' | 'parseDiffOptions'
+  >
 >;
 
 export type CustomPreProperties = Record<string, string | number | undefined>;
