@@ -95,11 +95,6 @@ export type GetHoveredLineResult<TMode extends InteractionManagerMode> =
     ? { lineNumber: number }
     : { lineNumber: number; side: AnnotationSide };
 
-export type GetHoveredTokenResult<TMode extends InteractionManagerMode> =
-  TMode extends 'file'
-    ? { lineNumber: number; token: TokenInfo }
-    : { lineNumber: number; side: AnnotationSide; token: TokenInfo };
-
 interface SelectionPointerInfo {
   lineNumber: number;
   eventSide: SelectionSide | undefined;
@@ -344,25 +339,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         return {
           lineNumber: this.hoveredLine.lineNumber,
         } as GetHoveredLineResult<TMode>;
-      }
-    }
-    return undefined;
-  };
-
-  getHoveredToken = (): GetHoveredTokenResult<TMode> | undefined => {
-    if (this.hoveredToken != null) {
-      if (this.mode === 'diff' && this.hoveredToken.type === 'diff-token') {
-        return {
-          lineNumber: this.hoveredToken.lineNumber,
-          side: this.hoveredToken.annotationSide,
-          token: this.hoveredToken.token,
-        } as GetHoveredTokenResult<TMode>;
-      }
-      if (this.mode === 'file' && this.hoveredToken.type === 'token') {
-        return {
-          lineNumber: this.hoveredToken.lineNumber,
-          token: this.hoveredToken.token,
-        } as GetHoveredTokenResult<TMode>;
       }
     }
     return undefined;
