@@ -1029,7 +1029,6 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
       this.clearHoveredToken();
     }
     this.hoveredToken = hoveredToken;
-    this.hoveredToken.tokenElement.setAttribute('data-token-hovered', '');
   }
 
   private ensureGutterUtilityNode(useCustomGutterUtility: boolean): void {
@@ -1454,12 +1453,9 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         }
       }
 
-      if (
-        tokenElement == null &&
-        element.hasAttribute('data-token-col-start')
-      ) {
+      if (tokenElement == null && element.hasAttribute('data-char')) {
         tokenElement = element;
-        const startAttr = element.getAttribute('data-token-col-start');
+        const startAttr = element.getAttribute('data-char');
 
         if (startAttr != null) {
           const start = Number.parseInt(startAttr, 10);
@@ -1467,11 +1463,13 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
             const tokenText = element.textContent ?? '';
             const end = start + tokenText.length;
 
-            tokenInfo = {
-              start,
-              end,
-              text: element.textContent ?? '',
-            };
+            if (tokenText.trim() !== '') {
+              tokenInfo = {
+                start,
+                end,
+                text: tokenText,
+              };
+            }
             continue;
           }
         }

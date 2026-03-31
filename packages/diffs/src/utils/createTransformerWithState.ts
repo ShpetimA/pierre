@@ -2,12 +2,13 @@ import {
   type ShikiTransformerStyleToClass,
   transformerStyleToClass,
 } from '@shikijs/transformers';
-import type { ElementContent, Element as HASTElement } from 'hast';
+import type { ElementContent } from 'hast';
 import type { ThemedToken } from 'shiki';
 
 import type { SharedRenderState, ShikiTransformer } from '../types';
 import { findCodeElement } from './hast_utils';
 import { processLine } from './processLine';
+import { wrapTokenFragments } from './wrapTokenFragments';
 
 interface CreateTransformerWithStateReturn {
   state: SharedRenderState;
@@ -15,10 +16,8 @@ interface CreateTransformerWithStateReturn {
   toClass: ShikiTransformerStyleToClass;
 }
 
-const ORIGINAL_TOKEN_COL_START = '__pierreOriginalTokenColStart';
-
 type TokenWithOriginalRange = ThemedToken & {
-  [ORIGINAL_TOKEN_COL_START]?: number;
+  __originalTokenChar?: number;
 };
 
 export function createTransformerWithState(
@@ -58,7 +57,7 @@ export function createTransformerWithState(
                 for (const token of line) {
                   const tokenWithOriginalRange =
                     token as TokenWithOriginalRange;
-                  tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ??= col;
+                  tokenWithOriginalRange.__originalTokenChar ??= col;
                   col += token.content.length;
                 }
               }
@@ -66,11 +65,13 @@ export function createTransformerWithState(
             preprocess(_code, options) {
               options.mergeWhitespaces = 'never';
             },
-            span(hast, _line, col, _lineElement, token) {
+            span(hast, _line, _char, _lineElement, token) {
               if (token?.offset != null && token.content != null) {
                 const tokenWithOriginalRange = token as TokenWithOriginalRange;
-                hast.properties['data-token-col-start'] =
-                  tokenWithOriginalRange[ORIGINAL_TOKEN_COL_START] ?? col;
+                const tokenChar = tokenWithOriginalRange.__originalTokenChar;
+                if (tokenChar != null) {
+                  hast.properties['data-char'] = tokenChar;
+                }
                 return hast;
               }
               return hast;
@@ -86,134 +87,6 @@ export function createTransformerWithState(
 }
 
 const toClass = transformerStyleToClass({ classPrefix: 'hl-' });
-
-const NO_TOKEN = Symbol('no-token');
-const MULTIPLE_TOKENS = Symbol('multiple-tokens');
-
-type TokenFragmentState = number | typeof NO_TOKEN | typeof MULTIPLE_TOKENS;
-
-// Walk a rendered line and add a single outer token wrapper around all
-// fragments that still belong to the same original Shiki token.
-function wrapTokenFragments(container: HASTElement): TokenFragmentState {
-  const ownTokenColStart = getTokenColStart(container);
-  if (ownTokenColStart != null) {
-    return ownTokenColStart;
-  }
-
-  let containerTokenState: TokenFragmentState = NO_TOKEN;
-  const wrappedChildren: ElementContent[] = [];
-  let currentTokenChildren: ElementContent[] = [];
-  let currentTokenColStart: number | undefined;
-
-  const flushTokenChildren = () => {
-    if (currentTokenChildren.length === 0 || currentTokenColStart == null) {
-      currentTokenChildren = [];
-      currentTokenColStart = undefined;
-      return;
-    }
-
-    if (currentTokenChildren.length === 1) {
-      const child = currentTokenChildren[0];
-      if (child?.type === 'element') {
-        setTokenColStart(child, currentTokenColStart);
-        for (const grandChild of child.children) {
-          stripTokenColStart(grandChild);
-        }
-      } else {
-        stripTokenColStart(child);
-      }
-      wrappedChildren.push(child);
-      currentTokenChildren = [];
-      currentTokenColStart = undefined;
-      return;
-    }
-
-    for (const child of currentTokenChildren) {
-      stripTokenColStart(child);
-    }
-
-    wrappedChildren.push({
-      type: 'element',
-      tagName: 'span',
-      properties: {
-        'data-token-col-start': currentTokenColStart,
-      },
-      children: currentTokenChildren,
-    });
-
-    currentTokenChildren = [];
-    currentTokenColStart = undefined;
-  };
-
-  const mergeContainerTokenState = (childTokenState: TokenFragmentState) => {
-    if (childTokenState === NO_TOKEN) {
-      return;
-    }
-    if (childTokenState === MULTIPLE_TOKENS) {
-      containerTokenState = MULTIPLE_TOKENS;
-      return;
-    }
-    if (containerTokenState === NO_TOKEN) {
-      containerTokenState = childTokenState;
-      return;
-    }
-    if (containerTokenState !== childTokenState) {
-      containerTokenState = MULTIPLE_TOKENS;
-    }
-  };
-
-  for (const child of container.children) {
-    const childTokenState =
-      child.type === 'element' ? wrapTokenFragments(child) : NO_TOKEN;
-    mergeContainerTokenState(childTokenState);
-
-    if (typeof childTokenState !== 'number') {
-      flushTokenChildren();
-      wrappedChildren.push(child);
-      continue;
-    }
-
-    if (
-      currentTokenColStart != null &&
-      currentTokenColStart !== childTokenState
-    ) {
-      flushTokenChildren();
-    }
-
-    currentTokenColStart ??= childTokenState;
-    currentTokenChildren.push(child);
-  }
-
-  flushTokenChildren();
-  container.children = wrappedChildren;
-  return containerTokenState;
-}
-
-function getTokenColStart(node: HASTElement): number | undefined {
-  const value = node.properties['data-token-col-start'];
-  if (typeof value === 'number') {
-    return value;
-  }
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10);
-    if (!Number.isNaN(parsed)) {
-      return parsed;
-    }
-  }
-  return undefined;
-}
-
-function stripTokenColStart(node: ElementContent): void {
-  if (node.type !== 'element') return;
-  delete node.properties['data-token-col-start'];
-  for (const child of node.children) {
-    stripTokenColStart(child);
-  }
-}
-
-function setTokenColStart(node: HASTElement, tokenColStart: number): void {
-  node.properties['data-token-col-start'] = tokenColStart;
-}
 
 // Create a transformer that converts token color/fontStyle to htmlStyle
 // This needs to run BEFORE transformerStyleToClass
