@@ -171,14 +171,7 @@ export function useUnresolvedFileInstance<LAnnotation>({
     return instanceRef.current ?? undefined;
   }, []);
 
-  return {
-    ref,
-    getHoveredLine,
-    fileDiff,
-    actions,
-    markerRows,
-    getInstance,
-  };
+  return { ref, getHoveredLine, fileDiff, actions, markerRows, getInstance };
 }
 
 interface MergeUnresolvedOptionsProps<LAnnotation> {

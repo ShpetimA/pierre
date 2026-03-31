@@ -185,6 +185,7 @@ export interface InteractionManagerBaseOptions<
   TMode extends InteractionManagerMode,
 > {
   lineHoverHighlight?: 'disabled' | 'both' | 'number' | 'line';
+  enableTokenInteractionsOnWhitespace?: boolean;
   enableGutterUtility?: boolean;
   onGutterUtilityClick?(range: SelectedLineRange): unknown;
   onLineClick?(props: EventClickProps<TMode>): unknown;
@@ -1463,7 +1464,10 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
             const tokenText = element.textContent ?? '';
             const end = start + tokenText.length;
 
-            if (tokenText.trim() !== '') {
+            if (
+              tokenText.trim() !== '' ||
+              this.options.enableTokenInteractionsOnWhitespace === true
+            ) {
               tokenInfo = {
                 start,
                 end,
@@ -1666,6 +1670,7 @@ type InteractionPluckOptions<TMode extends InteractionManagerMode> =
 
 export function pluckInteractionOptions<TMode extends InteractionManagerMode>(
   {
+    enableTokenInteractionsOnWhitespace,
     enableGutterUtility,
     enableHoverUtility,
     lineHoverHighlight,
@@ -1695,6 +1700,7 @@ export function pluckInteractionOptions<TMode extends InteractionManagerMode>(
   onMergeConflictActionClick?: (target: MergeConflictActionTarget) => void
 ): InteractionManagerOptions<TMode> {
   return {
+    enableTokenInteractionsOnWhitespace,
     enableGutterUtility: resolveEnableGutterUtilityOption({
       enableGutterUtility,
       enableHoverUtility,

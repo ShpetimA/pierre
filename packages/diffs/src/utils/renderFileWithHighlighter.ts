@@ -48,10 +48,8 @@ export function renderFileWithHighlighter(
     totalLines = Infinity;
   }
   const isWindowedHighlight = startingLine > 0 || totalLines < Infinity;
-  const { state, transformers } = createTransformerWithState(
-    false,
-    useTokenTransformer
-  );
+  const { state, transformers } =
+    createTransformerWithState(useTokenTransformer);
   const lang = forcePlainText
     ? 'text'
     : (file.lang ?? getFiletypeFromFileName(file.name));

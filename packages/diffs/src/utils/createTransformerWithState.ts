@@ -21,8 +21,8 @@ type TokenWithOriginalRange = ThemedToken & {
 };
 
 export function createTransformerWithState(
-  useCSSClasses = false,
-  useTokenTransformer = false
+  useTokenTransformer = false,
+  useCSSClasses = false
 ): CreateTransformerWithStateReturn {
   const state: SharedRenderState = { lineInfo: [] };
   const transformers: ShikiTransformer[] = [

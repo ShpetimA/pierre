@@ -410,7 +410,6 @@ function renderTwoFiles({
   const additionLang =
     languageOverride ?? getFiletypeFromFileName(additionFile.name);
   const { state, transformers } = createTransformerWithState(
-    false,
     options.useTokenTransformer
   );
   const hastConfig: CodeToHastOptions<DiffsThemeNames> = (() => {
