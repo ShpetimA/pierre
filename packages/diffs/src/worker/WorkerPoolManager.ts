@@ -24,6 +24,7 @@ import type {
   ThemedFileResult,
   ThemeRegistrationResolved,
 } from '../types';
+import { areDiffRenderOptionsEqual } from '../utils/areDiffRenderOptionsEqual';
 import { areFilesEqual } from '../utils/areFilesEqual';
 import { areThemesEqual } from '../utils/areThemesEqual';
 import { getFiletypeFromFileName } from '../utils/getFiletypeFromFileName';
@@ -100,6 +101,7 @@ export class WorkerPoolManager {
       theme = DEFAULT_THEMES,
       useTokenTransformer = false,
       lineDiffType = 'word-alt',
+      maxLineDiffLength = 1000,
       tokenizeMaxLineLength = 1000,
       preferredHighlighter = 'shiki-js',
     }: WorkerInitializationRenderOptions
@@ -109,6 +111,7 @@ export class WorkerPoolManager {
       theme,
       useTokenTransformer,
       lineDiffType,
+      maxLineDiffLength,
       tokenizeMaxLineLength,
     };
     this.fileCache = new LRUMapPkg.LRUMap(options.totalASTLRUCacheSize ?? 100);
@@ -157,35 +160,26 @@ export class WorkerPoolManager {
     theme = DEFAULT_THEMES,
     useTokenTransformer = false,
     lineDiffType = 'word-alt',
+    maxLineDiffLength = 1000,
     tokenizeMaxLineLength = 1000,
   }: Partial<WorkerRenderingOptions>): Promise<void> {
     const newRenderOptions: WorkerRenderingOptions = {
       theme,
       useTokenTransformer,
       lineDiffType,
+      maxLineDiffLength,
       tokenizeMaxLineLength,
     };
     if (!this.isInitialized()) {
       await this.initialize();
     }
-    const themesEqual = areThemesEqual(
-      newRenderOptions.theme,
-      this.renderOptions.theme
-    );
-    if (
-      themesEqual &&
-      newRenderOptions.useTokenTransformer ===
-        this.renderOptions.useTokenTransformer &&
-      newRenderOptions.lineDiffType === this.renderOptions.lineDiffType &&
-      newRenderOptions.tokenizeMaxLineLength ===
-        this.renderOptions.tokenizeMaxLineLength
-    ) {
+    if (areDiffRenderOptionsEqual(newRenderOptions, this.renderOptions)) {
       return;
     }
 
     const themeNames = getThemes(theme);
     let resolvedThemes: ThemeRegistrationResolved[] = [];
-    if (!themesEqual) {
+    if (!areThemesEqual(newRenderOptions.theme, this.renderOptions.theme)) {
       if (hasResolvedThemes(themeNames)) {
         resolvedThemes = getResolvedThemes(themeNames);
       } else {

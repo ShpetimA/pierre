@@ -351,7 +351,7 @@ export class VirtualizedFileDiff<
           // computation of fileDiff (in the super.render() call), so we might want
           // to figure out a way to avoid that.  That also could be just as simple as
           // passing through fileDiff though... so maybe we good?
-          parseDiffFromFile(oldFile, newFile)
+          parseDiffFromFile(oldFile, newFile, this.options.parseDiffOptions)
         : undefined);
 
     fileContainer = this.getOrCreateFileContainer(fileContainer);

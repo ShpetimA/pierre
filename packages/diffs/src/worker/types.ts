@@ -21,6 +21,7 @@ export interface WorkerRenderingOptions {
   useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
   lineDiffType: LineDiffTypes;
+  maxLineDiffLength: number;
 }
 
 export interface FileRendererInstance {

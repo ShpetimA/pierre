@@ -1,8 +1,7 @@
 /* oxlint-disable typescript-eslint/no-unsafe-return, typescript-eslint/strict-boolean-expressions */
 import type { FeatureImplementation } from '../../core/types/core';
-import { logWarning } from '../../core/utilities/errors';
 import { makeStateUpdater, poll } from '../../core/utils';
-import type { ItemMeta } from './types';
+import { collectVisibleItemMeta } from './visibleItemMeta';
 
 // oxlint-disable-next-line typescript-eslint/no-explicit-any
 export const treeFeature: FeatureImplementation<any> = {
@@ -26,64 +25,7 @@ export const treeFeature: FeatureImplementation<any> = {
   },
 
   treeInstance: {
-    getItemsMeta: ({ tree }) => {
-      const { rootItemId } = tree.getConfig();
-      const { expandedItems } = tree.getState();
-      const flatItems: ItemMeta[] = [];
-      const expandedItemsSet = new Set(expandedItems); // TODO support setting state expandedItems as set instead of array
-      const lineageSet = new Set([rootItemId]);
-      const lineageStack = [rootItemId];
-
-      // Walks visible tree nodes while reusing a single lineage stack/set for
-      // circular-reference detection to avoid per-node path array allocations.
-      const recursiveAdd = (
-        itemId: string,
-        parentId: string,
-        level: number,
-        setSize: number,
-        posInSet: number
-      ) => {
-        if (lineageSet.has(itemId)) {
-          logWarning(
-            `Circular reference for ${[...lineageStack, itemId].join('.')}`
-          );
-          return;
-        }
-
-        flatItems.push({
-          itemId,
-          level,
-          index: flatItems.length,
-          parentId,
-          setSize,
-          posInSet,
-        });
-
-        if (!expandedItemsSet.has(itemId)) {
-          return;
-        }
-
-        lineageSet.add(itemId);
-        lineageStack.push(itemId);
-
-        const children = tree.retrieveChildrenIds(itemId) ?? [];
-        for (let childIndex = 0; childIndex < children.length; childIndex++) {
-          const childId = children[childIndex];
-          recursiveAdd(childId, itemId, level + 1, children.length, childIndex);
-        }
-
-        lineageStack.pop();
-        lineageSet.delete(itemId);
-      };
-
-      const children = tree.retrieveChildrenIds(rootItemId) ?? [];
-      for (let childIndex = 0; childIndex < children.length; childIndex++) {
-        const itemId = children[childIndex];
-        recursiveAdd(itemId, rootItemId, 0, children.length, childIndex);
-      }
-
-      return flatItems;
-    },
+    getItemsMeta: ({ tree }) => collectVisibleItemMeta(tree),
 
     getFocusedItem: ({ tree }) => {
       const focusedItemId = tree.getState().focusedItem;

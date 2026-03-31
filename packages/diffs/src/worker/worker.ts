@@ -35,6 +35,7 @@ let renderOptions: WorkerRenderingOptions = {
   useTokenTransformer: false,
   tokenizeMaxLineLength: 1000,
   lineDiffType: 'word-alt',
+  maxLineDiffLength: 1000,
 };
 
 self.addEventListener('error', (event) => {

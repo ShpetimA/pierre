@@ -36,8 +36,8 @@ import type {
   SupportedLanguages,
   ThemedDiffResult,
 } from '../types';
+import { areDiffRenderOptionsEqual } from '../utils/areDiffRenderOptionsEqual';
 import { areRenderRangesEqual } from '../utils/areRenderRangesEqual';
-import { areThemesEqual } from '../utils/areThemesEqual';
 import { createAnnotationElement as createDefaultAnnotationElement } from '../utils/createAnnotationElement';
 import { createContentColumn } from '../utils/createContentColumn';
 import { createEmptyRowBuffer } from '../utils/createEmptyRowBuffer';
@@ -393,7 +393,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
     this.diff = diff;
     const { options } = this.getRenderOptions(diff);
     let cache = this.workerManager?.getDiffResultCache(diff);
-    if (cache != null && !areRenderOptionsEqual(options, cache.options)) {
+    if (cache != null && !areDiffRenderOptionsEqual(options, cache.options)) {
       cache = undefined;
     }
     this.renderCache ??= {
@@ -417,13 +417,14 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       if (this.workerManager?.isWorkingPool() === true) {
         return this.workerManager.getDiffRenderOptions();
       }
-      const { theme, tokenizeMaxLineLength, lineDiffType } =
+      const { theme, tokenizeMaxLineLength, lineDiffType, maxLineDiffLength } =
         this.getOptionsWithDefaults();
       return {
         theme,
         useTokenTransformer: shouldUseTokenTransformer(this.options),
         tokenizeMaxLineLength,
         lineDiffType,
+        maxLineDiffLength,
       };
     })();
     this.getOptionsWithDefaults();
@@ -433,7 +434,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
     }
     if (
       diff !== renderCache.diff ||
-      !areRenderOptionsEqual(options, renderCache.options)
+      !areDiffRenderOptionsEqual(options, renderCache.options)
     ) {
       return { options, forceRender: true };
     }
@@ -620,7 +621,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
 
     const triggerRenderUpdate =
       !this.renderCache.highlighted ||
-      !areRenderOptionsEqual(this.renderCache.options, options) ||
+      !areDiffRenderOptionsEqual(this.renderCache.options, options) ||
       this.renderCache.diff !== diff;
 
     this.renderCache = {
@@ -1315,18 +1316,6 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       mode: headerRenderMode,
     });
   }
-}
-
-function areRenderOptionsEqual(
-  optionsA: RenderDiffOptions,
-  optionsB: RenderDiffOptions
-): boolean {
-  return (
-    areThemesEqual(optionsA.theme, optionsB.theme) &&
-    optionsA.useTokenTransformer === optionsB.useTokenTransformer &&
-    optionsA.tokenizeMaxLineLength === optionsB.tokenizeMaxLineLength &&
-    optionsA.lineDiffType === optionsB.lineDiffType
-  );
 }
 
 function getModifiedLinesString(lines: number) {

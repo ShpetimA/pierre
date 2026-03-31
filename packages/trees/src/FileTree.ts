@@ -26,6 +26,7 @@ import {
   filterOrphanedPaths,
   isOrphanedPathForExpandedSet,
 } from './utils/expandPaths';
+import type { IdToPathLookup, PathToIdLookup } from './utils/pathLookups';
 import {
   preactHydrateRoot,
   preactRenderRoot,
@@ -85,8 +86,9 @@ export type FileTreeCollision = {
 
 export interface FileTreeHandle {
   tree: TreeInstance<FileTreeNode>;
-  pathToId: Map<string, string>;
-  idToPath: Pick<Map<string, string>, 'get' | 'has'>;
+  /** Lightweight path lookup used by FileTree state helpers. Not a full Map. */
+  pathToId: PathToIdLookup;
+  idToPath: IdToPathLookup;
   closeContextMenu?: () => void;
 }
 
@@ -194,9 +196,9 @@ export class FileTree {
   readonly callbacksRef: { current: FileTreeCallbacks };
 
   private expandPathsCache: Map<string, string[]> = new Map();
-  private expandPathsCacheFor: Map<string, string> | null = null;
+  private expandPathsCacheFor: PathToIdLookup | null = null;
   private childCountCache: Map<string, number> | null = null;
-  private childCountCacheFor: Map<string, string> | null = null;
+  private childCountCacheFor: PathToIdLookup | null = null;
 
   constructor(
     public options: FileTreeOptions,
