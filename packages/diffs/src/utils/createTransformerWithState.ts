@@ -16,8 +16,8 @@ interface CreateTransformerWithStateReturn {
   toClass: ShikiTransformerStyleToClass;
 }
 
-type TokenWithOriginalRange = ThemedToken & {
-  __originalTokenChar?: number;
+type TokenWithLineChar = ThemedToken & {
+  __lineChar?: number;
 };
 
 export function createTransformerWithState(
@@ -55,9 +55,8 @@ export function createTransformerWithState(
               for (const line of lines) {
                 let col = 0;
                 for (const token of line) {
-                  const tokenWithOriginalRange =
-                    token as TokenWithOriginalRange;
-                  tokenWithOriginalRange.__originalTokenChar ??= col;
+                  const tokenWithOriginalRange = token as TokenWithLineChar;
+                  tokenWithOriginalRange.__lineChar ??= col;
                   col += token.content.length;
                 }
               }
@@ -67,8 +66,8 @@ export function createTransformerWithState(
             },
             span(hast, _line, _char, _lineElement, token) {
               if (token?.offset != null && token.content != null) {
-                const tokenWithOriginalRange = token as TokenWithOriginalRange;
-                const tokenChar = tokenWithOriginalRange.__originalTokenChar;
+                const tokenWithOriginalRange = token as TokenWithLineChar;
+                const tokenChar = tokenWithOriginalRange.__lineChar;
                 if (tokenChar != null) {
                   hast.properties['data-char'] = tokenChar;
                 }
