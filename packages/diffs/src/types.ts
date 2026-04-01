@@ -375,6 +375,7 @@ export interface BaseCodeOptions {
   // Shiki config options, ignored if you're using a WorkerPoolManager
   preferredHighlighter?: HighlighterTypes;
   useCSSClasses?: boolean;
+  useTokenTransformer?: boolean;
   tokenizeMaxLineLength?: number;
 
   // Custom CSS injection
@@ -530,6 +531,19 @@ export interface DiffLineEventBaseProps extends Omit<
   lineType: LineTypes;
 }
 
+export interface TokenEventBase {
+  type: 'token';
+  lineNumber: number;
+  lineCharStart: number;
+  lineCharEnd: number;
+  tokenText: string;
+  tokenElement: HTMLElement;
+}
+
+export interface DiffTokenEventBaseProps extends TokenEventBase {
+  side: AnnotationSide;
+}
+
 export interface ObservedAnnotationNodes {
   type: 'annotations';
   column1: {
@@ -614,11 +628,13 @@ export interface ForceFilePlainTextOptions {
 
 export interface RenderFileOptions {
   theme: DiffsThemeNames | Record<'dark' | 'light', DiffsThemeNames>;
+  useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
 }
 
 export interface RenderDiffOptions {
   theme: DiffsThemeNames | Record<'dark' | 'light', DiffsThemeNames>;
+  useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
   lineDiffType: LineDiffTypes;
   maxLineDiffLength: number;

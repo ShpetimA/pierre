@@ -3,10 +3,12 @@ import {
   transformerStyleToClass,
 } from '@shikijs/transformers';
 import type { ElementContent } from 'hast';
+import type { ThemedToken } from 'shiki';
 
 import type { SharedRenderState, ShikiTransformer } from '../types';
 import { findCodeElement } from './hast_utils';
 import { processLine } from './processLine';
+import { wrapTokenFragments } from './wrapTokenFragments';
 
 interface CreateTransformerWithStateReturn {
   state: SharedRenderState;
@@ -14,7 +16,12 @@ interface CreateTransformerWithStateReturn {
   toClass: ShikiTransformerStyleToClass;
 }
 
+type TokenWithLineChar = ThemedToken & {
+  __lineChar?: number;
+};
+
 export function createTransformerWithState(
+  useTokenTransformer = false,
   useCSSClasses = false
 ): CreateTransformerWithStateReturn {
   const state: SharedRenderState = { lineInfo: [] };
@@ -32,6 +39,9 @@ export function createTransformerWithState(
           let index = 1;
           for (const node of code.children) {
             if (node.type !== 'element') continue;
+            if (useTokenTransformer) {
+              wrapTokenFragments(node);
+            }
             children.push(processLine(node, index, state));
             index++;
           }
@@ -39,6 +49,34 @@ export function createTransformerWithState(
         }
         return pre;
       },
+      ...(useTokenTransformer
+        ? {
+            tokens(lines) {
+              for (const line of lines) {
+                let col = 0;
+                for (const token of line) {
+                  const tokenWithOriginalRange = token as TokenWithLineChar;
+                  tokenWithOriginalRange.__lineChar ??= col;
+                  col += token.content.length;
+                }
+              }
+            },
+            preprocess(_code, options) {
+              options.mergeWhitespaces = 'never';
+            },
+            span(hast, _line, _char, _lineElement, token) {
+              if (token?.offset != null && token.content != null) {
+                const tokenWithOriginalRange = token as TokenWithLineChar;
+                const tokenChar = tokenWithOriginalRange.__lineChar;
+                if (tokenChar != null) {
+                  hast.properties['data-char'] = tokenChar;
+                }
+                return hast;
+              }
+              return hast;
+            },
+          }
+        : null),
     },
   ];
   if (useCSSClasses) {

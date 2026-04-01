@@ -61,6 +61,7 @@ import { isDiffPlainText } from '../utils/isDiffPlainText';
 import type { DiffLineMetadata } from '../utils/iterateOverDiff';
 import { iterateOverDiff } from '../utils/iterateOverDiff';
 import { renderDiffWithHighlighter } from '../utils/renderDiffWithHighlighter';
+import { shouldUseTokenTransformer } from '../utils/shouldUseTokenTransformer';
 import type { WorkerPoolManager } from '../worker';
 
 interface PushLineWithAnnotation {
@@ -352,6 +353,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       theme = DEFAULT_THEMES,
       headerRenderMode = 'default',
       tokenizeMaxLineLength = 1000,
+      useTokenTransformer = false,
       useCSSClasses = false,
     } = this.options;
     return {
@@ -372,6 +374,7 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       theme: this.workerManager?.getDiffRenderOptions().theme ?? theme,
       headerRenderMode,
       tokenizeMaxLineLength,
+      useTokenTransformer,
       useCSSClasses,
     };
   }
@@ -416,7 +419,13 @@ export class DiffHunksRenderer<LAnnotation = undefined> {
       }
       const { theme, tokenizeMaxLineLength, lineDiffType, maxLineDiffLength } =
         this.getOptionsWithDefaults();
-      return { theme, tokenizeMaxLineLength, lineDiffType, maxLineDiffLength };
+      return {
+        theme,
+        useTokenTransformer: shouldUseTokenTransformer(this.options),
+        tokenizeMaxLineLength,
+        lineDiffType,
+        maxLineDiffLength,
+      };
     })();
     this.getOptionsWithDefaults();
     const { renderCache } = this;

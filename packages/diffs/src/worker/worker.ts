@@ -32,6 +32,7 @@ import type {
 let highlighter: Promise<DiffsHighlighter> | DiffsHighlighter | undefined;
 let renderOptions: WorkerRenderingOptions = {
   theme: DEFAULT_THEMES,
+  useTokenTransformer: false,
   tokenizeMaxLineLength: 1000,
   lineDiffType: 'word-alt',
   maxLineDiffLength: 1000,
@@ -130,6 +131,7 @@ async function handleRenderFile({
   }
   const fileOptions = {
     theme: renderOptions.theme,
+    useTokenTransformer: renderOptions.useTokenTransformer,
     tokenizeMaxLineLength: renderOptions.tokenizeMaxLineLength,
   };
   sendFileSuccess(

@@ -24,7 +24,11 @@ const DEFAULT_PLAIN_TEXT_OPTIONS: ForceFilePlainTextOptions = {
 export function renderFileWithHighlighter(
   file: FileContents,
   highlighter: DiffsHighlighter,
-  { theme = DEFAULT_THEMES, tokenizeMaxLineLength }: RenderFileOptions,
+  {
+    theme = DEFAULT_THEMES,
+    tokenizeMaxLineLength,
+    useTokenTransformer,
+  }: RenderFileOptions,
   {
     forcePlainText,
     startingLine,
@@ -44,7 +48,8 @@ export function renderFileWithHighlighter(
     totalLines = Infinity;
   }
   const isWindowedHighlight = startingLine > 0 || totalLines < Infinity;
-  const { state, transformers } = createTransformerWithState();
+  const { state, transformers } =
+    createTransformerWithState(useTokenTransformer);
   const lang = forcePlainText
     ? 'text'
     : (file.lang ?? getFiletypeFromFileName(file.name));

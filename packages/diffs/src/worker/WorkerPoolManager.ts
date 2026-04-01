@@ -99,6 +99,7 @@ export class WorkerPoolManager {
     {
       langs,
       theme = DEFAULT_THEMES,
+      useTokenTransformer = false,
       lineDiffType = 'word-alt',
       maxLineDiffLength = 1000,
       tokenizeMaxLineLength = 1000,
@@ -108,6 +109,7 @@ export class WorkerPoolManager {
     this.preferredHighlighter = preferredHighlighter;
     this.renderOptions = {
       theme,
+      useTokenTransformer,
       lineDiffType,
       maxLineDiffLength,
       tokenizeMaxLineLength,
@@ -156,12 +158,14 @@ export class WorkerPoolManager {
 
   async setRenderOptions({
     theme = DEFAULT_THEMES,
+    useTokenTransformer = false,
     lineDiffType = 'word-alt',
     maxLineDiffLength = 1000,
     tokenizeMaxLineLength = 1000,
   }: Partial<WorkerRenderingOptions>): Promise<void> {
     const newRenderOptions: WorkerRenderingOptions = {
       theme,
+      useTokenTransformer,
       lineDiffType,
       maxLineDiffLength,
       tokenizeMaxLineLength,
@@ -208,8 +212,9 @@ export class WorkerPoolManager {
   }
 
   getFileRenderOptions(): RenderFileOptions {
-    const { tokenizeMaxLineLength, theme } = this.renderOptions;
-    return { theme, tokenizeMaxLineLength };
+    const { tokenizeMaxLineLength, theme, useTokenTransformer } =
+      this.renderOptions;
+    return { theme, useTokenTransformer, tokenizeMaxLineLength };
   }
 
   getDiffRenderOptions(): RenderDiffOptions {

@@ -18,6 +18,7 @@ export type WorkerRequestId = string;
 
 export interface WorkerRenderingOptions {
   theme: DiffsThemeNames | ThemesType;
+  useTokenTransformer: boolean;
   tokenizeMaxLineLength: number;
   lineDiffType: LineDiffTypes;
   maxLineDiffLength: number;
