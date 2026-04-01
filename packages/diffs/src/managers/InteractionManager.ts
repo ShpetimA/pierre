@@ -10,12 +10,23 @@ import type {
   MergeConflictResolution,
   SelectionPoint,
   SelectionSide,
-  TokenEventBaseProps,
-  TokenInfo,
+  TokenEventBase,
 } from '../types';
 import { areSelectionPointsEqual } from '../utils/areSelectionPointsEqual';
 import { areSelectionsEqual } from '../utils/areSelectionsEqual';
 import { createGutterUtilityElement } from '../utils/createGutterUtilityElement';
+
+interface TokenCache {
+  tokenElement: HTMLElement;
+  charStart: number;
+  charEnd: number;
+  tokenText: string;
+}
+
+interface ExpandCache {
+  hunkIndex: number | undefined;
+  direction: ExpansionDirections;
+}
 
 export type LogTypes = 'click' | 'move' | 'both' | 'none';
 
@@ -34,22 +45,6 @@ export interface OnDiffLineClickProps extends DiffLineEventBaseProps {
 }
 
 export interface OnDiffLineEnterLeaveProps extends DiffLineEventBaseProps {
-  event: PointerEvent;
-}
-
-export interface OnTokenClickProps extends TokenEventBaseProps {
-  event: PointerEvent;
-}
-
-export interface OnDiffTokenClickProps extends DiffTokenEventBaseProps {
-  event: PointerEvent;
-}
-
-export interface OnTokenEnterLeaveProps extends TokenEventBaseProps {
-  event: PointerEvent;
-}
-
-export interface OnDiffTokenEnterLeaveProps extends DiffTokenEventBaseProps {
   event: PointerEvent;
 }
 
@@ -75,14 +70,8 @@ type EventBaseProps<TMode extends InteractionManagerMode> = TMode extends 'file'
   ? LineEventBaseProps
   : DiffLineEventBaseProps;
 
-type TokenEventClickProps<TMode extends InteractionManagerMode> =
-  TMode extends 'file' ? OnTokenClickProps : OnDiffTokenClickProps;
-
-type TokenPointerEventEnterLeaveProps<TMode extends InteractionManagerMode> =
-  TMode extends 'file' ? OnTokenEnterLeaveProps : OnDiffTokenEnterLeaveProps;
-
-type TokenEventProps<TMode extends InteractionManagerMode> =
-  TMode extends 'file' ? TokenEventBaseProps : DiffTokenEventBaseProps;
+export type OnTokenEventProps<TMode extends InteractionManagerMode> =
+  TMode extends 'file' ? TokenEventBase : DiffTokenEventBaseProps;
 
 interface ExpandoEventProps {
   type: 'line-info';
@@ -122,7 +111,9 @@ interface ResolvedTokenTarget<TMode extends InteractionManagerMode> {
   side: TMode extends 'diff' ? AnnotationSide : undefined;
   splitLineIndex: number | undefined;
   tokenElement: HTMLElement;
-  token: TokenInfo;
+  tokenText: string;
+  charStart: number;
+  charEnd: number;
 }
 
 export interface MergeConflictActionTarget {
@@ -187,9 +178,9 @@ export interface InteractionManagerBaseOptions<
   onLineNumberClick?(props: EventClickProps<TMode>): unknown;
   onLineEnter?(props: PointerEventEnterLeaveProps<TMode>): unknown;
   onLineLeave?(props: PointerEventEnterLeaveProps<TMode>): unknown;
-  onTokenClick?(props: TokenEventClickProps<TMode>): unknown;
-  onTokenEnter?(props: TokenPointerEventEnterLeaveProps<TMode>): unknown;
-  onTokenLeave?(props: TokenPointerEventEnterLeaveProps<TMode>): unknown;
+  onTokenClick?(props: OnTokenEventProps<TMode>, event: MouseEvent): unknown;
+  onTokenEnter?(props: OnTokenEventProps<TMode>, event: PointerEvent): unknown;
+  onTokenLeave?(props: OnTokenEventProps<TMode>, event: PointerEvent): unknown;
   __debugPointerEvents?: LogTypes;
   enableLineSelection?: boolean;
   onLineSelected?: (range: SelectedLineRange | null) => void;
@@ -218,7 +209,7 @@ interface HandlePointerEventProps {
 
 export class InteractionManager<TMode extends InteractionManagerMode> {
   private hoveredLine: EventBaseProps<TMode> | undefined;
-  private hoveredToken: TokenEventProps<TMode> | undefined;
+  private hoveredToken: OnTokenEventProps<TMode> | undefined;
   private pre: HTMLPreElement | undefined;
 
   private gutterUtilityContainer: HTMLDivElement | undefined;
@@ -423,10 +414,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     }
     this.gutterUtilityContainer?.remove();
     if (this.hoveredToken != null) {
-      this.options.onTokenLeave?.({
-        ...this.hoveredToken,
-        event,
-      } as TokenPointerEventEnterLeaveProps<TMode>);
+      this.options.onTokenLeave?.(this.hoveredToken, event);
       this.clearHoveredToken();
     }
 
@@ -480,18 +468,15 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         // Handle token transitions
         if (!sameToken) {
           if (this.hoveredToken != null) {
-            onTokenLeave?.({
-              ...this.hoveredToken,
-              event: event as PointerEvent,
-            } as TokenPointerEventEnterLeaveProps<TMode>);
+            onTokenLeave?.(this.hoveredToken, event as PointerEvent);
             this.clearHoveredToken();
           }
           if (isTokenPointerTarget(target)) {
             this.setHoveredToken(this.toTokenEventBaseProps(target));
-            onTokenEnter?.({
-              ...this.hoveredToken,
-              event: event as PointerEvent,
-            } as TokenPointerEventEnterLeaveProps<TMode>);
+            onTokenEnter?.(
+              this.hoveredToken as OnTokenEventProps<TMode>,
+              event as PointerEvent
+            );
           }
         }
 
@@ -543,10 +528,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         }
 
         if (isTokenPointerTarget(target) && onTokenClick != null) {
-          onTokenClick({
-            ...this.toTokenEventBaseProps(target),
-            event: event as PointerEvent,
-          } as TokenEventClickProps<TMode>);
+          onTokenClick(this.toTokenEventBaseProps(target), event as MouseEvent);
         }
 
         const eventBase = this.toEventBaseProps(target);
@@ -1001,7 +983,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     this.hoveredToken = undefined;
   }
 
-  private setHoveredToken(hoveredToken: TokenEventProps<TMode>) {
+  private setHoveredToken(hoveredToken: OnTokenEventProps<TMode>) {
     if (this.hoveredToken != null) {
       this.clearHoveredToken();
     }
@@ -1326,32 +1308,34 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     } as EventBaseProps<TMode>;
   }
 
-  private toTokenEventBaseProps(
-    target: TokenPointerTarget<TMode>
-  ): TokenEventProps<TMode> {
+  private toTokenEventBaseProps({
+    charEnd,
+    charStart,
+    lineNumber,
+    side,
+    tokenElement,
+    tokenText,
+  }: TokenPointerTarget<TMode>): OnTokenEventProps<TMode> {
     if (this.mode === 'file') {
       return {
         type: 'token',
-        lineElement: target.lineElement,
-        lineNumber: target.lineNumber,
-        numberColumn: target.numberColumn,
-        numberElement: target.numberElement,
-        tokenElement: target.tokenElement,
-        token: target.token,
-      } as TokenEventProps<TMode>;
+        charEnd,
+        charStart,
+        lineNumber,
+        tokenElement,
+        tokenText,
+      } as OnTokenEventProps<TMode>;
     }
 
     return {
-      type: 'diff-token',
-      annotationSide: target.side as AnnotationSide,
-      lineType: target.lineType,
-      lineElement: target.lineElement,
-      numberElement: target.numberElement,
-      lineNumber: target.lineNumber,
-      numberColumn: target.numberColumn,
-      tokenElement: target.tokenElement,
-      token: target.token,
-    } as TokenEventProps<TMode>;
+      type: 'token',
+      charEnd,
+      charStart,
+      lineNumber,
+      side,
+      tokenElement,
+      tokenText,
+    } as OnTokenEventProps<TMode>;
   }
 
   private buildSelectedLineRange(
@@ -1390,13 +1374,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     let lineIndexValue: string | undefined;
     let numberElement: HTMLElement | undefined;
     let tokenElement: HTMLElement | undefined;
-    let tokenInfo: TokenInfo | undefined;
-    let expandInfo:
-      | {
-          hunkIndex: number | undefined;
-          direction: ExpansionDirections;
-        }
-      | undefined;
+    let tokenInfo: TokenCache | undefined;
+    let expandInfo: ExpandCache | undefined;
     let lineNumber: number | undefined;
     let mergeConflictActionTarget: MergeConflictActionTarget | undefined;
 
@@ -1435,20 +1414,15 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         const startAttr = element.getAttribute('data-char');
 
         if (startAttr != null) {
-          const start = Number.parseInt(startAttr, 10);
-          if (!Number.isNaN(start)) {
+          const charStart = Number.parseInt(startAttr, 10);
+          if (!Number.isNaN(charStart)) {
             const tokenText = element.textContent ?? '';
-            const end = start + tokenText.length;
-
+            const charEnd = charStart + tokenText.length;
             if (
               tokenText.trim() !== '' ||
               this.options.enableTokenInteractionsOnWhitespace === true
             ) {
-              tokenInfo = {
-                start,
-                end,
-                text: tokenText,
-              };
+              tokenInfo = { tokenElement, charStart, charEnd, tokenText };
             }
             continue;
           }
@@ -1554,7 +1528,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
 
     const splitLineIndex = this.parseLineIndex(lineElement, this.isSplitDiff());
 
-    if (tokenElement != null && tokenInfo != null) {
+    if (tokenInfo != null) {
       if (this.mode === 'file') {
         return {
           kind: 'token',
@@ -1565,8 +1539,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
           numberElement,
           side: undefined,
           splitLineIndex,
-          tokenElement,
-          token: tokenInfo,
+          ...tokenInfo,
         } as ResolvedPointerTarget<TMode>;
       }
 
@@ -1579,8 +1552,7 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         numberElement,
         side: getAnnotationSide(lineType, codeElement),
         splitLineIndex,
-        tokenElement,
-        token: tokenInfo,
+        ...tokenInfo,
       } as ResolvedPointerTarget<TMode>;
     }
 
