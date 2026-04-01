@@ -354,7 +354,7 @@ function renderDiff(parsedPatches: ParsedPatch[], manager?: WorkerPoolManager) {
         //     'enter',
         //     props.tokenText,
         //     props.lineNumber,
-        //     props.charStart
+        //     props.lineCharStart
         //   );
         //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
         //   props.tokenElement.style.color = 'light-dark(white, black)';
@@ -365,7 +365,7 @@ function renderDiff(parsedPatches: ParsedPatch[], manager?: WorkerPoolManager) {
         //     'leave',
         //     props.tokenText,
         //     props.lineNumber,
-        //     props.charStart
+        //     props.lineCharStart
         //   );
         //   props.tokenElement.style.backgroundColor = '';
         //   props.tokenElement.style.color = '';
@@ -757,7 +757,7 @@ if (renderFileButton != null) {
       //     'enter',
       //     props.tokenText,
       //     props.lineNumber,
-      //     props.charStart
+      //     props.lineCharStart
       //   );
       //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
       //   props.tokenElement.style.color = 'light-dark(white, black)';
@@ -768,7 +768,7 @@ if (renderFileButton != null) {
       //     'leave',
       //     props.tokenText,
       //     props.lineNumber,
-      //     props.charStart
+      //     props.lineCharStart
       //   );
       //   props.tokenElement.style.backgroundColor = '';
       //   props.tokenElement.style.color = '';
@@ -825,7 +825,7 @@ if (renderFileConflictButton != null) {
         //     'enter',
         //     props.tokenText,
         //     props.lineNumber,
-        //     props.charStart
+        //     props.lineCharStart
         //   );
         //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
         //   props.tokenElement.style.color = 'light-dark(white, black)';
@@ -836,7 +836,7 @@ if (renderFileConflictButton != null) {
         //     'leave',
         //     props.tokenText,
         //     props.lineNumber,
-        //     props.charStart
+        //     props.lineCharStart
         //   );
         //   props.tokenElement.style.backgroundColor = '';
         //   props.tokenElement.style.color = '';

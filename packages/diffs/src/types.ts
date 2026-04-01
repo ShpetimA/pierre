@@ -534,8 +534,8 @@ export interface DiffLineEventBaseProps extends Omit<
 export interface TokenEventBase {
   type: 'token';
   lineNumber: number;
-  charStart: number;
-  charEnd: number;
+  lineCharStart: number;
+  lineCharEnd: number;
   tokenText: string;
   tokenElement: HTMLElement;
 }

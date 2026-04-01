@@ -18,8 +18,8 @@ import { createGutterUtilityElement } from '../utils/createGutterUtilityElement'
 
 interface TokenCache {
   tokenElement: HTMLElement;
-  charStart: number;
-  charEnd: number;
+  lineCharStart: number;
+  lineCharEnd: number;
   tokenText: string;
 }
 
@@ -112,8 +112,8 @@ interface ResolvedTokenTarget<TMode extends InteractionManagerMode> {
   splitLineIndex: number | undefined;
   tokenElement: HTMLElement;
   tokenText: string;
-  charStart: number;
-  charEnd: number;
+  lineCharStart: number;
+  lineCharEnd: number;
 }
 
 export interface MergeConflictActionTarget {
@@ -1309,8 +1309,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
   }
 
   private toTokenEventBaseProps({
-    charEnd,
-    charStart,
+    lineCharEnd,
+    lineCharStart,
     lineNumber,
     side,
     tokenElement,
@@ -1319,8 +1319,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
     if (this.mode === 'file') {
       return {
         type: 'token',
-        charEnd,
-        charStart,
+        lineCharEnd,
+        lineCharStart,
         lineNumber,
         tokenElement,
         tokenText,
@@ -1329,8 +1329,8 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
 
     return {
       type: 'token',
-      charEnd,
-      charStart,
+      lineCharEnd,
+      lineCharStart,
       lineNumber,
       side,
       tokenElement,
@@ -1414,15 +1414,20 @@ export class InteractionManager<TMode extends InteractionManagerMode> {
         const startAttr = element.getAttribute('data-char');
 
         if (startAttr != null) {
-          const charStart = Number.parseInt(startAttr, 10);
-          if (!Number.isNaN(charStart)) {
+          const lineCharStart = Number.parseInt(startAttr, 10);
+          if (!Number.isNaN(lineCharStart)) {
             const tokenText = element.textContent ?? '';
-            const charEnd = charStart + tokenText.length;
+            const lineCharEnd = lineCharStart + tokenText.length;
             if (
               tokenText.trim() !== '' ||
               this.options.enableTokenInteractionsOnWhitespace === true
             ) {
-              tokenInfo = { tokenElement, charStart, charEnd, tokenText };
+              tokenInfo = {
+                tokenElement,
+                lineCharStart,
+                lineCharEnd,
+                tokenText,
+              };
             }
             continue;
           }
