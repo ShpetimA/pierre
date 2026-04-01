@@ -1,16 +1,6 @@
 {
   "extends": "../../tsconfig.options.json",
-  "include": [
-    "scripts/**/*.ts",
-    "scripts/**/*.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.json",
-    "test/**/*.ts",
-    "test/**/*.tsx",
-    "test/**/*.json",
-    "tsdown.config.ts"
-  ],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "isolatedDeclarations": true,
@@ -18,10 +8,8 @@
     "checkJs": false,
     "emitDeclarationOnly": true,
     "outDir": "dist",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023"],
     "types": ["bun"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
