@@ -1,5 +1,7 @@
 import type { ElementContent, Element as HASTElement } from 'hast';
 
+import { createHastElement } from './hast_utils';
+
 const NO_TOKEN: unique symbol = Symbol('no-token');
 const MULTIPLE_TOKENS: unique symbol = Symbol('multiple-tokens');
 
@@ -45,14 +47,13 @@ export function wrapTokenFragments(container: HASTElement): TokenFragmentState {
       stripTokenChar(child);
     }
 
-    wrappedChildren.push({
-      type: 'element',
-      tagName: 'span',
-      properties: {
-        'data-char': currentTokenChar,
-      },
-      children: currentTokenChildren,
-    });
+    wrappedChildren.push(
+      createHastElement({
+        tagName: 'span',
+        properties: { 'data-char': currentTokenChar },
+        children: currentTokenChildren,
+      })
+    );
 
     currentTokenChildren = [];
     currentTokenChar = undefined;
@@ -109,7 +110,7 @@ function getTokenChar(node: HASTElement): number | undefined {
 
 function stripTokenChar(node: ElementContent): void {
   if (node.type !== 'element') return;
-  delete node.properties['data-char'];
+  node.properties['data-char'] = undefined;
   for (const child of node.children) {
     stripTokenChar(child);
   }
