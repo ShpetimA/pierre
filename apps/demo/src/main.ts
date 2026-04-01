@@ -42,8 +42,8 @@ import {
   renderDiffAnnotation,
 } from './utils/renderAnnotation';
 
-FAKE_DIFF_LINE_ANNOTATIONS.length = 0;
-FAKE_LINE_ANNOTATIONS.length = 0;
+// FAKE_DIFF_LINE_ANNOTATIONS.length = 0;
+// FAKE_LINE_ANNOTATIONS.length = 0;
 const DEMO_THEME: DiffsThemeNames | ThemesType = DEFAULT_THEMES;
 const WORKER_POOL = true;
 const VIRTUALIZE = true;
@@ -348,28 +348,29 @@ function renderDiff(parsedPatches: ParsedPatch[], manager?: WorkerPoolManager) {
         // },
         // __debugMouseEvents: 'click',
 
-        onTokenEnter(props) {
-          console.log(
-            'enter',
-            props.tokenText,
-            props.lineNumber,
-            props.charStart
-          );
-          props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
-          props.tokenElement.style.color = 'light-dark(white, black)';
-          props.tokenElement.style.borderRadius = '2px';
-        },
-        onTokenLeave(props) {
-          console.log(
-            'leave',
-            props.tokenText,
-            props.lineNumber,
-            props.charStart
-          );
-          props.tokenElement.style.backgroundColor = '';
-          props.tokenElement.style.color = '';
-          props.tokenElement.style.borderRadius = '';
-        },
+        // Token Testing Helpers
+        // onTokenEnter(props) {
+        //   console.log(
+        //     'enter',
+        //     props.tokenText,
+        //     props.lineNumber,
+        //     props.charStart
+        //   );
+        //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
+        //   props.tokenElement.style.color = 'light-dark(white, black)';
+        //   props.tokenElement.style.borderRadius = '2px';
+        // },
+        // onTokenLeave(props) {
+        //   console.log(
+        //     'leave',
+        //     props.tokenText,
+        //     props.lineNumber,
+        //     props.charStart
+        //   );
+        //   props.tokenElement.style.backgroundColor = '';
+        //   props.tokenElement.style.color = '';
+        //   props.tokenElement.style.borderRadius = '';
+        // },
       };
       instance = (() => {
         if (virtualizer != null) {
@@ -750,28 +751,29 @@ if (renderFileButton != null) {
       //   return el;
       // },
 
-      onTokenEnter(props) {
-        console.log(
-          'enter',
-          props.tokenText,
-          props.lineNumber,
-          props.charStart
-        );
-        props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
-        props.tokenElement.style.color = 'light-dark(white, black)';
-        props.tokenElement.style.borderRadius = '2px';
-      },
-      onTokenLeave(props) {
-        console.log(
-          'leave',
-          props.tokenText,
-          props.lineNumber,
-          props.charStart
-        );
-        props.tokenElement.style.backgroundColor = '';
-        props.tokenElement.style.color = '';
-        props.tokenElement.style.borderRadius = '';
-      },
+      // Token Testing Helpers
+      // onTokenEnter(props) {
+      //   console.log(
+      //     'enter',
+      //     props.tokenText,
+      //     props.lineNumber,
+      //     props.charStart
+      //   );
+      //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
+      //   props.tokenElement.style.color = 'light-dark(white, black)';
+      //   props.tokenElement.style.borderRadius = '2px';
+      // },
+      // onTokenLeave(props) {
+      //   console.log(
+      //     'leave',
+      //     props.tokenText,
+      //     props.lineNumber,
+      //     props.charStart
+      //   );
+      //   props.tokenElement.style.backgroundColor = '';
+      //   props.tokenElement.style.color = '';
+      //   props.tokenElement.style.borderRadius = '';
+      // },
     };
 
     instance = (() => {
@@ -816,28 +818,30 @@ if (renderFileConflictButton != null) {
         enableLineSelection: true,
         enableGutterUtility: true,
         maxContextLines: 4,
-        onTokenEnter(props) {
-          console.log(
-            'enter',
-            props.tokenText,
-            props.lineNumber,
-            props.charStart
-          );
-          props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
-          props.tokenElement.style.color = 'light-dark(white, black)';
-          props.tokenElement.style.borderRadius = '2px';
-        },
-        onTokenLeave(props) {
-          console.log(
-            'leave',
-            props.tokenText,
-            props.lineNumber,
-            props.charStart
-          );
-          props.tokenElement.style.backgroundColor = '';
-          props.tokenElement.style.color = '';
-          props.tokenElement.style.borderRadius = '';
-        },
+
+        // Token Testing Helpers
+        // onTokenEnter(props) {
+        //   console.log(
+        //     'enter',
+        //     props.tokenText,
+        //     props.lineNumber,
+        //     props.charStart
+        //   );
+        //   props.tokenElement.style.backgroundColor = 'light-dark(black, white)';
+        //   props.tokenElement.style.color = 'light-dark(white, black)';
+        //   props.tokenElement.style.borderRadius = '2px';
+        // },
+        // onTokenLeave(props) {
+        //   console.log(
+        //     'leave',
+        //     props.tokenText,
+        //     props.lineNumber,
+        //     props.charStart
+        //   );
+        //   props.tokenElement.style.backgroundColor = '';
+        //   props.tokenElement.style.color = '';
+        //   props.tokenElement.style.borderRadius = '';
+        // },
       },
       poolManager
     );
