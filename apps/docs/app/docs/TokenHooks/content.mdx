@@ -35,6 +35,8 @@ Shared behavior:
   `useTokenTransformer: true` on `WorkerPoolManager`. Worker pools can move
   highlighting work off the main thread, but they do not reduce the extra DOM
   size created by token metadata.
+- If you are using [SSR](#ssr) don't forget to set `useTokenTransformer: true`
+  on your preload option configs
 
 <TokenHookTabs
   reactExample={reactTokenHooks}
