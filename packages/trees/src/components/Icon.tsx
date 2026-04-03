@@ -7,27 +7,12 @@ const DEFAULT_HEIGHT = 16;
 const ICON_SIZE_OVERRIDES: Record<
   string,
   { width: number; height: number; viewBox?: string } | undefined
-> = {
-  'file-tree-icon-chevron': {
-    width: 12,
-    height: 12,
-    viewBox: '0 0 16 16',
-  },
-  'file-tree-icon-file': {
-    width: 12,
-    height: 12,
-    viewBox: '0 0 16 16',
-  },
-  'file-tree-icon-lock': {
-    width: 12,
-    height: 12,
-    viewBox: '0 0 16 16',
-  },
-};
+> = {};
 
 export function Icon({
   name,
   remappedFrom,
+  token,
   width: propWidth,
   height: propHeight,
   viewBox: propViewBox,
@@ -36,6 +21,7 @@ export function Icon({
 }: {
   name: string;
   remappedFrom?: string;
+  token?: string;
   width?: number;
   height?: number;
   viewBox?: string;
@@ -66,6 +52,7 @@ export function Icon({
   return (
     <svg
       data-icon-name={remappedFrom ?? name}
+      data-icon-token={token}
       data-align-capitals={alignCapitals}
       {...a11yProps}
       viewBox={viewBox}

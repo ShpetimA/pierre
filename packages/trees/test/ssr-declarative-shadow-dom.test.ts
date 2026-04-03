@@ -63,6 +63,26 @@ const CUSTOM_SPRITE_B = `
 </svg>
 `;
 
+const FILE_TYPE_CUSTOM_SPRITE = `
+<svg>
+  <symbol id="custom-default" viewBox="0 0 12 12">
+    <rect x="0" y="0" width="12" height="12" />
+  </symbol>
+  <symbol id="custom-package" viewBox="0 0 12 12">
+    <circle cx="6" cy="6" r="6" />
+  </symbol>
+  <symbol id="custom-ts" viewBox="0 0 12 12">
+    <path d="M1 1h10v10H1z" />
+  </symbol>
+  <symbol id="custom-spec-ts" viewBox="0 0 12 12">
+    <path d="M1 1h10v10H1zM3 3h6v6H3z" />
+  </symbol>
+  <symbol id="custom-gitignore" viewBox="0 0 12 12">
+    <path d="M1 6h10" />
+  </symbol>
+</svg>
+`;
+
 describe('SSR + declarative shadow DOM', () => {
   test('preloadFileTree returns an id and shadow HTML containing the expected wrapper', () => {
     const payload = preloadFileTree({
@@ -467,6 +487,241 @@ describe('SSR + declarative shadow DOM', () => {
         virtualize: { threshold: 0 },
       })
     ).not.toThrow();
+  });
+
+  test('preloadFileTree remaps file icons by file name and extension', () => {
+    const payload = preloadFileTree({
+      initialFiles: [
+        'package.json',
+        'index.ts',
+        'widget.spec.ts',
+        '.gitignore',
+        'README.md',
+      ],
+      icons: {
+        spriteSheet: FILE_TYPE_CUSTOM_SPRITE,
+        remap: {
+          'file-tree-icon-file': 'custom-default',
+        },
+        byFileName: {
+          'package.json': 'custom-package',
+          '.gitignore': 'custom-gitignore',
+        },
+        byFileExtension: {
+          ts: 'custom-ts',
+          'spec.ts': 'custom-spec-ts',
+        },
+      },
+    });
+
+    const container = document.createElement('file-tree-container');
+    const shadowRoot =
+      container.shadowRoot ?? container.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = payload.shadowHtml;
+
+    const wrapper = shadowRoot.querySelector(
+      `[data-file-tree-id="${payload.id}"]`
+    );
+    expect(wrapper).not.toBeNull();
+    if (wrapper == null) {
+      throw new Error('Expected file-tree wrapper in shadow DOM');
+    }
+
+    const getIconHref = (fileName: string): string => {
+      const button = Array.from(
+        wrapper.querySelectorAll('button[data-type="item"]')
+      ).find((item) => item.getAttribute('aria-label') === fileName);
+      expect(button).not.toBeUndefined();
+      if (button == null) {
+        throw new Error(`Expected file row for ${fileName}`);
+      }
+      const useNode = button.querySelector('div[data-item-section="icon"] use');
+      const href = useNode?.getAttribute('href');
+      expect(href).not.toBeNull();
+      if (href == null) {
+        throw new Error(`Expected icon for ${fileName}`);
+      }
+      return href;
+    };
+
+    expect(getIconHref('package.json')).toBe('#custom-package');
+    expect(getIconHref('index.ts')).toBe('#custom-ts');
+    expect(getIconHref('widget.spec.ts')).toBe('#custom-spec-ts');
+    expect(getIconHref('.gitignore')).toBe('#custom-gitignore');
+    expect(getIconHref('README.md')).toBe('#custom-default');
+  });
+
+  test('preloadFileTree uses the complete icon set when icons are unset', () => {
+    const payload = preloadFileTree({
+      initialFiles: [
+        'package.json',
+        'index.ts',
+        'app.tsx',
+        'card.module.css',
+        'README.md',
+        'image.png',
+        'agent.mcp',
+      ],
+    });
+
+    const container = document.createElement('file-tree-container');
+    const shadowRoot =
+      container.shadowRoot ?? container.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = payload.shadowHtml;
+
+    const wrapper = shadowRoot.querySelector(
+      `[data-file-tree-id="${payload.id}"]`
+    );
+    expect(wrapper).not.toBeNull();
+    if (wrapper == null) {
+      throw new Error('Expected file-tree wrapper in shadow DOM');
+    }
+
+    const getIconHref = (fileName: string): string => {
+      const button = Array.from(
+        wrapper.querySelectorAll('button[data-type="item"]')
+      ).find((item) => item.getAttribute('aria-label') === fileName);
+      expect(button).not.toBeUndefined();
+      if (button == null) {
+        throw new Error(`Expected file row for ${fileName}`);
+      }
+      const useNode = button.querySelector('div[data-item-section="icon"] use');
+      const href = useNode?.getAttribute('href');
+      expect(href).not.toBeNull();
+      if (href == null) {
+        throw new Error(`Expected icon for ${fileName}`);
+      }
+      return href;
+    };
+
+    expect(getIconHref('package.json')).toBe('#file-tree-builtin-json');
+    expect(getIconHref('index.ts')).toBe('#file-tree-builtin-typescript');
+    expect(getIconHref('app.tsx')).toBe('#file-tree-builtin-react');
+    expect(getIconHref('card.module.css')).toBe('#file-tree-builtin-css');
+    expect(getIconHref('README.md')).toBe('#file-tree-builtin-markdown');
+    expect(getIconHref('image.png')).toBe('#file-tree-builtin-image');
+    expect(getIconHref('agent.mcp')).toBe('#file-tree-builtin-mcp');
+  });
+
+  test('preloadFileTree uses the minimal icon set when requested', () => {
+    const payload = preloadFileTree({
+      initialFiles: ['package.json', 'index.ts', 'app.tsx'],
+      icons: 'minimal',
+    });
+
+    const container = document.createElement('file-tree-container');
+    const shadowRoot =
+      container.shadowRoot ?? container.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = payload.shadowHtml;
+
+    const wrapper = shadowRoot.querySelector(
+      `[data-file-tree-id="${payload.id}"]`
+    );
+    expect(wrapper).not.toBeNull();
+    if (wrapper == null) {
+      throw new Error('Expected file-tree wrapper in shadow DOM');
+    }
+
+    const iconHrefs = Array.from(
+      wrapper.querySelectorAll('button[data-type="item"] use')
+    ).map((node) => node.getAttribute('href'));
+
+    expect(iconHrefs).toEqual([
+      '#file-tree-icon-file',
+      '#file-tree-icon-file',
+      '#file-tree-icon-file',
+    ]);
+  });
+
+  test('preloadFileTree uses the standard icon set when requested', () => {
+    const payload = preloadFileTree({
+      initialFiles: [
+        'package.json',
+        'index.ts',
+        'app.tsx',
+        'card.module.css',
+        'README.md',
+        'image.png',
+        'agent.mcp',
+      ],
+      icons: 'standard',
+    });
+
+    const container = document.createElement('file-tree-container');
+    const shadowRoot =
+      container.shadowRoot ?? container.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = payload.shadowHtml;
+
+    const wrapper = shadowRoot.querySelector(
+      `[data-file-tree-id="${payload.id}"]`
+    );
+    expect(wrapper).not.toBeNull();
+    if (wrapper == null) {
+      throw new Error('Expected file-tree wrapper in shadow DOM');
+    }
+
+    const getIconHref = (fileName: string): string => {
+      const button = Array.from(
+        wrapper.querySelectorAll('button[data-type="item"]')
+      ).find((item) => item.getAttribute('aria-label') === fileName);
+      expect(button).not.toBeUndefined();
+      if (button == null) {
+        throw new Error(`Expected file row for ${fileName}`);
+      }
+      const useNode = button.querySelector('div[data-item-section="icon"] use');
+      const href = useNode?.getAttribute('href');
+      expect(href).not.toBeNull();
+      if (href == null) {
+        throw new Error(`Expected icon for ${fileName}`);
+      }
+      return href;
+    };
+
+    expect(getIconHref('package.json')).toBe('#file-tree-builtin-json');
+    expect(getIconHref('index.ts')).toBe('#file-tree-builtin-typescript');
+    expect(getIconHref('app.tsx')).toBe('#file-tree-builtin-typescript');
+    expect(getIconHref('card.module.css')).toBe('#file-tree-builtin-css');
+    expect(getIconHref('README.md')).toBe('#file-tree-builtin-markdown');
+    expect(getIconHref('image.png')).toBe('#file-tree-builtin-image');
+    expect(getIconHref('agent.mcp')).toBe('#file-tree-builtin-mcp');
+  });
+
+  test('setOptions swaps built-in icon sets and colored mode at runtime', () => {
+    const container = document.createElement('file-tree-container');
+    const ft = new FileTree({
+      initialFiles: ['index.ts'],
+      icons: 'minimal',
+    });
+
+    const origRender = preactRenderer.renderRoot;
+    preactRenderer.renderRoot = () => {};
+    try {
+      ft.render({ fileTreeContainer: container });
+
+      const shadowRoot = container.shadowRoot;
+      const wrapper = shadowRoot?.querySelector(
+        '[data-file-tree-id]'
+      ) as HTMLElement | null;
+      expect(wrapper).not.toBeNull();
+      expect(
+        shadowRoot?.querySelector('#file-tree-builtin-typescript')
+      ).toBeNull();
+      expect(wrapper?.dataset.fileTreeColoredIcons).toBeUndefined();
+
+      ft.setOptions({
+        icons: {
+          set: 'complete',
+          colored: true,
+        },
+      });
+
+      expect(
+        shadowRoot?.querySelector('#file-tree-builtin-typescript')
+      ).not.toBeNull();
+      expect(wrapper?.dataset.fileTreeColoredIcons).toBe('true');
+    } finally {
+      preactRenderer.renderRoot = origRender;
+    }
   });
 
   test('setFiles invokes onFilesChange callback', () => {

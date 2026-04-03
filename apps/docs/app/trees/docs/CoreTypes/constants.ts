@@ -13,7 +13,7 @@ export const FILE_TREE_OPTIONS_TYPE: PreloadFileOptions<undefined> = {
     name: 'FileTreeOptions.ts',
     contents: `import type {
   FileTreeOptions,
-  FileTreeIconConfig,
+  FileTreeIcons,
   FileTreeStateConfig,
   FileTreeSearchMode,
   FileTreeCollision,
@@ -48,8 +48,8 @@ interface FileTreeOptions {
   // Optional: Git status entries for file status indicators.
   gitStatus?: GitStatusEntry[];
 
-  // Optional: custom SVG sprite sheet and icon remapping.
-  icons?: FileTreeIconConfig;
+  // Optional: built-in icon set selection, colors, and custom remapping.
+  icons?: FileTreeIcons;
 
   // Optional: paths that cannot be dragged when drag and drop is enabled.
   lockedPaths?: string[];
@@ -168,8 +168,15 @@ export const FILE_TREE_ICON_CONFIG_TYPE: PreloadFileOptions<undefined> = {
     name: 'FileTreeIconConfig.ts',
     contents: `import type { FileTreeIconConfig } from '@pierre/trees';
 
-// FileTreeIconConfig lets you replace built-in icons with custom SVG symbols.
+// FileTreeIconConfig lets you pick a built-in set, enable semantic colors,
+// or inject your own SVG symbols.
 interface FileTreeIconConfig {
+  // Optional: use one of the built-in sets, or "none" for custom-only rules.
+  set?: 'minimal' | 'standard' | 'complete' | 'none';
+
+  // Optional: enable built-in per-file-type colors. Default: true.
+  colored?: boolean;
+
   // An SVG string with <symbol> definitions injected into the shadow DOM.
   spriteSheet?: string;
 
@@ -179,12 +186,35 @@ interface FileTreeIconConfig {
     | string
     | { name: string; width?: number; height?: number; viewBox?: string }
   >;
+
+  // Remap file icons by exact basename (e.g. package.json, .gitignore).
+  byFileName?: Record<
+    string,
+    | string
+    | { name: string; width?: number; height?: number; viewBox?: string }
+  >;
+
+  // Remap file icons by extension (e.g. ts, tsx, spec.ts).
+  byFileExtension?: Record<
+    string,
+    | string
+    | { name: string; width?: number; height?: number; viewBox?: string }
+  >;
+
+  // Remap file icons when filename contains a substring (e.g. dockerfile).
+  byFileNameContains?: Record<
+    string,
+    | string
+    | { name: string; width?: number; height?: number; viewBox?: string }
+  >;
 }
 
-// Example: replace the file and chevron icons with custom symbols.
+// Example: use the built-in file-type set with colors enabled, then override one icon.
 const options = {
   initialFiles: ['src/index.ts', 'src/components/Button.tsx'],
   icons: {
+    set: 'standard',
+    colored: true,
     spriteSheet: \`
       <svg data-icon-sprite aria-hidden="true" width="0" height="0">
         <symbol id="my-file" viewBox="0 0 24 24" fill="none"
@@ -198,8 +228,10 @@ const options = {
         </symbol>
       </svg>
     \`,
+    byFileExtension: {
+      ts: 'my-file',
+    },
     remap: {
-      'file-tree-icon-file': 'my-file',
       'file-tree-icon-chevron': { name: 'my-folder', width: 16, height: 16 },
     },
   },

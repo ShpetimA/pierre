@@ -1,3 +1,4 @@
+import { getBuiltInSpriteSheet, isColoredBuiltInIconSet } from './builtInIcons';
 import type { FileTreeRootProps } from './components/Root';
 import { FileTreeContainerLoaded } from './components/web-components';
 import {
@@ -6,12 +7,13 @@ import {
   FLATTENED_PREFIX,
 } from './constants';
 import type { TreeInstance } from './core/types/core';
+import type { FileTreeIcons } from './iconConfig';
+import { normalizeFileTreeIcons } from './iconConfig';
 import {
   getBenchmarkInstrumentation,
   inheritBenchmarkInstrumentation,
   withBenchmarkPhase,
 } from './internal/benchmarkInstrumentation';
-import { SVGSpriteSheet } from './sprite';
 import type {
   ContextMenuItem,
   ContextMenuOpenContext,
@@ -35,6 +37,12 @@ import {
 import type { ChildrenComparator } from './utils/sortChildren';
 
 export type { GitStatusEntry } from './types';
+export type {
+  FileTreeBuiltInIconSet,
+  FileTreeIconConfig,
+  FileTreeIcons,
+  RemappedIcon,
+} from './iconConfig';
 
 let instanceId = -1;
 
@@ -108,19 +116,6 @@ export interface FileTreeCallbacks {
   _onRenameFiles?: (newFiles: string[]) => void;
 }
 
-type RemappedIcon =
-  | string
-  | {
-      name: string;
-      width?: number;
-      height?: number;
-      viewBox?: string;
-    };
-export interface FileTreeIconConfig {
-  spriteSheet?: string;
-  remap?: Record<string, RemappedIcon>;
-}
-
 export interface FileTreeOptions {
   dragAndDrop?: boolean;
   fileTreeSearchMode?: FileTreeSearchMode;
@@ -147,7 +142,7 @@ export interface FileTreeOptions {
   /** Enable virtualized rendering. Items are only rendered when visible.
    *  `threshold` is the minimum item count to activate virtualization. */
   virtualize?: { threshold: number } | false;
-  icons?: FileTreeIconConfig;
+  icons?: FileTreeIcons;
 }
 
 export interface FileTreeStateConfig {
@@ -186,7 +181,6 @@ export class FileTree {
   __id: string;
   private fileTreeContainer: HTMLElement | undefined;
   private divWrapper: HTMLDivElement | undefined;
-  private defaultSpriteSheet: SVGElement | undefined;
   private unsafeCSSStyle: HTMLStyleElement | undefined;
 
   /** Populated by the Preact Root component with the tree instance + maps. */
@@ -603,6 +597,7 @@ export class FileTree {
       this.syncIconSpriteSheets(this.fileTreeContainer);
       this.syncUnsafeCSS(this.fileTreeContainer);
     }
+    this.syncIconModeAttrs(this.divWrapper);
     this.syncVirtualizedLayoutAttrs(this.fileTreeContainer, this.divWrapper);
     preactRenderRoot(this.divWrapper, this.buildRootProps());
   }
@@ -617,7 +612,7 @@ export class FileTree {
     return undefined;
   }
 
-  private isDefaultSpriteSheet(spriteSheet: SVGElement): boolean {
+  private isBuiltInSpriteSheet(spriteSheet: SVGElement): boolean {
     return (
       spriteSheet.querySelector('#file-tree-icon-chevron') instanceof
         SVGElement &&
@@ -633,38 +628,42 @@ export class FileTree {
     );
   }
 
-  private ensureDefaultSpriteSheet(shadowRoot: ShadowRoot): void {
-    let defaultSprite =
-      this.defaultSpriteSheet != null &&
-      this.defaultSpriteSheet.parentNode === shadowRoot
-        ? this.defaultSpriteSheet
-        : undefined;
-
-    defaultSprite ??= this.getTopLevelSpriteSheets(shadowRoot).find((sprite) =>
-      this.isDefaultSpriteSheet(sprite)
+  private syncBuiltInSpriteSheet(shadowRoot: ShadowRoot): void {
+    const currentBuiltInSprite = this.getTopLevelSpriteSheets(shadowRoot).find(
+      (sprite) => this.isBuiltInSpriteSheet(sprite)
     );
-
-    if (defaultSprite == null) {
-      const builtInSprite = this.parseSpriteSheet(SVGSpriteSheet);
-      if (builtInSprite != null) {
-        shadowRoot.appendChild(builtInSprite);
-        defaultSprite = builtInSprite;
-      }
+    const nextBuiltInSprite = this.parseSpriteSheet(
+      getBuiltInSpriteSheet(normalizeFileTreeIcons(this.options.icons).set)
+    );
+    if (nextBuiltInSprite == null) {
+      return;
     }
 
-    this.defaultSpriteSheet = defaultSprite;
+    if (
+      currentBuiltInSprite != null &&
+      currentBuiltInSprite.outerHTML === nextBuiltInSprite.outerHTML
+    ) {
+      return;
+    }
+
+    if (currentBuiltInSprite != null) {
+      currentBuiltInSprite.replaceWith(nextBuiltInSprite);
+    } else {
+      shadowRoot.appendChild(nextBuiltInSprite);
+    }
   }
 
   private syncCustomSpriteSheet(shadowRoot: ShadowRoot): void {
     const topLevelSprites = this.getTopLevelSpriteSheets(shadowRoot);
-    const defaultSprite = topLevelSprites.find((sprite) =>
-      this.isDefaultSpriteSheet(sprite)
+    const builtInSprite = topLevelSprites.find((sprite) =>
+      this.isBuiltInSpriteSheet(sprite)
     );
     const currentCustomSprites = topLevelSprites.filter(
-      (sprite) => sprite !== defaultSprite
+      (sprite) => sprite !== builtInSprite
     );
 
-    const customSpriteSheet = this.options.icons?.spriteSheet?.trim() ?? '';
+    const customSpriteSheet =
+      normalizeFileTreeIcons(this.options.icons).spriteSheet?.trim() ?? '';
     if (customSpriteSheet.length === 0) {
       for (const customSprite of currentCustomSprites) {
         customSprite.remove();
@@ -699,8 +698,25 @@ export class FileTree {
       return;
     }
 
-    this.ensureDefaultSpriteSheet(shadowRoot);
+    this.syncBuiltInSpriteSheet(shadowRoot);
     this.syncCustomSpriteSheet(shadowRoot);
+  }
+
+  private syncIconModeAttrs(divWrapper?: HTMLElement): void {
+    const wrapper = divWrapper ?? this.divWrapper;
+    if (wrapper == null) {
+      return;
+    }
+
+    const normalizedIcons = normalizeFileTreeIcons(this.options.icons);
+    if (
+      normalizedIcons.colored &&
+      isColoredBuiltInIconSet(normalizedIcons.set)
+    ) {
+      wrapper.dataset.fileTreeColoredIcons = 'true';
+    } else {
+      delete wrapper.dataset.fileTreeColoredIcons;
+    }
   }
 
   private syncUnsafeCSS(fileTreeContainer: HTMLElement): void {
@@ -796,6 +812,7 @@ export class FileTree {
       if (this.divWrapper == null) {
         this.divWrapper = document.createElement('div');
         this.divWrapper.dataset.fileTreeId = this.__id.toString();
+        this.syncIconModeAttrs(this.divWrapper);
         container.shadowRoot?.appendChild(this.divWrapper);
       }
     }
@@ -816,6 +833,7 @@ export class FileTree {
       containerWrapper
     );
     const divWrapper = this.getOrCreateDivWrapperNode(fileTreeContainer);
+    this.syncIconModeAttrs(divWrapper);
     this.syncVirtualizedLayoutAttrs(fileTreeContainer, divWrapper);
 
     // Seed the first virtualized window with the outer mount height so client
@@ -874,6 +892,7 @@ export class FileTree {
     this.fileTreeContainer = fileTreeContainer;
     this.syncIconSpriteSheets(fileTreeContainer);
     this.syncUnsafeCSS(fileTreeContainer);
+    this.syncIconModeAttrs(this.divWrapper);
     this.syncVirtualizedLayoutAttrs(fileTreeContainer, this.divWrapper);
 
     if (this.divWrapper == null) {
@@ -909,6 +928,5 @@ export class FileTree {
     this.unsafeCSSStyle = undefined;
     this.fileTreeContainer = undefined;
     this.divWrapper = undefined;
-    this.defaultSpriteSheet = undefined;
   }
 }
