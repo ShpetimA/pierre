@@ -500,6 +500,7 @@ export class FileDiff<LAnnotation = undefined> {
     }
     // Otherwise orchestrate our setup
     else {
+      this.fileContainer = fileContainer;
       this.hydrationSetup({
         fileDiff,
         oldFile,
@@ -570,7 +571,6 @@ export class FileDiff<LAnnotation = undefined> {
       this.syncCodeNodesFromPre(this.pre);
       this.pre.removeAttribute('data-dehydrated');
     }
-    this.fileContainer = fileContainer;
   }
 
   protected hydrationSetup({
