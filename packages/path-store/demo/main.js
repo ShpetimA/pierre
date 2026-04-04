@@ -110,23 +110,28 @@ const benchmarkModulePromise = instrumentationEnabled
  *       usedJSHeapSize: number;
  *     } | null
  *   ) => DemoBenchmarkInstrumentationSummary;
+ *   reset: () => void;
  * }} DemoBenchmarkCollector
  */
 
 const actionButtons = document.querySelectorAll('button[data-action-id]');
 const flattenInput = document.querySelector('#flatten-directories');
+const sortInput = document.querySelector('#sort-input');
 const visibleCountInput = document.querySelector('#visible-count');
 const offsetInput = document.querySelector('#offset');
 const offsetValueElement = document.querySelector('#offset-value');
+const lastEventElement = document.querySelector('#last-event');
 const renderButton = document.querySelector('#render-button');
 const rowsElement = document.querySelector('#rows');
 const workloadInput = document.querySelector('#workload');
 
 if (
   flattenInput == null ||
+  sortInput == null ||
   visibleCountInput == null ||
   offsetInput == null ||
   offsetValueElement == null ||
+  lastEventElement == null ||
   renderButton == null ||
   rowsElement == null ||
   workloadInput == null
@@ -137,6 +142,10 @@ if (
 let buildTimeMs = 0;
 /** @type {PathStore | null} */
 let currentStore = null;
+/** @type {null | (() => void)} */
+let currentStoreEventUnsubscribe = null;
+/** @type {import('../src/public-types').PathStoreEvent | null} */
+let lastEvent = null;
 /** @type {DemoLongTaskEntry[]} */
 const longTaskEntries = [];
 const longTaskObserver =
@@ -183,6 +192,18 @@ function getFlattenEmptyDirectoriesEnabled() {
   );
 }
 
+function getSortInputEnabled() {
+  return sortInput instanceof HTMLInputElement && sortInput.checked === true;
+}
+
+function warmPresortedFilesIfNeeded() {
+  if (getSortInputEnabled()) {
+    return;
+  }
+
+  void getSelectedWorkload().presortedFiles;
+}
+
 function logDemoMessage(message) {
   console.info(`[path-store demo] ${message}`);
 }
@@ -191,6 +212,28 @@ function clearProfileSummary() {
   delete window.__pathStoreDemoProfile;
   performance.clearMarks(PROFILE_START_MARK_NAME);
   performance.clearMarks(PROFILE_END_MARK_NAME);
+}
+
+function renderLastEvent() {
+  if (!(lastEventElement instanceof HTMLElement)) {
+    return;
+  }
+
+  lastEventElement.textContent =
+    lastEvent == null ? '' : JSON.stringify(lastEvent, null, 2);
+}
+
+function clearLastEvent() {
+  lastEvent = null;
+  renderLastEvent();
+}
+
+function subscribeToStoreEvents(store) {
+  currentStoreEventUnsubscribe?.();
+  currentStoreEventUnsubscribe = store.on('*', (event) => {
+    lastEvent = event;
+    renderLastEvent();
+  });
 }
 
 function getTaskOverlapMs(entry, startTime, endTime) {
@@ -364,6 +407,7 @@ function getSelectedWorkloadSummary() {
     flattenEmptyDirectories: getFlattenEmptyDirectoriesEnabled(),
     label: workload.label,
     name: workload.name,
+    presortedInput: !getSortInputEnabled(),
   };
 }
 
@@ -952,19 +996,44 @@ const demoActionById = new Map(
 function createStore(benchmark = null) {
   const workload = getSelectedWorkload();
   const flattenEmptyDirectories = getFlattenEmptyDirectoriesEnabled();
+  const sortInput = getSortInputEnabled();
   const buildStartedAt = performance.now();
+  let preparedInput = null;
+  if (!sortInput) {
+    preparedInput =
+      benchmark == null
+        ? PathStore.preparePresortedInput(workload.presortedFiles)
+        : benchmark.instrumentation.measurePhase(
+            'page.preparePresortedInput',
+            () => PathStore.preparePresortedInput(workload.presortedFiles)
+          );
+  }
   const storeOptions =
     benchmark == null
-      ? {
-          flattenEmptyDirectories,
-          initialExpansion: 'open',
-          paths: workload.files,
-        }
-      : benchmark.attach({
-          flattenEmptyDirectories,
-          initialExpansion: 'open',
-          paths: workload.files,
-        });
+      ? preparedInput == null
+        ? {
+            flattenEmptyDirectories,
+            initialExpansion: 'open',
+            paths: workload.files,
+          }
+        : {
+            flattenEmptyDirectories,
+            initialExpansion: 'open',
+            preparedInput,
+          }
+      : benchmark.attach(
+          preparedInput == null
+            ? {
+                flattenEmptyDirectories,
+                initialExpansion: 'open',
+                paths: workload.files,
+              }
+            : {
+                flattenEmptyDirectories,
+                initialExpansion: 'open',
+                preparedInput,
+              }
+        );
   if (benchmark != null) {
     benchmark.instrumentation.setCounter(
       'workload.inputFiles',
@@ -983,6 +1052,8 @@ function createStore(benchmark = null) {
           () => new PathStore(storeOptions)
         );
   buildTimeMs = performance.now() - buildStartedAt;
+  clearLastEvent();
+  subscribeToStoreEvents(currentStore);
   const visibleRowCount =
     benchmark == null ? currentStore.getVisibleCount().toLocaleString() : null;
   logDemoMessage(
@@ -1008,6 +1079,7 @@ async function profileRenderStore() {
   setActionButtonsDisabled(true);
   clearProfileSummary();
   const benchmark = await createBenchmarkCollector();
+  warmPresortedFilesIfNeeded();
 
   const startedAt = performance.now();
   const heapBefore = benchmark?.readHeapSnapshot() ?? null;
@@ -1200,24 +1272,38 @@ function runPreparedActionWithBenchmark(preparedAction, benchmark = null) {
 }
 
 async function profilePreparedAction(actionId, prepared) {
-  if (currentStore == null) {
-    throw new Error('Render the store before running demo actions.');
-  }
-
   const action = demoActionById.get(actionId);
   if (action == null) {
     throw new Error(`Unknown demo action: ${actionId}`);
   }
 
-  const beforeView = getViewContext(currentStore);
   const benchmark = await createBenchmarkCollector();
+  warmPresortedFilesIfNeeded();
+  const demoState = {
+    flattenEmptyDirectories: getFlattenEmptyDirectoriesEnabled(),
+    offset: getParsedInputNumber(offsetInput, 0),
+    visibleCount: getRequestedVisibleCount(),
+    workloadName: getSelectedWorkloadName(),
+  };
+
+  configureDemo(demoState);
+  createStore(benchmark);
+  renderCurrentWindow(demoState.offset, benchmark);
+  applyProfileActionSetup(actionId);
+
+  if (currentStore == null) {
+    throw new Error('Render the store before running demo actions.');
+  }
+
+  const beforeView = getViewContext(currentStore);
   const preparedAction = {
     action,
-    prepared,
+    prepared: prepared ?? action.prepare(currentStore, beforeView),
     view: beforeView,
   };
 
   clearProfileSummary();
+  benchmark?.reset();
   const startedAt = performance.now();
   const heapBefore = benchmark?.readHeapSnapshot() ?? null;
   performance.mark(PROFILE_START_MARK_NAME);
@@ -1253,6 +1339,7 @@ async function profilePreparedAction(actionId, prepared) {
 function configureDemo({
   flattenEmptyDirectories,
   offset,
+  sortInputEnabled,
   visibleCount,
   workloadName,
 }) {
@@ -1262,6 +1349,10 @@ function configureDemo({
 
   if (typeof flattenEmptyDirectories === 'boolean') {
     flattenInput.checked = flattenEmptyDirectories;
+  }
+
+  if (typeof sortInputEnabled === 'boolean') {
+    sortInput.checked = sortInputEnabled;
   }
 
   if (Number.isFinite(visibleCount)) {
@@ -1277,6 +1368,7 @@ function configureDemo({
   return {
     flattenEmptyDirectories: getFlattenEmptyDirectoriesEnabled(),
     offset: getParsedInputNumber(offsetInput, 0),
+    sortInputEnabled: getSortInputEnabled(),
     visibleCount: getRequestedVisibleCount(),
     workloadName: getSelectedWorkloadName(),
   };
@@ -1286,7 +1378,9 @@ function getDemoState() {
   return {
     flattenEmptyDirectories: getFlattenEmptyDirectoriesEnabled(),
     hasStore: currentStore != null,
+    lastEvent,
     offset: getParsedInputNumber(offsetInput, 0),
+    sortInputEnabled: getSortInputEnabled(),
     visibleCount: getRequestedVisibleCount(),
     workload: getSelectedWorkloadSummary(),
   };
@@ -1301,6 +1395,16 @@ visibleCountInput.addEventListener('input', () => {
 });
 
 flattenInput.addEventListener('input', () => {
+  if (currentStore == null) {
+    return;
+  }
+
+  const currentOffset = getParsedInputNumber(offsetInput, 0);
+  createStore();
+  renderCurrentWindow(currentOffset);
+});
+
+sortInput.addEventListener('input', () => {
   if (currentStore == null) {
     return;
   }
@@ -1351,6 +1455,7 @@ window.pathStoreDemo = {
   profileRenderStore,
   renderStoreForSetup,
   runPreparedAction,
+  getLastEvent: () => lastEvent,
   store: currentStore,
   workload: null,
 };
