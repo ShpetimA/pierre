@@ -22,6 +22,32 @@ Current useful API:
   - `projectionChanged`
   - `visibleCountDelta`
   - operation-specific canonical paths like `path`, `from`, and `to`
+- Phase 7A async primitives now exist for explicit child-state / patching:
+  - `markDirectoryUnloaded(path)`
+  - `beginChildLoad(path)`
+  - `applyChildPatch(attempt, patch)`
+  - `completeChildLoad(attempt)`
+  - `failChildLoad(attempt, errorMessage?)`
+  - `getDirectoryLoadState(path)`
+- `PathStoreChildPatch.metadata` is currently reserved for future async/count
+  hints and is intentionally ignored in Phase 7A.
+- `markDirectoryUnloaded(path)` is intentionally narrow in 7A: it only works for
+  directories that do not currently have known children.
+- Visible rows now expose async state sparsely:
+  - `isLoading` is the fast convenience flag
+  - `loadState` only appears when a directory row is not in the default loaded
+    state
+- Phase 7A covers store-owned async semantics only. Scheduler/worker strategy,
+  placeholder reservation, and `knownChildCount` product behavior remain
+  deferred to later work.
+- Phase 7B adds an **optional** cooperative scheduler helper on the root export:
+  - `createPathStoreScheduler({ store, ... })`
+  - caller-supplied priority/order only
+  - no built-in viewport priority, prefetch policy, or count-hint strategy
+  - `chunkBudgetMs` is wall time between yields, so awaited `createPatch()` work
+    also counts against the same slice budget
+  - worker mode remains a documented future seam, not a public first-pass
+    runtime
 
 Benchmark workflow:
 
@@ -35,6 +61,13 @@ Chrome profiler workflow:
 - `bun ws path-store profile:demo -- --all-actions`
 - `bun ws path-store profile:demo -- --action rename-visible-folder --runs 5`
 - `bun ws path-store profile:demo -- --workload demo-small --action collapse-folder-above-viewport --visible-count 30 --offset 8`
+- `bun ws path-store profile:demo -- --workload demo-small --action cooperative-apply-async-patch-yieldy --runs 1`
+
+Cooperative helper benchmark workflow:
+
+- `bun ws path-store benchmark -- --preset full --filter '^(async/apply-child-patch/linux-5x/200|cooperative/apply-child-patch/linux-5x/200|cooperative/apply-child-patch-yieldy/linux-5x/200|cooperative/cancel-mid-queue/linux-5x/200)$'`
+- `bun ws path-store benchmark -- --preset async`
+- `bun ws path-store benchmark -- --preset mutation`
 
 Use `--json --samples` when you want confidence-aware comparisons for an
 automated optimization loop. Compare mode accepts a candidate when the p50
@@ -67,7 +100,7 @@ interval stays on the improvement side.
 ## Usage
 
 ```ts
-import { PathStore } from '@pierre/path-store';
+import { PathStore, createPathStoreScheduler } from '@pierre/path-store';
 
 const paths = [
   'src/components/index.ts',
@@ -162,6 +195,23 @@ store.list();
 */
 
 store.getVisibleSlice(0, 9);
+
+const scheduler = createPathStoreScheduler({
+  chunkBudgetMs: 8,
+  maxTasksPerSlice: 1,
+  store,
+});
+
+scheduler.enqueue({
+  completeOnSuccess: false,
+  createPatch() {
+    return {
+      operations: [{ path: 'tmp/file.txt', type: 'add' }],
+    };
+  },
+  path: 'tmp/',
+  priority: 100,
+});
 ```
 
 ## Acknowledgements
