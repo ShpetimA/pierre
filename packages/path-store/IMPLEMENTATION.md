@@ -864,7 +864,7 @@ class PathStore {
   expand(path: string): void;
   collapse(path: string): void;
   on(type: string, handler: (event: PathStoreEvent) => void): () => void;
-  cleanup(): void;
+  cleanup(options?: CleanupOptions): CleanupResult;
 }
 ```
 
@@ -887,6 +887,18 @@ Reasons:
 The store should expose a cleanup/compaction API that users can call when they
 want to trade a heavier one-time rebuild for better long-term memory density.
 
+Current Phase 8A status:
+
+- cleanup is a **manual** API surface, not an automatic/background policy
+- the stable cleanup path preserves observable node IDs by default
+- an explicit aggressive cleanup mode may reset IDs for denser compaction
+- stable cleanup only reclaims **trailing** tombstone slots; aggressive mode is
+  the path for fully dense node-array compaction
+- stable cleanup clears path caches intentionally, trading a later
+  rematerialization cost for immediate memory reclamation
+- static/read-only mode exploration remains deferred to 8B
+- worker follow-up from 7B remains a separate deferred thread
+
 Potential cleanup tasks:
 
 - rebuild dense node arrays
@@ -905,7 +917,24 @@ That mode could choose different tradeoffs, such as:
 - more aggressive full-path caching
 - denser compact structures
 
-But mutable mode is the primary design target for the first implementation.
+Current Phase 8B status:
+
+- `StaticPathStore` is now a public read-only type
+- it preserves the current read/query surface:
+  - `list()`
+  - `getVisibleCount()`
+  - `getVisibleSlice()`
+  - `expand()`
+  - `collapse()`
+- it intentionally omits topology mutation APIs and the mutable-mode event
+  emitter
+- it ships because the representative `linux-5x` benchmarks show read wins over
+  the mutable baseline on:
+  - canonical `list()`
+  - `visible-first`
+  - `visible-middle`
+- its expand/collapse path currently recomputes static visible counts globally,
+  and that cost is now measured explicitly in the benchmark suite
 
 ## Testing Strategy
 

@@ -48,6 +48,23 @@ Current useful API:
     also counts against the same slice budget
   - worker mode remains a documented future seam, not a public first-pass
     runtime
+- Phase 8A adds a **manual** cleanup API:
+  - `store.cleanup()` defaults to stable mode and preserves IDs
+  - `store.cleanup({ mode: 'aggressive' })` is explicit and may reset IDs for
+    denser compaction
+  - cleanup throws while directory loads are active or while a batch is open
+  - stable cleanup only reclaims **trailing** tombstone slots; aggressive mode
+    is the path for fully dense node-array compaction
+  - stable cleanup clears path caches, so the next visible read may
+    rematerialize path strings
+- Phase 8B adds a **public** `StaticPathStore`:
+  - keeps the current read/query surface
+  - `list()`, `getVisibleCount()`, `getVisibleSlice()`, `expand()`, `collapse()`
+  - omits topology mutation methods and the mutable event emitter
+  - ships because its read benchmarks beat the mutable baseline on the
+    representative `linux-5x` scenarios
+  - expand/collapse currently recomputes static visible counts globally, and the
+    benchmark suite now measures that path explicitly
 
 Benchmark workflow:
 
@@ -68,6 +85,8 @@ Cooperative helper benchmark workflow:
 - `bun ws path-store benchmark -- --preset full --filter '^(async/apply-child-patch/linux-5x/200|cooperative/apply-child-patch/linux-5x/200|cooperative/apply-child-patch-yieldy/linux-5x/200|cooperative/cancel-mid-queue/linux-5x/200)$'`
 - `bun ws path-store benchmark -- --preset async`
 - `bun ws path-store benchmark -- --preset mutation`
+- `bun ws path-store benchmark -- --preset cleanup`
+- `bun ws path-store benchmark -- --preset static`
 
 Use `--json --samples` when you want confidence-aware comparisons for an
 automated optimization loop. Compare mode accepts a candidate when the p50
@@ -100,7 +119,11 @@ interval stays on the improvement side.
 ## Usage
 
 ```ts
-import { PathStore, createPathStoreScheduler } from '@pierre/path-store';
+import {
+  PathStore,
+  StaticPathStore,
+  createPathStoreScheduler,
+} from '@pierre/path-store';
 
 const paths = [
   'src/components/index.ts',
@@ -212,6 +235,21 @@ scheduler.enqueue({
   path: 'tmp/',
   priority: 100,
 });
+
+const cleanupResult = store.cleanup();
+console.log(cleanupResult.idsPreserved); // true
+
+const aggressiveCleanupResult = store.cleanup({ mode: 'aggressive' });
+console.log(aggressiveCleanupResult.idsPreserved); // false
+
+const staticStore = new StaticPathStore({
+  initialExpansion: 'open',
+  paths,
+});
+
+staticStore.collapse('src/components/');
+staticStore.expand('src/components/');
+staticStore.getVisibleSlice(0, 9);
 ```
 
 ## Acknowledgements

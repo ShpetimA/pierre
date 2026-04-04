@@ -1,8 +1,11 @@
 import { sortCanonicalPaths } from '@pierre/tree-test-data';
 import { describe, expect, test } from 'bun:test';
 
-import { PathStore } from '../src/index';
-import type { PathStoreEvent } from '../src/public-types';
+import { PathStore, StaticPathStore } from '../src/index';
+import type {
+  PathStoreCleanupEvent,
+  PathStoreEvent,
+} from '../src/public-types';
 
 const demoSmallPaths = [
   'alpha/docs/readme.md',
@@ -14,6 +17,31 @@ const demoSmallPaths = [
   'gamma/logs/today.txt',
   'zeta.md',
 ];
+
+interface ProjectionReadableStore {
+  getVisibleCount(): number;
+  getVisibleSlice(
+    start: number,
+    end: number
+  ): readonly {
+    depth: number;
+    flattenedSegments?: readonly {
+      isTerminal: boolean;
+      name: string;
+      nodeId: number;
+      path: string;
+    }[];
+    hasChildren: boolean;
+    id: number;
+    isExpanded: boolean;
+    isFlattened: boolean;
+    isLoading: boolean;
+    kind: 'directory' | 'file';
+    loadState?: string;
+    name: string;
+    path: string;
+  }[];
+}
 
 function createWideRootFilePaths(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `item${index + 1}.ts`);
@@ -35,7 +63,7 @@ function collectWildcardEvents(store: PathStore): PathStoreEvent[] {
 }
 
 function getVisiblePaths(
-  store: PathStore,
+  store: ProjectionReadableStore,
   start = 0,
   end = Number.MAX_SAFE_INTEGER
 ): string[] {
@@ -43,7 +71,7 @@ function getVisiblePaths(
 }
 
 function getVisibleRowsSansIds(
-  store: PathStore,
+  store: ProjectionReadableStore,
   start = 0,
   end = Number.MAX_SAFE_INTEGER
 ) {
@@ -52,6 +80,21 @@ function getVisibleRowsSansIds(
     flattenedSegments: row.flattenedSegments?.map(
       ({ nodeId: _segmentNodeId, ...segment }) => segment
     ),
+  }));
+}
+
+function getVisibleRowIdentitySnapshot(
+  store: ProjectionReadableStore,
+  start = 0,
+  end = Number.MAX_SAFE_INTEGER
+) {
+  return store.getVisibleSlice(start, end).map((row) => ({
+    flattenedSegments: row.flattenedSegments?.map((segment) => ({
+      nodeId: segment.nodeId,
+      path: segment.path,
+    })),
+    id: row.id,
+    path: row.path,
   }));
 }
 
@@ -144,6 +187,45 @@ function createDemoSmallStore(): PathStore {
     initialExpansion: 'open',
     paths: demoSmallPaths,
   });
+}
+
+function createStaticDemoSmallStore(): StaticPathStore {
+  return new StaticPathStore({
+    flattenEmptyDirectories: false,
+    initialExpansion: 'open',
+    paths: demoSmallPaths,
+  });
+}
+
+// Creates stable cleanup pressure by leaving one real removal plus several
+// trailing tombstones and fully materialized path caches.
+function applyCleanupChurn(store: PathStore): string {
+  store.list();
+  store.getVisibleSlice(0, Math.max(0, store.getVisibleCount() - 1));
+
+  const removedPath = store.list()[0];
+  if (removedPath == null) {
+    throw new Error('Cleanup churn requires at least one canonical path.');
+  }
+
+  store.remove(removedPath, { recursive: removedPath.endsWith('/') });
+
+  for (let index = 0; index < 12; index++) {
+    const tempPath = `zzz-cleanup-temp-${index}.ts`;
+    store.add(tempPath);
+    store.remove(tempPath);
+  }
+
+  store.list();
+  return removedPath;
+}
+
+function filterCleanupEvents(
+  events: readonly PathStoreEvent[]
+): PathStoreCleanupEvent[] {
+  return events.filter(
+    (event): event is PathStoreCleanupEvent => event.operation === 'cleanup'
+  );
 }
 
 describe('preparePaths', () => {
@@ -1528,6 +1610,85 @@ describe('PathStore', () => {
     ]);
   });
 
+  test('static store matches mutable canonical and visible reads for the same input', () => {
+    const mutableStore = createDemoSmallStore();
+    const staticStore = createStaticDemoSmallStore();
+
+    expect(staticStore.list()).toEqual(mutableStore.list());
+    expect(staticStore.list('alpha/src/')).toEqual(
+      mutableStore.list('alpha/src/')
+    );
+    expect(staticStore.getVisibleCount()).toBe(mutableStore.getVisibleCount());
+    expect(getVisibleRowsSansIds(staticStore, 0, 20)).toEqual(
+      getVisibleRowsSansIds(mutableStore, 0, 20)
+    );
+  });
+
+  test('static store stays projection-compatible after expand and collapse', () => {
+    const mutableStore = new PathStore({
+      flattenEmptyDirectories: true,
+      initialExpansion: 1,
+      paths: ['a/b/c/file.ts', 'a/b/peer.ts', 'src/index.ts'],
+    });
+    const staticStore = new StaticPathStore({
+      flattenEmptyDirectories: true,
+      initialExpansion: 1,
+      paths: ['a/b/c/file.ts', 'a/b/peer.ts', 'src/index.ts'],
+    });
+
+    expect(getVisibleRowsSansIds(staticStore, 0, 20)).toEqual(
+      getVisibleRowsSansIds(mutableStore, 0, 20)
+    );
+
+    mutableStore.collapse('a/');
+    staticStore.collapse('a/');
+    expect(getVisibleRowsSansIds(staticStore, 0, 20)).toEqual(
+      getVisibleRowsSansIds(mutableStore, 0, 20)
+    );
+
+    mutableStore.expand('a/');
+    staticStore.expand('a/');
+    expect(getVisibleRowsSansIds(staticStore, 0, 20)).toEqual(
+      getVisibleRowsSansIds(mutableStore, 0, 20)
+    );
+  });
+
+  test('static store honors initialExpandedPaths on top of default closed expansion', () => {
+    const mutableStore = new PathStore({
+      flattenEmptyDirectories: false,
+      initialExpandedPaths: ['alpha/', 'alpha/src/'],
+      initialExpansion: 'closed',
+      paths: demoSmallPaths,
+    });
+    const staticStore = new StaticPathStore({
+      flattenEmptyDirectories: false,
+      initialExpandedPaths: ['alpha/', 'alpha/src/'],
+      initialExpansion: 'closed',
+      paths: demoSmallPaths,
+    });
+
+    expect(staticStore.getVisibleCount()).toBe(mutableStore.getVisibleCount());
+    expect(getVisibleRowsSansIds(staticStore, 0, 20)).toEqual(
+      getVisibleRowsSansIds(mutableStore, 0, 20)
+    );
+  });
+
+  test('static store exposes no topology mutation methods', () => {
+    const staticStore = createStaticDemoSmallStore();
+
+    expect(typeof staticStore.list).toBe('function');
+    expect(typeof staticStore.getVisibleCount).toBe('function');
+    expect(typeof staticStore.getVisibleSlice).toBe('function');
+    expect(typeof staticStore.expand).toBe('function');
+    expect(typeof staticStore.collapse).toBe('function');
+    expect('add' in (staticStore as object)).toBe(false);
+    expect('remove' in (staticStore as object)).toBe(false);
+    expect('move' in (staticStore as object)).toBe(false);
+    expect('batch' in (staticStore as object)).toBe(false);
+    expect('cleanup' in (staticStore as object)).toBe(false);
+    expect('on' in (staticStore as object)).toBe(false);
+  });
+
   test('preserves expansion state when moving an expanded directory subtree', () => {
     const store = new PathStore({
       flattenEmptyDirectories: false,
@@ -2099,5 +2260,196 @@ describe('PathStore', () => {
       batchStore.add('docs/guide.md');
     });
     assertMatchesRebuild(store);
+  });
+
+  test('stable cleanup preserves visible identities and reports reclaimed caches', () => {
+    const store = createDemoSmallStore();
+    const events = collectWildcardEvents(store);
+
+    applyCleanupChurn(store);
+
+    const visibleRowsBefore = getVisibleRowsSansIds(store, 0, 20);
+    const identitySnapshotBefore = getVisibleRowIdentitySnapshot(store, 0, 20);
+    const listBefore = store.list();
+
+    const result = store.cleanup();
+
+    expect(result.mode).toBe('stable');
+    expect(result.idsPreserved).toBe(true);
+    expect(result.totalNodeSlotCountAfter).toBeLessThan(
+      result.totalNodeSlotCountBefore
+    );
+    expect(result.reclaimedSegmentCount).toBeGreaterThan(0);
+    expect(result.cachedPathEntryCountAfter).toBeLessThan(
+      result.cachedPathEntryCountBefore
+    );
+    expect(store.list()).toEqual(listBefore);
+    expect(getVisibleRowsSansIds(store, 0, 20)).toEqual(visibleRowsBefore);
+    expect(getVisibleRowIdentitySnapshot(store, 0, 20)).toEqual(
+      identitySnapshotBefore
+    );
+    assertMatchesRebuild(store);
+    expect(filterCleanupEvents(events).at(-1)).toEqual({
+      ...result,
+      affectedAncestorIds: [],
+      affectedNodeIds: [],
+      canonicalChanged: false,
+      operation: 'cleanup',
+      projectionChanged: false,
+      visibleCountDelta: 0,
+    });
+  });
+
+  test('aggressive cleanup preserves paths but explicitly resets identities', () => {
+    const store = createDemoSmallStore();
+    const events = collectWildcardEvents(store);
+
+    applyCleanupChurn(store);
+    store.collapse('alpha/src/');
+
+    const visibleRowsBefore = getVisibleRowsSansIds(store, 0, 20);
+    const identitySnapshotBefore = getVisibleRowIdentitySnapshot(store, 0, 20);
+    const listBefore = store.list();
+
+    const result = store.cleanup({ mode: 'aggressive' });
+    const identitySnapshotAfter = getVisibleRowIdentitySnapshot(store, 0, 20);
+
+    expect(result.mode).toBe('aggressive');
+    expect(result.idsPreserved).toBe(false);
+    expect(result.totalNodeSlotCountAfter).toBeLessThan(
+      result.totalNodeSlotCountBefore
+    );
+    expect(result.reclaimedNodeSlotCount).toBeGreaterThan(0);
+    expect(store.list()).toEqual(listBefore);
+    expect(getVisibleRowsSansIds(store, 0, 20)).toEqual(visibleRowsBefore);
+    expect(identitySnapshotAfter).not.toEqual(identitySnapshotBefore);
+    assertMatchesRebuild(store);
+    expect(filterCleanupEvents(events).at(-1)).toEqual({
+      ...result,
+      affectedAncestorIds: [],
+      affectedNodeIds: [],
+      canonicalChanged: false,
+      operation: 'cleanup',
+      projectionChanged: true,
+      visibleCountDelta: 0,
+    });
+  });
+
+  test('cleanup preserves unloaded directories by path across both modes', () => {
+    const store = new PathStore({
+      flattenEmptyDirectories: false,
+      initialExpansion: 'open',
+      paths: ['alpha/', 'beta/file.ts'],
+    });
+
+    store.markDirectoryUnloaded('alpha/');
+    const stableResult = store.cleanup();
+
+    expect(stableResult.idsPreserved).toBe(true);
+    expect(store.getDirectoryLoadState('alpha/')).toBe('unloaded');
+
+    const aggressiveResult = store.cleanup({ mode: 'aggressive' });
+
+    expect(aggressiveResult.idsPreserved).toBe(false);
+    expect(store.getDirectoryLoadState('alpha/')).toBe('unloaded');
+  });
+
+  test('cleanup preserves error-state directories by path across both modes', () => {
+    const store = new PathStore({
+      flattenEmptyDirectories: false,
+      initialExpansion: 'open',
+      paths: ['alpha/', 'beta/file.ts'],
+    });
+
+    store.markDirectoryUnloaded('alpha/');
+    const attempt = store.beginChildLoad('alpha/');
+    store.failChildLoad(attempt, 'boom');
+    expect(getVisibleRowsSansIds(store, 0, 10)).toContainEqual(
+      expect.objectContaining({
+        loadState: 'error',
+        path: 'alpha/',
+      })
+    );
+
+    const stableResult = store.cleanup();
+
+    expect(stableResult.idsPreserved).toBe(true);
+    expect(getVisibleRowsSansIds(store, 0, 10)).toContainEqual(
+      expect.objectContaining({
+        loadState: 'error',
+        path: 'alpha/',
+      })
+    );
+
+    const aggressiveResult = store.cleanup({ mode: 'aggressive' });
+
+    expect(aggressiveResult.idsPreserved).toBe(false);
+    expect(getVisibleRowsSansIds(store, 0, 10)).toContainEqual(
+      expect.objectContaining({
+        loadState: 'error',
+        path: 'alpha/',
+      })
+    );
+  });
+
+  test('cleanup remains rebuild-equivalent with flattening enabled', () => {
+    const store = new PathStore({
+      flattenEmptyDirectories: true,
+      initialExpansion: 'open',
+      paths: ['a/b/c/file.ts', 'a/b/peer.ts', 'src/index.ts'],
+    });
+
+    applyCleanupChurn(store);
+
+    const stableResult = store.cleanup();
+    expect(stableResult.idsPreserved).toBe(true);
+    assertMatchesRebuild(store, { flattenEmptyDirectories: true });
+
+    const aggressiveResult = store.cleanup({ mode: 'aggressive' });
+    expect(aggressiveResult.idsPreserved).toBe(false);
+    assertMatchesRebuild(store, { flattenEmptyDirectories: true });
+  });
+
+  test('cleanup throws and does nothing while a directory load is active', () => {
+    const store = new PathStore({
+      flattenEmptyDirectories: false,
+      initialExpansion: 'open',
+      paths: ['alpha/', 'beta/file.ts'],
+    });
+    const events = collectWildcardEvents(store);
+
+    store.markDirectoryUnloaded('alpha/');
+    store.beginChildLoad('alpha/');
+
+    expect(() => store.cleanup()).toThrow(
+      'Cleanup cannot run while directory loads are active.'
+    );
+    expect(store.getDirectoryLoadState('alpha/')).toBe('loading');
+    expect(events.at(-1)).toEqual({
+      affectedAncestorIds: expect.any(Array),
+      affectedNodeIds: expect.any(Array),
+      attemptId: 1,
+      canonicalChanged: false,
+      operation: 'begin-child-load',
+      path: 'alpha/',
+      projectionChanged: true,
+      reused: false,
+      visibleCountDelta: 0,
+    });
+  });
+
+  test('cleanup throws and does nothing during an open batch', () => {
+    const store = createDemoSmallStore();
+    const listBefore = store.list();
+    const events = collectWildcardEvents(store);
+
+    expect(() =>
+      store.batch(() => {
+        store.cleanup();
+      })
+    ).toThrow('Cleanup cannot run during an open batch or transaction.');
+
+    expect(store.list()).toEqual(listBefore);
+    expect(filterCleanupEvents(events)).toHaveLength(0);
   });
 });
