@@ -570,7 +570,9 @@ export class FileDiff<LAnnotation = undefined> {
       this.syncCodeNodesFromPre(this.pre);
       this.pre.removeAttribute('data-dehydrated');
     }
-    this.fileContainer = fileContainer;
+    if (this.pre != null || this.headerElement != null) {
+      this.fileContainer = fileContainer;
+    }
   }
 
   protected hydrationSetup({
