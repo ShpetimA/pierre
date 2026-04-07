@@ -27,6 +27,10 @@
     "./ssr": {
       "types": "./dist/ssr/index.d.ts",
       "import": "./dist/ssr/index.js"
+    },
+    "./path-store": {
+      "types": "./dist/path-store/index.d.ts",
+      "import": "./dist/path-store/index.js"
     }
   },
   "publishConfig": {
@@ -51,6 +55,7 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
+    "@pierre/path-store": "workspace:*",
     "preact": "catalog:",
     "preact-render-to-string": "catalog:"
   },
