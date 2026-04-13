@@ -7,7 +7,11 @@ import {
   ensureFileTreeStyles,
   FileTreeContainerLoaded,
 } from '../components/web-components';
-import { FILE_TREE_STYLE_ATTRIBUTE, FILE_TREE_TAG_NAME } from '../constants';
+import {
+  FILE_TREE_STYLE_ATTRIBUTE,
+  FILE_TREE_TAG_NAME,
+  HEADER_SLOT_NAME,
+} from '../constants';
 import fileTreeStyles from '../style.css';
 import { PathStoreTreesController } from './controller';
 import {
@@ -15,11 +19,13 @@ import {
   renderPathStoreTreesRoot,
   unmountPathStoreTreesRoot,
 } from './runtime';
+import { PathStoreTreesManagedSlotHost } from './slotHost';
 import type {
   PathStoreFileTreeOptions,
   PathStoreFileTreeSsrPayload,
   PathStoreTreeHydrationProps,
   PathStoreTreeRenderProps,
+  PathStoreTreesCompositionOptions,
   PathStoreTreesItemHandle,
   PathStoreTreesSelectionChangeListener,
 } from './types';
@@ -58,6 +64,17 @@ function parseSpriteSheet(spriteSheet: string): SVGElement | undefined {
   return svg instanceof SVGElement ? svg : undefined;
 }
 
+function getHeaderSlotHtml(
+  composition: PathStoreTreesCompositionOptions | undefined
+): string {
+  const headerHtml = composition?.header?.html?.trim();
+  if (headerHtml == null || headerHtml.length === 0) {
+    return '';
+  }
+
+  return `<div slot="${HEADER_SLOT_NAME}" data-path-store-managed-slot="${HEADER_SLOT_NAME}">${headerHtml}</div>`;
+}
+
 function ensureBuiltInSpriteSheet(shadowRoot: ShadowRoot): void {
   if (shadowRoot.querySelector('svg[data-icon-sprite]') != null) {
     return;
@@ -72,11 +89,13 @@ function ensureBuiltInSpriteSheet(shadowRoot: ShadowRoot): void {
 export class PathStoreFileTree {
   static LoadedCustomComponent: boolean = FileTreeContainerLoaded;
 
+  readonly #composition: PathStoreTreesCompositionOptions | undefined;
   readonly #controller: PathStoreTreesController;
   readonly #id: string;
   readonly #onSelectionChange:
     | PathStoreTreesSelectionChangeListener
     | undefined;
+  readonly #slotHost = new PathStoreTreesManagedSlotHost();
   readonly #viewOptions: Pick<
     PathStoreFileTreeOptions,
     'itemHeight' | 'overscan' | 'viewportHeight'
@@ -88,6 +107,7 @@ export class PathStoreFileTree {
 
   public constructor(options: PathStoreFileTreeOptions) {
     const {
+      composition,
       id,
       itemHeight,
       onSelectionChange,
@@ -95,6 +115,7 @@ export class PathStoreFileTree {
       viewportHeight,
       ...controllerOptions
     } = options;
+    this.#composition = composition;
     this.#id = createClientId(id);
     this.#onSelectionChange = onSelectionChange;
     this.#viewOptions = {
@@ -118,6 +139,8 @@ export class PathStoreFileTree {
       delete this.#wrapper.dataset.fileTreeVirtualizedWrapper;
       this.#wrapper = undefined;
     }
+    this.#slotHost.clearAll();
+    this.#slotHost.setHost(null);
     if (this.#fileTreeContainer != null) {
       delete this.#fileTreeContainer.dataset.fileTreeVirtualized;
       this.#fileTreeContainer = undefined;
@@ -142,6 +165,7 @@ export class PathStoreFileTree {
   public hydrate({ fileTreeContainer }: PathStoreTreeHydrationProps): void {
     const host = this.#prepareHost(fileTreeContainer);
     const wrapper = this.#getOrCreateWrapper(host);
+    this.#syncHeaderSlotContent();
     hydratePathStoreTreesRoot(wrapper, {
       controller: this.#controller,
       ...this.#getResolvedViewOptions(host),
@@ -157,6 +181,7 @@ export class PathStoreFileTree {
       containerWrapper
     );
     const wrapper = this.#getOrCreateWrapper(host);
+    this.#syncHeaderSlotContent();
     renderPathStoreTreesRoot(wrapper, {
       controller: this.#controller,
       ...this.#getResolvedViewOptions(host),
@@ -193,6 +218,21 @@ export class PathStoreFileTree {
 
     this.#selectionVersion = nextSelectionVersion;
     onSelectionChange(this.#controller.getSelectedPaths());
+  }
+
+  // Keeps header slot content attached to the host light DOM so hydration and
+  // later composition surfaces can share one host-managed slot path.
+  #syncHeaderSlotContent(): void {
+    const renderHeader = this.#composition?.header?.render;
+    if (renderHeader != null) {
+      this.#slotHost.setSlotContent(HEADER_SLOT_NAME, renderHeader());
+      return;
+    }
+
+    this.#slotHost.setSlotHtml(
+      HEADER_SLOT_NAME,
+      this.#composition?.header?.html ?? null
+    );
   }
 
   #getOrCreateWrapper(host: HTMLElement): HTMLDivElement {
@@ -239,6 +279,7 @@ export class PathStoreFileTree {
     ensureBuiltInSpriteSheet(shadowRoot);
     host.dataset.fileTreeVirtualized = 'true';
     host.style.display = 'flex';
+    this.#slotHost.setHost(host);
     this.#fileTreeContainer = host;
     return host;
   }
@@ -248,6 +289,7 @@ export function preloadPathStoreFileTree(
   options: PathStoreFileTreeOptions
 ): PathStoreFileTreeSsrPayload {
   const {
+    composition,
     id,
     itemHeight,
     onSelectionChange: _onSelectionChange,
@@ -271,7 +313,8 @@ export function preloadPathStoreFileTree(
   controller.destroy();
 
   const shadowHtml = `${getBuiltInSpriteSheet('minimal')}<style ${FILE_TREE_STYLE_ATTRIBUTE}>${fileTreeStyles}</style><div data-file-tree-id="${resolvedId}" data-file-tree-virtualized-wrapper="true">${bodyHtml}</div>`;
-  const html = `<file-tree-container id="${resolvedId}" data-file-tree-virtualized="true"><template shadowrootmode="open">${shadowHtml}</template></file-tree-container>`;
+  const headerSlotHtml = getHeaderSlotHtml(composition);
+  const html = `<file-tree-container id="${resolvedId}" data-file-tree-virtualized="true"><template shadowrootmode="open">${shadowHtml}</template>${headerSlotHtml}</file-tree-container>`;
   return {
     html,
     id: resolvedId,
