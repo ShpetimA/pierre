@@ -122,6 +122,7 @@ export function MergeConflict({ prerenderedFile }: MergeConflictProps) {
           options={options}
           prerenderedHTML={prerenderedFile.prerenderedHTML}
           className={`overflow-hidden rounded-lg border ${borderClass}`}
+          disableWorkerPool
           // NOTE(amadeus): Test code, I need to better solve the whole server/vanilla/custom js thing with react
           // renderMergeConflictUtility={(action, getInstance) => {
           //   return (
