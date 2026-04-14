@@ -30,7 +30,8 @@ export default function PathStorePoweredPage() {
 
   const payload = preloadPathStoreFileTree({
     ...sharedOptions,
-    id: 'pst-phase4',
+    icons: 'complete',
+    id: 'pst-phase5-icons',
     preparedInput: linuxKernelPreparedInput,
   });
 
