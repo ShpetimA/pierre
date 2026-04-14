@@ -1,16 +1,29 @@
 /** @jsxImportSource preact */
 import { Fragment } from 'preact';
 import type { JSX } from 'preact';
-import { useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'preact/hooks';
 
 import { Icon } from '../components/Icon';
 import { MiddleTruncate, Truncate } from '../components/OverflowText';
-import { HEADER_SLOT_NAME } from '../constants';
+import {
+  CONTEXT_MENU_SLOT_NAME,
+  CONTEXT_MENU_TRIGGER_TYPE,
+  HEADER_SLOT_NAME,
+} from '../constants';
 import { PathStoreTreesController } from './controller';
 import { createPathStoreIconResolver } from './iconResolver';
 import type {
+  PathStoreTreesContextMenuItem,
+  PathStoreTreesContextMenuOpenContext,
   PathStoreTreesDirectoryHandle,
   PathStoreTreesItemHandle,
+  PathStoreTreesRowDecoration,
   PathStoreTreesViewProps,
   PathStoreTreesVisibleRow,
 } from './types';
@@ -174,13 +187,163 @@ function getPathStoreGuideStyleText(focusedParentPath: string | null): string {
   return `[data-item-section="spacing-item"][data-ancestor-path="${escapedPath}"] { opacity: 1; }`;
 }
 
+function isContextMenuOpenKey(event: KeyboardEvent): boolean {
+  return (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu';
+}
+
+const BLOCKED_CONTEXT_MENU_NAV_KEYS = new Set([
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'End',
+  'Home',
+  'PageDown',
+  'PageUp',
+]);
+
+const CONTEXT_MENU_ROW_ANCHOR_NAME = '--path-store-context-row';
+let cachedAnchorSupportCss: typeof CSS | null | undefined;
+let cachedAnchorSupportValue: boolean | null = null;
+
+function isEventInContextMenu(event: Event): boolean {
+  for (const entry of event.composedPath()) {
+    if (!(entry instanceof HTMLElement)) {
+      continue;
+    }
+
+    if (entry.dataset.type === 'context-menu-anchor') {
+      return true;
+    }
+
+    if (entry.getAttribute('slot') === CONTEXT_MENU_SLOT_NAME) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function serializeAnchorRect(
+  rect: DOMRect
+): PathStoreTreesContextMenuOpenContext['anchorRect'] {
+  return {
+    bottom: rect.bottom,
+    height: rect.height,
+    left: rect.left,
+    right: rect.right,
+    top: rect.top,
+    width: rect.width,
+    x: rect.x,
+    y: rect.y,
+  };
+}
+
+// The floating trigger lives outside the virtual rows, so we convert a row's
+// viewport rect back into scroll-content coordinates before positioning it.
+function getContextMenuAnchorTop(
+  scrollElement: HTMLElement | null,
+  itemElement: HTMLElement
+): number {
+  if (scrollElement == null) {
+    return itemElement.offsetTop;
+  }
+
+  const itemRect = itemElement.getBoundingClientRect();
+  const scrollRect = scrollElement.getBoundingClientRect();
+  return itemRect.top - scrollRect.top + scrollElement.scrollTop;
+}
+
+function supportsContextMenuAnchorPositioning(): boolean {
+  const currentCss = typeof CSS === 'undefined' ? null : CSS;
+  if (
+    cachedAnchorSupportCss === currentCss &&
+    cachedAnchorSupportValue != null
+  ) {
+    return cachedAnchorSupportValue;
+  }
+
+  cachedAnchorSupportCss = currentCss;
+  cachedAnchorSupportValue =
+    currentCss != null &&
+    currentCss.supports('anchor-name', CONTEXT_MENU_ROW_ANCHOR_NAME) &&
+    currentCss.supports('position-anchor', CONTEXT_MENU_ROW_ANCHOR_NAME) &&
+    currentCss.supports('top', 'anchor(top)');
+
+  return cachedAnchorSupportValue;
+}
+
+function createContextMenuItem(
+  row: PathStoreTreesVisibleRow,
+  path: string
+): PathStoreTreesContextMenuItem {
+  return {
+    kind: row.kind,
+    name: getPathStoreTreesRowAriaLabel(row),
+    path,
+  };
+}
+
+function renderRowDecoration(
+  decoration: PathStoreTreesRowDecoration | null
+): JSX.Element | null {
+  if (decoration == null) {
+    return null;
+  }
+
+  if ('text' in decoration) {
+    return <span title={decoration.title}>{decoration.text}</span>;
+  }
+
+  const icon =
+    typeof decoration.icon === 'string'
+      ? { name: decoration.icon }
+      : decoration.icon;
+  return (
+    <span title={decoration.title}>
+      <Icon {...icon} />
+    </span>
+  );
+}
+
+function focusFirstMenuElement(menuElement: HTMLElement | null): void {
+  if (menuElement == null) {
+    return;
+  }
+
+  const focusable = menuElement.querySelector<HTMLElement>(
+    [
+      'button:not([disabled])',
+      '[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ')
+  );
+
+  focusElement(focusable ?? menuElement);
+}
+
 function renderStyledRow(
   controller: PathStoreTreesController,
   row: PathStoreTreesVisibleRow,
-  activeItemPath: string | null,
+  visualFocusPath: string | null,
+  contextAnchorName: string | null,
+  contextAnchorPath: string | null,
+  contextHoverPath: string | null,
   itemHeight: number,
+  contextMenuEnabled: boolean,
   registerButton: (path: string, element: HTMLButtonElement | null) => void,
   resolveIcon: ReturnType<typeof createPathStoreIconResolver>['resolveIcon'],
+  renderDecorationForRow: (
+    row: PathStoreTreesVisibleRow,
+    targetPath: string
+  ) => PathStoreTreesRowDecoration | null,
+  openContextMenuForRow: (
+    row: PathStoreTreesVisibleRow,
+    targetPath: string
+  ) => void,
   onKeyDown: (event: KeyboardEvent) => void,
   key: string | number,
   options: {
@@ -192,11 +355,24 @@ function renderStyledRow(
   const item = controller.getItem(targetPath);
   const directoryItem = isPathStoreTreesDirectoryHandle(item) ? item : null;
   const { isParked = false, style } = options;
+  const decoration = renderDecorationForRow(row, targetPath);
   const focusedProps =
-    row.isFocused && activeItemPath === targetPath
+    row.isFocused && visualFocusPath === targetPath
       ? { 'data-item-focused': true }
       : {};
   const selectedProps = row.isSelected ? { 'data-item-selected': true } : {};
+  const contextAnchorProps =
+    contextAnchorPath === targetPath
+      ? { 'data-item-context-anchor': 'true' }
+      : {};
+  const contextAnchorStyle =
+    contextAnchorPath === targetPath && contextAnchorName != null
+      ? { anchorName: contextAnchorName }
+      : undefined;
+  const contextHoverProps =
+    contextHoverPath === targetPath
+      ? { 'data-item-context-hover': 'true' }
+      : {};
 
   return (
     <button
@@ -212,6 +388,7 @@ function renderStyledRow(
       aria-expanded={row.hasChildren ? row.isExpanded : undefined}
       aria-label={getPathStoreTreesRowAriaLabel(row)}
       aria-level={row.level + 1}
+      aria-haspopup={contextMenuEnabled ? 'menu' : undefined}
       aria-posinset={row.posInSet + 1}
       aria-selected={row.isSelected ? 'true' : 'false'}
       aria-setsize={row.setSize}
@@ -235,12 +412,27 @@ function renderStyledRow(
       onFocus={() => {
         item?.focus();
       }}
+      onContextMenu={
+        contextMenuEnabled
+          ? (event) => {
+              event.preventDefault();
+              item?.focus();
+              openContextMenuForRow(row, targetPath);
+            }
+          : undefined
+      }
       onKeyDown={onKeyDown}
       role="treeitem"
       tabIndex={row.isFocused ? 0 : -1}
-      style={{ minHeight: `${itemHeight}px`, ...style }}
+      style={{
+        minHeight: `${itemHeight}px`,
+        ...contextAnchorStyle,
+        ...style,
+      }}
       {...focusedProps}
       {...selectedProps}
+      {...contextAnchorProps}
+      {...contextHoverProps}
     >
       {/*
         Reuse the outer row shell by viewport slot, but remount the row's inner
@@ -277,6 +469,11 @@ function renderStyledRow(
             </MiddleTruncate>
           )}
         </div>
+        {decoration != null ? (
+          <div data-item-section="status">
+            {renderRowDecoration(decoration)}
+          </div>
+        ) : null}
       </Fragment>
     </button>
   );
@@ -286,9 +483,21 @@ function renderRangeChildren(
   controller: PathStoreTreesController,
   range: { start: number; end: number },
   activeItemPath: string | null,
+  contextAnchorName: string | null,
+  contextAnchorPath: string | null,
+  contextHoverPath: string | null,
   itemHeight: number,
+  contextMenuEnabled: boolean,
   registerButton: (path: string, element: HTMLButtonElement | null) => void,
   resolveIcon: ReturnType<typeof createPathStoreIconResolver>['resolveIcon'],
+  renderDecorationForRow: (
+    row: PathStoreTreesVisibleRow,
+    targetPath: string
+  ) => PathStoreTreesRowDecoration | null,
+  openContextMenuForRow: (
+    row: PathStoreTreesVisibleRow,
+    targetPath: string
+  ) => void,
   onKeyDown: (event: KeyboardEvent) => void
 ): JSX.Element[] {
   if (range.end < range.start) {
@@ -306,9 +515,15 @@ function renderRangeChildren(
         controller,
         row,
         activeItemPath,
+        contextAnchorName,
+        contextAnchorPath,
+        contextHoverPath,
         itemHeight,
+        contextMenuEnabled,
         registerButton,
         resolveIcon,
+        renderDecorationForRow,
+        openContextMenuForRow,
         onKeyDown,
         slotIndex
       )
@@ -320,13 +535,19 @@ function renderRangeChildren(
  * window idea from the legacy virtualizer without reusing its code.
  */
 export function PathStoreTreesView({
+  composition,
   controller,
   icons,
   itemHeight = PATH_STORE_TREES_DEFAULT_ITEM_HEIGHT,
   overscan = PATH_STORE_TREES_DEFAULT_OVERSCAN,
+  renderRowDecoration,
+  slotHost,
   viewportHeight = PATH_STORE_TREES_DEFAULT_VIEWPORT_HEIGHT,
 }: PathStoreTreesViewProps): JSX.Element {
   'use no memo';
+  const contextMenuAnchorRef = useRef<HTMLDivElement>(null);
+  const contextMenuTriggerRef = useRef<HTMLButtonElement>(null);
+  const isScrollingRef = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -336,6 +557,19 @@ export function PathStoreTreesView({
   const previousFocusedPathRef = useRef<string | null>(null);
   const [, setControllerRevision] = useState(0);
   const [activeItemPath, setActiveItemPath] = useState<string | null>(null);
+  const [contextHoverPath, setContextHoverPath] = useState<string | null>(null);
+  const [contextMenuAnchorTop, setContextMenuAnchorTop] = useState<
+    number | null
+  >(null);
+  const [lastContextMenuInteraction, setLastContextMenuInteraction] = useState<
+    'focus' | 'pointer' | null
+  >(null);
+  const [contextMenuState, setContextMenuState] = useState<{
+    item: PathStoreTreesContextMenuItem;
+    path: string;
+  } | null>(null);
+  const contextMenuStateRef = useRef(contextMenuState);
+  contextMenuStateRef.current = contextMenuState;
   const [itemCount, setItemCount] = useState(() =>
     controller.getVisibleCount()
   );
@@ -350,6 +584,13 @@ export function PathStoreTreesView({
       viewportHeight,
     })
   );
+  const contextMenuEnabled =
+    composition?.contextMenu?.enabled === true ||
+    composition?.contextMenu?.render != null ||
+    composition?.contextMenu?.onOpen != null ||
+    composition?.contextMenu?.onClose != null;
+  const contextMenuUsesAnchorPositioning =
+    supportsContextMenuAnchorPositioning();
   const { resolveIcon } = useMemo(
     () => createPathStoreIconResolver(icons),
     [icons]
@@ -358,8 +599,102 @@ export function PathStoreTreesView({
   const focusedIndex = controller.getFocusedIndex();
   const focusedRowIsMounted =
     focusedIndex >= range.start && focusedIndex <= range.end;
+  const renderDecorationForRow = useCallback(
+    (
+      row: PathStoreTreesVisibleRow,
+      targetPath: string
+    ): PathStoreTreesRowDecoration | null =>
+      renderRowDecoration?.({
+        item: createContextMenuItem(row, targetPath),
+        row,
+      }) ?? null,
+    [renderRowDecoration]
+  );
+  const restoreContextMenuFocus = useCallback(
+    (restorePath: string | null): boolean => {
+      const focusedButton =
+        restorePath == null
+          ? null
+          : (rowButtonRefs.current.get(restorePath) ?? null);
+      if (focusElement(focusedButton)) {
+        return true;
+      }
+
+      return focusElement(rootRef.current);
+    },
+    []
+  );
+  const restoreFocusToTree = useCallback(
+    (path: string | null): void => {
+      const nextFocusedPath = controller.focusNearestPath(path);
+      restoreContextMenuFocus(nextFocusedPath);
+    },
+    [controller, restoreContextMenuFocus]
+  );
+  const restoreFocusToTreeRef = useRef(restoreFocusToTree);
+  restoreFocusToTreeRef.current = restoreFocusToTree;
+  const closeContextMenuRef = useRef<() => void>(() => {});
+  const closeContextMenu = useCallback((): void => {
+    const currentContextMenuState = contextMenuStateRef.current;
+    if (currentContextMenuState == null) {
+      return;
+    }
+
+    setContextMenuState(null);
+    composition?.contextMenu?.onClose?.();
+    restoreFocusToTree(currentContextMenuState.path);
+  }, [composition?.contextMenu, restoreFocusToTree]);
+  closeContextMenuRef.current = closeContextMenu;
+  const updateTriggerPosition = useCallback(
+    (itemButton: HTMLButtonElement | null): void => {
+      if (contextMenuUsesAnchorPositioning) {
+        setContextMenuAnchorTop(null);
+        return;
+      }
+
+      const nextTop =
+        itemButton == null
+          ? null
+          : getContextMenuAnchorTop(scrollRef.current, itemButton);
+      setContextMenuAnchorTop((previousTop) =>
+        previousTop === nextTop ? previousTop : nextTop
+      );
+    },
+    [contextMenuUsesAnchorPositioning]
+  );
+  const openContextMenuForRow = useCallback(
+    (row: PathStoreTreesVisibleRow, targetPath: string): void => {
+      const item = controller.getItem(targetPath);
+      if (item == null) {
+        return;
+      }
+
+      item.focus();
+      updateTriggerPosition(rowButtonRefs.current.get(targetPath) ?? null);
+      setContextMenuState({
+        item: createContextMenuItem(row, targetPath),
+        path: targetPath,
+      });
+    },
+    [controller, updateTriggerPosition]
+  );
 
   const handleTreeKeyDown = (event: KeyboardEvent): void => {
+    if (contextMenuState != null) {
+      if (event.key === 'Escape') {
+        closeContextMenu();
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      if (BLOCKED_CONTEXT_MENU_NAV_KEYS.has(event.key)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
+
     const focusedItem = controller.getFocusedItem();
     if (focusedItem == null) {
       return;
@@ -373,6 +708,20 @@ export function PathStoreTreesView({
       controller.extendSelectionFromFocused(1);
     } else if (event.shiftKey && event.key === 'ArrowUp') {
       controller.extendSelectionFromFocused(-1);
+    } else if (
+      contextMenuEnabled &&
+      isContextMenuOpenKey(event) &&
+      focusedPath != null &&
+      focusedIndex >= 0
+    ) {
+      const focusedRow =
+        controller.getVisibleRows(focusedIndex, focusedIndex)[0] ?? null;
+      const focusedButton = rowButtonRefs.current.get(focusedPath) ?? null;
+      if (focusedRow == null || focusedButton == null) {
+        handled = false;
+      } else {
+        openContextMenuForRow(focusedRow, focusedPath);
+      }
     } else if ((event.ctrlKey || event.metaKey) && isSpaceSelectionKey(event)) {
       controller.toggleFocusedSelection();
     } else if (
@@ -422,6 +771,8 @@ export function PathStoreTreesView({
     if (!handled) {
       return;
     }
+
+    setLastContextMenuInteraction('focus');
 
     // Focus-only and selection-only controller updates do not change
     // range/itemCount, so force a render tick before the DOM-focus sync effect
@@ -530,6 +881,13 @@ export function PathStoreTreesView({
     });
     const onScroll = (): void => {
       update();
+      if (contextMenuStateRef.current != null) {
+        closeContextMenuRef.current();
+      }
+      isScrollingRef.current = true;
+      setContextHoverPath((previousPath) =>
+        previousPath == null ? previousPath : null
+      );
 
       // Mark the list as scrolling to suppress hover styles on items.
       // Applied to the list (inside the scroll container) so the container
@@ -544,6 +902,7 @@ export function PathStoreTreesView({
         if (listElement != null) {
           delete listElement.dataset.isScrolling;
         }
+        isScrollingRef.current = false;
         scrollTimer = null;
       }, 50);
     };
@@ -568,9 +927,107 @@ export function PathStoreTreesView({
       if (listElement != null) {
         delete listElement.dataset.isScrolling;
       }
+      isScrollingRef.current = false;
       resizeObserver?.disconnect();
     };
   }, [controller, itemHeight, overscan, viewportHeight]);
+
+  useLayoutEffect(() => {
+    if (contextMenuState == null) {
+      slotHost?.clearSlotContent(CONTEXT_MENU_SLOT_NAME);
+      return;
+    }
+
+    const anchorElement =
+      contextMenuTriggerRef.current ?? contextMenuAnchorRef.current;
+    if (anchorElement == null) {
+      return;
+    }
+
+    const context: PathStoreTreesContextMenuOpenContext = {
+      anchorElement,
+      anchorRect: serializeAnchorRect(anchorElement.getBoundingClientRect()),
+      close: () => {
+        closeContextMenuRef.current();
+      },
+      restoreFocus: () => {
+        restoreFocusToTreeRef.current(
+          contextMenuStateRef.current?.path ?? null
+        );
+      },
+    };
+    const menuContent =
+      composition?.contextMenu?.render?.(contextMenuState.item, context) ??
+      null;
+
+    slotHost?.setSlotContent(CONTEXT_MENU_SLOT_NAME, menuContent);
+    composition?.contextMenu?.onOpen?.(contextMenuState.item, context);
+    focusFirstMenuElement(menuContent);
+    queueMicrotask(() => {
+      if (menuContent == null || !menuContent.isConnected) {
+        return;
+      }
+
+      if (document.activeElement !== menuContent) {
+        return;
+      }
+
+      focusFirstMenuElement(menuContent);
+    });
+
+    return () => {
+      slotHost?.clearSlotContent(CONTEXT_MENU_SLOT_NAME);
+    };
+  }, [composition?.contextMenu, contextMenuState, slotHost]);
+
+  useLayoutEffect(() => {
+    if (
+      contextMenuState != null &&
+      controller.getItem(contextMenuState.path) == null
+    ) {
+      closeContextMenu();
+    }
+  }, [closeContextMenu, contextMenuState, controller]);
+
+  useLayoutEffect(() => {
+    if (contextMenuState == null) {
+      return;
+    }
+
+    const rootNode = rootRef.current?.getRootNode();
+    const host =
+      rootNode instanceof ShadowRoot ? rootNode.host : rootRef.current;
+    const onPointerDown = (event: MouseEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (contextMenuAnchorRef.current?.contains(target) === true) {
+        return;
+      }
+
+      if (host?.contains(target) === true) {
+        return;
+      }
+
+      closeContextMenu();
+    };
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeContextMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [closeContextMenu, contextMenuState]);
 
   useLayoutEffect(() => {
     const scrollElement = scrollRef.current;
@@ -631,6 +1088,70 @@ export function PathStoreTreesView({
     resolvedViewportHeight,
   ]);
 
+  const focusTriggerPath =
+    domFocusOwnerRef.current === true ? (activeItemPath ?? focusedPath) : null;
+  const triggerPath =
+    contextMenuState?.path ??
+    (lastContextMenuInteraction === 'pointer'
+      ? contextHoverPath
+      : lastContextMenuInteraction === 'focus'
+        ? focusTriggerPath
+        : null);
+
+  useLayoutEffect(() => {
+    const triggerButton =
+      triggerPath == null
+        ? null
+        : (rowButtonRefs.current.get(triggerPath) ?? null);
+    updateTriggerPosition(triggerButton);
+  }, [
+    itemCount,
+    range,
+    resolvedViewportHeight,
+    triggerPath,
+    updateTriggerPosition,
+  ]);
+
+  const handleTreePointerOver = useCallback((event: Event): void => {
+    if (isScrollingRef.current) {
+      return;
+    }
+
+    if (isEventInContextMenu(event)) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (
+      target.closest?.(`[data-type="${CONTEXT_MENU_TRIGGER_TYPE}"]`) != null
+    ) {
+      return;
+    }
+
+    const rowButton = target.closest?.('[data-type="item"]');
+    const nextPath =
+      rowButton instanceof HTMLButtonElement
+        ? (rowButton.dataset.itemPath ?? null)
+        : null;
+
+    if (nextPath != null) {
+      setLastContextMenuInteraction((previousMode) =>
+        previousMode === 'pointer' ? previousMode : 'pointer'
+      );
+    }
+    setContextHoverPath((previousPath) =>
+      previousPath === nextPath ? previousPath : nextPath
+    );
+  }, []);
+
+  const handleTreePointerLeave = useCallback((): void => {
+    setContextHoverPath(null);
+  }, []);
+
   const stickyLayout = useMemo(
     () =>
       computeStickyWindowLayout({
@@ -664,15 +1185,70 @@ export function PathStoreTreesView({
   const guideStyleText = getPathStoreGuideStyleText(
     focusedVisibleRow?.ancestorPaths.at(-1) ?? null
   );
+  const contextAnchorName =
+    contextMenuUsesAnchorPositioning && triggerPath != null
+      ? CONTEXT_MENU_ROW_ANCHOR_NAME
+      : null;
+  const visualFocusPath = contextMenuState?.path ?? activeItemPath;
+  const contextAnchorPath = triggerPath;
+  const visualContextHoverPath = contextMenuState?.path ?? contextHoverPath;
+  const triggerButton =
+    triggerPath == null
+      ? null
+      : (rowButtonRefs.current.get(triggerPath) ?? null);
+  const triggerButtonVisible =
+    contextMenuEnabled &&
+    triggerButton != null &&
+    triggerPath != null &&
+    (contextMenuUsesAnchorPositioning || contextMenuAnchorTop != null);
+  const contextMenuAnchorStyle =
+    contextMenuUsesAnchorPositioning && contextAnchorName != null
+      ? {
+          positionAnchor: contextAnchorName,
+          top: 'anchor(top)',
+        }
+      : !contextMenuUsesAnchorPositioning &&
+          triggerButtonVisible &&
+          contextMenuAnchorTop != null
+        ? {
+            top: `${contextMenuAnchorTop}px`,
+          }
+        : undefined;
+  const openMenuFromTrigger = (): void => {
+    if (triggerPath == null || triggerButton == null) {
+      return;
+    }
+
+    const triggerItem = controller.getItem(triggerPath);
+    if (triggerItem == null) {
+      return;
+    }
+
+    updateTriggerPosition(triggerButton);
+    setContextMenuState({
+      item: {
+        kind: triggerItem.isDirectory() ? 'directory' : 'file',
+        name: triggerButton.getAttribute('aria-label') ?? triggerPath,
+        path: triggerItem.getPath(),
+      },
+      path: triggerItem.getPath(),
+    });
+  };
 
   return (
     <div
       ref={rootRef}
       data-file-tree-virtualized-root="true"
       onKeyDown={handleTreeKeyDown}
+      onPointerLeave={contextMenuEnabled ? handleTreePointerLeave : undefined}
+      onPointerOver={contextMenuEnabled ? handleTreePointerOver : undefined}
       role="tree"
       tabIndex={-1}
-      style={{ height: `${viewportHeight}px`, outline: 'none' }}
+      style={{
+        height: `${viewportHeight}px`,
+        outline: 'none',
+        position: 'relative',
+      }}
     >
       <style
         data-path-store-guide-style="true"
@@ -701,8 +1277,12 @@ export function PathStoreTreesView({
             {renderRangeChildren(
               controller,
               range,
-              activeItemPath,
+              visualFocusPath,
+              contextAnchorName,
+              contextAnchorPath,
+              visualContextHoverPath,
               itemHeight,
+              contextMenuEnabled,
               (path, element) => {
                 if (element == null) {
                   rowButtonRefs.current.delete(path);
@@ -712,14 +1292,20 @@ export function PathStoreTreesView({
                 rowButtonRefs.current.set(path, element);
               },
               resolveIcon,
+              renderDecorationForRow,
+              openContextMenuForRow,
               handleTreeKeyDown
             )}
             {parkedFocusedRow != null && parkedFocusedRowOffset != null
               ? renderStyledRow(
                   controller,
                   parkedFocusedRow,
-                  activeItemPath,
+                  visualFocusPath,
+                  contextAnchorName,
+                  contextAnchorPath,
+                  visualContextHoverPath,
                   itemHeight,
+                  contextMenuEnabled,
                   (path, element) => {
                     if (element == null) {
                       rowButtonRefs.current.delete(path);
@@ -729,6 +1315,8 @@ export function PathStoreTreesView({
                     rowButtonRefs.current.set(path, element);
                   },
                   resolveIcon,
+                  renderDecorationForRow,
+                  openContextMenuForRow,
                   handleTreeKeyDown,
                   `parked:${parkedFocusedRow.path}`,
                   {
@@ -744,7 +1332,69 @@ export function PathStoreTreesView({
               : null}
           </div>
         </div>
+        {contextMenuEnabled ? (
+          <div
+            ref={contextMenuAnchorRef}
+            data-type="context-menu-anchor"
+            data-anchor-positioning={
+              contextMenuUsesAnchorPositioning ? 'true' : undefined
+            }
+            data-visible={triggerButtonVisible ? 'true' : 'false'}
+            style={contextMenuAnchorStyle}
+          >
+            <button
+              ref={contextMenuTriggerRef}
+              type="button"
+              data-type={CONTEXT_MENU_TRIGGER_TYPE}
+              aria-label="Options"
+              aria-haspopup="menu"
+              data-visible={triggerButtonVisible ? 'true' : 'false'}
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (contextMenuState != null) {
+                  closeContextMenu();
+                  return;
+                }
+
+                openMenuFromTrigger();
+              }}
+              tabIndex={-1}
+            >
+              <Icon {...resolveIcon('file-tree-icon-ellipsis')} />
+            </button>
+            {contextMenuState != null ? (
+              <slot name={CONTEXT_MENU_SLOT_NAME} />
+            ) : null}
+          </div>
+        ) : null}
       </div>
+      {contextMenuState != null ? (
+        <div
+          data-type="context-menu-wash"
+          aria-hidden="true"
+          onMouseDownCapture={(event) => {
+            event.preventDefault();
+            closeContextMenu();
+          }}
+          onTouchStartCapture={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeContextMenu();
+          }}
+          onTouchMoveCapture={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onWheelCapture={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

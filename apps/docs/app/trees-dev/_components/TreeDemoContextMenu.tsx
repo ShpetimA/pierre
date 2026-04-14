@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export type ContextMenuDemoItem = { path: string; isFolder: boolean };
+type TreeDemoContextMenuContext = ContextMenuOpenContext & {
+  restoreFocus?: () => void;
+};
 
 export function makeDemoRenamingOptions(label: string) {
   return {
@@ -36,7 +39,7 @@ export function TreeDemoContextMenu({
   context,
 }: {
   item: ContextMenuDemoItem;
-  context: ContextMenuOpenContext;
+  context: TreeDemoContextMenuContext;
 }) {
   const itemType = item.isFolder ? 'Folder' : 'File';
   const handleRenameSelect = () => context.startRenaming?.();
@@ -67,6 +70,10 @@ export function TreeDemoContextMenu({
         side="right"
         sideOffset={8}
         className="min-w-[220px]"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          context.restoreFocus?.();
+        }}
       >
         <DropdownMenuLabel className="max-w-[280px] truncate">
           {itemType}: {item.path}
@@ -99,7 +106,7 @@ export function renderVanillaContextMenuSlot({
   slotElement: HTMLDivElement;
   menuRootRef: { current: ReactDomRoot | null };
   item: ContextMenuDemoItem;
-  context: ContextMenuOpenContext;
+  context: TreeDemoContextMenuContext;
 }): void {
   menuRootRef.current ??= createRoot(slotElement);
   slotElement.style.display = 'block';

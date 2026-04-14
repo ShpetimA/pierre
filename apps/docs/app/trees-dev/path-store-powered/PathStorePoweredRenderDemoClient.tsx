@@ -4,11 +4,15 @@ import {
   PathStoreFileTree,
   type PathStoreFileTreeOptions,
 } from '@pierre/trees/path-store';
-import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Root as ReactDomRoot } from 'react-dom/client';
 
 import { ExampleCard } from '../_components/ExampleCard';
 import { StateLog, useStateLog } from '../_components/StateLog';
+import {
+  clearVanillaContextMenuSlot,
+  renderVanillaContextMenuSlot,
+} from '../_components/TreeDemoContextMenu';
 import { pathStoreCapabilityMatrix } from './capabilityMatrix';
 import { createPresortedPreparedInput } from './createPresortedPreparedInput';
 import { PATH_STORE_CUSTOM_ICONS } from './pathStoreDemoIcons';
@@ -23,25 +27,20 @@ interface PathStorePoweredRenderDemoClientProps {
   sharedOptions: SharedDemoOptions;
 }
 
-function HydratedPathStoreExample({
+const HydratedPathStoreExample = memo(function HydratedPathStoreExample({
   containerHtml,
-  icons,
   description,
-  footer,
+  onTreeReady,
   options,
   title,
 }: {
   containerHtml: string;
   description: string;
-  footer?: ReactNode;
-  icons: PathStoreFileTreeOptions['icons'];
+  onTreeReady: (fileTree: PathStoreFileTree | null) => void;
   options: Omit<PathStoreFileTreeOptions, 'icons'>;
   title: string;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const fileTreeRef = useRef<PathStoreFileTree | null>(null);
-  const latestIconsRef = useRef(icons);
-  latestIconsRef.current = icons;
 
   useEffect(() => {
     const node = ref.current;
@@ -49,11 +48,8 @@ function HydratedPathStoreExample({
       return;
     }
 
-    const fileTree = new PathStoreFileTree({
-      ...options,
-      icons: latestIconsRef.current,
-    });
-    fileTreeRef.current = fileTree;
+    const fileTree = new PathStoreFileTree(options);
+    onTreeReady(fileTree);
     const fileTreeContainer = node.querySelector('file-tree-container');
     if (fileTreeContainer instanceof HTMLElement) {
       fileTree.hydrate({ fileTreeContainer });
@@ -64,16 +60,12 @@ function HydratedPathStoreExample({
 
     return () => {
       fileTree.cleanUp();
-      fileTreeRef.current = null;
+      onTreeReady(null);
     };
-  }, [containerHtml, options]);
-
-  useEffect(() => {
-    fileTreeRef.current?.setIcons(icons);
-  }, [icons]);
+  }, [containerHtml, onTreeReady, options]);
 
   return (
-    <ExampleCard title={title} description={description} footer={footer}>
+    <ExampleCard title={title} description={description}>
       <div
         ref={ref}
         style={{ height: `${String(options.viewportHeight ?? 420)}px` }}
@@ -82,13 +74,16 @@ function HydratedPathStoreExample({
       />
     </ExampleCard>
   );
-}
+});
 
 export function PathStorePoweredRenderDemoClient({
   containerHtml,
   sharedOptions,
 }: PathStorePoweredRenderDemoClientProps) {
   const { addLog, log } = useStateLog();
+  const contextMenuRootRef = useRef<ReactDomRoot | null>(null);
+  const contextMenuSlotRef = useRef<HTMLDivElement | null>(null);
+  const treeRef = useRef<PathStoreFileTree | null>(null);
   const [iconMode, setIconMode] = useState<
     'complete' | 'custom' | 'minimal' | 'standard'
   >('complete');
@@ -102,11 +97,53 @@ export function PathStorePoweredRenderDemoClient({
     },
     [addLog]
   );
+  useEffect(
+    () => () => {
+      if (contextMenuSlotRef.current == null) {
+        return;
+      }
+
+      clearVanillaContextMenuSlot({
+        menuRootRef: contextMenuRootRef,
+        slotElement: contextMenuSlotRef.current,
+        unmount: true,
+      });
+    },
+    []
+  );
   const options = useMemo<Omit<PathStoreFileTreeOptions, 'icons'>>(
     () => ({
       ...sharedOptions,
       composition: {
         ...sharedOptions.composition,
+        contextMenu: {
+          enabled: true,
+          onClose: () => {
+            if (contextMenuSlotRef.current != null) {
+              clearVanillaContextMenuSlot({
+                menuRootRef: contextMenuRootRef,
+                slotElement: contextMenuSlotRef.current,
+              });
+            }
+            addLog('context menu: closed');
+          },
+          onOpen: (item) => {
+            addLog(`context menu: opened for ${item.path}`);
+          },
+          render: (item, context) => {
+            contextMenuSlotRef.current ??= document.createElement('div');
+            renderVanillaContextMenuSlot({
+              context,
+              item: {
+                isFolder: item.kind === 'directory',
+                path: item.path,
+              },
+              menuRootRef: contextMenuRootRef,
+              slotElement: contextMenuSlotRef.current,
+            });
+            return contextMenuSlotRef.current;
+          },
+        },
         header: {
           ...sharedOptions.composition?.header,
           render: () => {
@@ -135,11 +172,22 @@ export function PathStorePoweredRenderDemoClient({
       id: 'pst-phase5-icons',
       onSelectionChange: handleSelectionChange,
       preparedInput,
+      renderRowDecoration: ({ item }) =>
+        item.path.endsWith('.ts')
+          ? { text: 'TS', title: 'TypeScript file' }
+          : null,
     }),
     [addLog, handleSelectionChange, preparedInput, sharedOptions]
   );
   const activeIcons =
     iconMode === 'custom' ? PATH_STORE_CUSTOM_ICONS : iconMode;
+  const handleTreeReady = useCallback((fileTree: PathStoreFileTree | null) => {
+    treeRef.current = fileTree;
+  }, []);
+
+  useEffect(() => {
+    treeRef.current?.setIcons(activeIcons);
+  }, [activeIcons]);
 
   return (
     <div className="space-y-6">
@@ -152,9 +200,9 @@ export function PathStorePoweredRenderDemoClient({
         </h1>
         <p className="text-muted-foreground max-w-3xl text-sm leading-6">
           The path-store lane keeps the landed focus and selection model,
-          preserves the header slot, and now proves the built-in Minimal,
-          Standard, and Complete icon sets alongside a fully custom icon
-          configuration.
+          preserves the header slot, proves the built-in Minimal, Standard, and
+          Complete icon sets, and now restores the Phase 5 context-menu shell
+          plus simple row decorations.
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           <button
@@ -190,28 +238,17 @@ export function PathStorePoweredRenderDemoClient({
           >
             Show Minimal icons
           </button>
-          <button
-            type="button"
-            className="rounded-md border px-3 py-1.5 text-sm font-medium"
-            aria-pressed={iconMode === 'custom'}
-            onClick={() => {
-              setIconMode('custom');
-              addLog('icons: custom');
-            }}
-          >
-            Show Custom icons
-          </button>
         </div>
       </header>
 
       <HydratedPathStoreExample
         containerHtml={containerHtml}
-        description="Click a row to select it, use Ctrl/Cmd-click and Shift-click for multi-selection, try the slotted header button above the tree, then switch between the Complete, Standard, Minimal, and Custom icon modes. Expansion, selection, and focus should stay intact while only the icons change."
-        footer={<StateLog entries={log} />}
-        icons={activeIcons}
+        description="Click a row to select it, use Ctrl/Cmd-click and Shift-click for multi-selection, try the slotted header button above the tree, switch between the Complete, Standard, and Minimal icon modes, and right-click or press Shift+F10 to open the slotted context menu. Expansion, selection, and focus should stay intact while only the icons change."
+        onTreeReady={handleTreeReady}
         options={options}
-        title="Focus + Selection + Header Slot + Icon Sets"
+        title="Focus + Selection + Header Slot + Icon Sets + Context Menu"
       />
+      <StateLog entries={log} />
 
       <section className="space-y-3 rounded-lg border p-4">
         <h2 className="text-lg font-semibold">Capability / phase matrix</h2>
