@@ -122,6 +122,16 @@ function isSpaceSelectionKey(event: KeyboardEvent): boolean {
   );
 }
 
+function isSearchOpenSeedKey(event: KeyboardEvent): boolean {
+  return (
+    event.key.length === 1 &&
+    /^[\p{L}\p{N}]$/u.test(event.key) &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey
+  );
+}
+
 // Focus changes should keep the logical focused row visible without relying on
 // browser scrollIntoView heuristics inside the virtualized shadow root.
 // Keeps a newly focused row inside the viewport without relying on
@@ -156,6 +166,48 @@ function scrollFocusedRowIntoView(
   }
 
   scrollElement.scrollTop = nextScrollTop;
+  return true;
+}
+
+// Closing search can reintroduce many rows above the focused item, so this
+// helper preserves the row's previous viewport offset when search closes and
+// the unfiltered list pushes the selected row outside the viewport.
+function scrollFocusedRowToViewportOffset(
+  scrollElement: HTMLElement,
+  focusedIndex: number,
+  itemHeight: number,
+  fallbackViewportHeight: number,
+  totalHeight: number,
+  targetViewportOffset: number
+): boolean {
+  if (focusedIndex < 0) {
+    return false;
+  }
+
+  const viewportHeight =
+    scrollElement.clientHeight > 0
+      ? scrollElement.clientHeight
+      : fallbackViewportHeight;
+  const itemTop = focusedIndex * itemHeight;
+  const itemBottom = itemTop + itemHeight;
+  const currentScrollTop = scrollElement.scrollTop;
+  const currentViewportBottom = currentScrollTop + viewportHeight;
+  if (itemTop >= currentScrollTop && itemBottom <= currentViewportBottom) {
+    return false;
+  }
+
+  const preservedScrollTop = Math.max(
+    0,
+    Math.min(
+      itemTop - Math.max(0, targetViewportOffset),
+      Math.max(0, totalHeight - viewportHeight)
+    )
+  );
+  if (preservedScrollTop === currentScrollTop) {
+    return false;
+  }
+
+  scrollElement.scrollTop = preservedScrollTop;
   return true;
 }
 
@@ -265,6 +317,26 @@ function createContextMenuItem(
   };
 }
 
+function getPathStoreTreesRootDomId(
+  instanceId: string | undefined
+): string | undefined {
+  return instanceId == null ? undefined : `${instanceId}__tree`;
+}
+
+// Search keeps DOM focus on the built-in input, so the focused row still needs
+// a stable DOM id for aria-activedescendant and visual-focus parity.
+function getPathStoreTreesFocusedRowDomId(
+  instanceId: string | undefined,
+  path: string,
+  parked: boolean
+): string | undefined {
+  if (instanceId == null) {
+    return undefined;
+  }
+
+  return `${instanceId}__focused-item-${encodeURIComponent(path)}${parked ? '__parked' : ''}`;
+}
+
 function renderRowDecoration(
   decoration: PathStoreTreesRowDecoration | null
 ): JSX.Element | null {
@@ -311,6 +383,7 @@ function renderStyledRow(
   row: PathStoreTreesVisibleRow,
   visualFocusPath: string | null,
   contextHoverPath: string | null,
+  instanceId: string | undefined,
   itemHeight: number,
   contextMenuEnabled: boolean,
   registerButton: (path: string, element: HTMLButtonElement | null) => void,
@@ -344,6 +417,9 @@ function renderStyledRow(
     contextHoverPath === targetPath
       ? { 'data-item-context-hover': 'true' }
       : {};
+  const domId = row.isFocused
+    ? getPathStoreTreesFocusedRowDomId(instanceId, targetPath, isParked)
+    : undefined;
 
   return (
     <button
@@ -351,6 +427,7 @@ function renderStyledRow(
       ref={(element) => {
         registerButton(targetPath, element);
       }}
+      id={domId}
       type="button"
       data-type="item"
       data-item-path={targetPath}
@@ -363,7 +440,13 @@ function renderStyledRow(
       aria-posinset={row.posInSet + 1}
       aria-selected={row.isSelected ? 'true' : 'false'}
       aria-setsize={row.setSize}
+      onMouseDown={(event) => {
+        if (controller.isSearchOpen()) {
+          event.preventDefault();
+        }
+      }}
       onClick={(event) => {
+        const shouldCloseSearch = controller.isSearchOpen();
         if (event.shiftKey) {
           controller.selectPathRange(
             targetPath,
@@ -378,6 +461,9 @@ function renderStyledRow(
         item?.focus();
         if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
           directoryItem?.toggle();
+        }
+        if (shouldCloseSearch) {
+          controller.closeSearch();
         }
       }}
       onFocus={() => {
@@ -450,6 +536,7 @@ function renderRangeChildren(
   range: { start: number; end: number },
   activeItemPath: string | null,
   contextHoverPath: string | null,
+  instanceId: string | undefined,
   itemHeight: number,
   contextMenuEnabled: boolean,
   registerButton: (path: string, element: HTMLButtonElement | null) => void,
@@ -480,6 +567,7 @@ function renderRangeChildren(
         row,
         activeItemPath,
         contextHoverPath,
+        instanceId,
         itemHeight,
         contextMenuEnabled,
         registerButton,
@@ -500,9 +588,11 @@ export function PathStoreTreesView({
   composition,
   controller,
   icons,
+  instanceId,
   itemHeight = PATH_STORE_TREES_DEFAULT_ITEM_HEIGHT,
   overscan = PATH_STORE_TREES_DEFAULT_OVERSCAN,
   renderRowDecoration,
+  searchEnabled = false,
   slotHost,
   viewportHeight = PATH_STORE_TREES_DEFAULT_VIEWPORT_HEIGHT,
 }: PathStoreTreesViewProps): JSX.Element {
@@ -513,10 +603,13 @@ export function PathStoreTreesView({
   const listRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const rowButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const updateViewportRef = useRef<() => void>(() => {});
   const domFocusOwnerRef = useRef(false);
   const previousFocusedPathRef = useRef<string | null>(null);
+  const restoreTreeFocusAfterSearchCloseRef = useRef(false);
+  const restoreTreeFocusViewportOffsetRef = useRef<number | null>(null);
   const [, setControllerRevision] = useState(0);
   const [activeItemPath, setActiveItemPath] = useState<string | null>(null);
   const [contextHoverPath, setContextHoverPath] = useState<string | null>(null);
@@ -555,8 +648,11 @@ export function PathStoreTreesView({
     () => createPathStoreIconResolver(icons),
     [icons]
   );
+  const isSearchOpen = controller.isSearchOpen();
+  const searchValue = controller.getSearchValue();
   const focusedPath = controller.getFocusedPath();
   const focusedIndex = controller.getFocusedIndex();
+  const treeDomId = getPathStoreTreesRootDomId(instanceId);
   const focusedRowIsMounted =
     focusedIndex >= range.start && focusedIndex <= range.end;
   const renderDecorationForRow = useCallback(
@@ -650,6 +746,56 @@ export function PathStoreTreesView({
       return;
     }
 
+    if (isSearchOpen) {
+      if (event.key === 'Escape') {
+        restoreTreeFocusAfterSearchCloseRef.current = false;
+        restoreTreeFocusViewportOffsetRef.current = null;
+        controller.closeSearch();
+      } else if (event.key === 'Enter') {
+        const currentFocusedPath = controller.getFocusedPath();
+        if (currentFocusedPath != null) {
+          controller.selectOnlyPath(currentFocusedPath);
+        }
+        const scrollElement = scrollRef.current;
+        const viewportHeight =
+          scrollElement?.clientHeight != null && scrollElement.clientHeight > 0
+            ? scrollElement.clientHeight
+            : resolvedViewportHeight;
+        restoreTreeFocusViewportOffsetRef.current =
+          focusedIndex < 0 || scrollElement == null
+            ? null
+            : Math.max(
+                0,
+                Math.min(
+                  focusedIndex * itemHeight - scrollElement.scrollTop,
+                  Math.max(0, viewportHeight - itemHeight)
+                )
+              );
+        restoreTreeFocusAfterSearchCloseRef.current = true;
+        controller.closeSearch();
+      } else if (event.key === 'ArrowDown') {
+        controller.focusNextSearchMatch();
+      } else if (event.key === 'ArrowUp') {
+        controller.focusPreviousSearchMatch();
+      } else {
+        return;
+      }
+
+      setLastContextMenuInteraction('focus');
+      setControllerRevision((revision) => revision + 1);
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (searchEnabled && isSearchOpenSeedKey(event)) {
+      controller.openSearch(event.key);
+      setControllerRevision((revision) => revision + 1);
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
     const focusedItem = controller.getFocusedItem();
     if (focusedItem == null) {
       return;
@@ -736,6 +882,14 @@ export function PathStoreTreesView({
     event.preventDefault();
     event.stopPropagation();
   };
+
+  useLayoutEffect(() => {
+    if (!searchEnabled || !isSearchOpen) {
+      return;
+    }
+
+    focusElement(searchInputRef.current);
+  }, [isSearchOpen, searchEnabled]);
 
   useLayoutEffect(() => {
     const rootElement = rootRef.current;
@@ -988,6 +1142,8 @@ export function PathStoreTreesView({
     };
   }, [closeContextMenu, contextMenuState]);
 
+  const totalScrollableHeight = itemCount * itemHeight;
+
   useLayoutEffect(() => {
     const scrollElement = scrollRef.current;
     const rootElement = rootRef.current;
@@ -1002,19 +1158,37 @@ export function PathStoreTreesView({
         : (rowButtonRefs.current.get(focusedPath) ?? null);
     const activeTreeElement = getActiveTreeElement(rootElement);
     const activeTreeElementPath = activeTreeElement?.dataset.itemPath ?? null;
+    const searchInputOwnsFocus =
+      searchEnabled && searchInputRef.current === activeTreeElement;
+    const shouldRestoreTreeFocusAfterSearchClose =
+      restoreTreeFocusAfterSearchCloseRef.current && !isSearchOpen;
+    const preservedViewportOffset =
+      restoreTreeFocusViewportOffsetRef.current ?? 0;
     const focusWithinTree = activeTreeElement != null;
     const shouldOwnDomFocus = domFocusOwnerRef.current || focusWithinTree;
     const focusedPathChanged = previousFocusedPathRef.current !== focusedPath;
 
-    if (
-      shouldOwnDomFocus &&
-      focusedPathChanged &&
-      scrollFocusedRowIntoView(
+    const shouldRestoreFocusedRowViewportOffset =
+      shouldRestoreTreeFocusAfterSearchClose &&
+      scrollFocusedRowToViewportOffset(
         scrollElement,
         focusedIndex,
         itemHeight,
-        resolvedViewportHeight
-      )
+        resolvedViewportHeight,
+        totalScrollableHeight,
+        preservedViewportOffset
+      );
+
+    if (
+      shouldRestoreFocusedRowViewportOffset ||
+      (shouldOwnDomFocus &&
+        focusedPathChanged &&
+        scrollFocusedRowIntoView(
+          scrollElement,
+          focusedIndex,
+          itemHeight,
+          resolvedViewportHeight
+        ))
     ) {
       updateViewportRef.current();
     }
@@ -1024,17 +1198,36 @@ export function PathStoreTreesView({
       return;
     }
 
+    if (searchInputOwnsFocus && !shouldRestoreTreeFocusAfterSearchClose) {
+      previousFocusedPathRef.current = focusedPath;
+      return;
+    }
+
     if (focusedButton == null) {
+      if (shouldRestoreTreeFocusAfterSearchClose && focusedIndex >= 0) {
+        scrollFocusedRowToViewportOffset(
+          scrollElement,
+          focusedIndex,
+          itemHeight,
+          resolvedViewportHeight,
+          totalScrollableHeight,
+          preservedViewportOffset
+        );
+        updateViewportRef.current();
+      }
       previousFocusedPathRef.current = focusedPath;
       return;
     }
 
     if (
       focusedPathChanged ||
+      shouldRestoreTreeFocusAfterSearchClose ||
       activeTreeElementPath == null ||
       activeTreeElementPath !== focusedPath
     ) {
       focusElement(focusedButton);
+      restoreTreeFocusAfterSearchCloseRef.current = false;
+      restoreTreeFocusViewportOffsetRef.current = null;
     }
     previousFocusedPathRef.current = focusedPath;
   }, [
@@ -1043,8 +1236,12 @@ export function PathStoreTreesView({
     focusedPath,
     focusedRowIsMounted,
     itemHeight,
+    isSearchOpen,
+    itemCount,
     range,
     resolvedViewportHeight,
+    searchEnabled,
+    totalScrollableHeight,
   ]);
 
   const focusTriggerPath =
@@ -1121,9 +1318,12 @@ export function PathStoreTreesView({
       }),
     [itemCount, itemHeight, range, resolvedViewportHeight]
   );
+  const shouldRenderParkedFocusedRow =
+    activeItemPath === focusedPath ||
+    restoreTreeFocusAfterSearchCloseRef.current;
   const parkedFocusedRow =
     focusedPath != null &&
-    activeItemPath === focusedPath &&
+    shouldRenderParkedFocusedRow &&
     !focusedRowIsMounted &&
     focusedIndex >= 0
       ? (controller.getVisibleRows(focusedIndex, focusedIndex)[0] ?? null)
@@ -1144,7 +1344,16 @@ export function PathStoreTreesView({
   const guideStyleText = getPathStoreGuideStyleText(
     focusedVisibleRow?.ancestorPaths.at(-1) ?? null
   );
-  const visualFocusPath = contextMenuState?.path ?? activeItemPath;
+  const activeDescendantId =
+    isSearchOpen && focusedPath != null
+      ? getPathStoreTreesFocusedRowDomId(
+          instanceId,
+          focusedPath,
+          !focusedRowIsMounted
+        )
+      : undefined;
+  const visualFocusPath =
+    contextMenuState?.path ?? (isSearchOpen ? focusedPath : activeItemPath);
   const visualContextHoverPath = contextMenuState?.path ?? contextHoverPath;
   const triggerButton =
     triggerPath == null
@@ -1185,6 +1394,7 @@ export function PathStoreTreesView({
   return (
     <div
       ref={rootRef}
+      id={treeDomId}
       data-file-tree-virtualized-root="true"
       onKeyDown={handleTreeKeyDown}
       onPointerLeave={contextMenuEnabled ? handleTreePointerLeave : undefined}
@@ -1202,6 +1412,25 @@ export function PathStoreTreesView({
         dangerouslySetInnerHTML={{ __html: guideStyleText }}
       />
       <slot name={HEADER_SLOT_NAME} data-type="header-slot" />
+      {searchEnabled ? (
+        <div data-file-tree-search-container>
+          <input
+            ref={searchInputRef}
+            aria-activedescendant={activeDescendantId}
+            aria-controls={treeDomId}
+            placeholder="Search…"
+            data-file-tree-search-input
+            value={searchValue}
+            onBlur={() => {
+              controller.closeSearch();
+            }}
+            onInput={(event) => {
+              const target = event.currentTarget;
+              controller.setSearch(target.value);
+            }}
+          />
+        </div>
+      ) : null}
       <div ref={scrollRef} data-file-tree-virtualized-scroll="true">
         <div
           ref={listRef}
@@ -1226,6 +1455,7 @@ export function PathStoreTreesView({
               range,
               visualFocusPath,
               visualContextHoverPath,
+              instanceId,
               itemHeight,
               contextMenuEnabled,
               (path, element) => {
@@ -1247,6 +1477,7 @@ export function PathStoreTreesView({
                   parkedFocusedRow,
                   visualFocusPath,
                   visualContextHoverPath,
+                  instanceId,
                   itemHeight,
                   contextMenuEnabled,
                   (path, element) => {

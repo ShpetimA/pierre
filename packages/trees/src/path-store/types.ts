@@ -16,6 +16,9 @@ import type { ContextMenuAnchorRect } from '../types';
 export type PathStoreTreesPublicId = string;
 
 export interface PathStoreTreesControllerOptions extends PathStoreConstructorOptions {
+  fileTreeSearchMode?: PathStoreTreesSearchMode;
+  initialSearchQuery?: string | null;
+  onSearchChange?: PathStoreTreesSearchChangeListener;
   paths: readonly string[];
 }
 
@@ -76,6 +79,24 @@ export interface PathStoreTreesRenderOptions {
   viewportHeight?: number;
 }
 
+export type PathStoreTreesSearchMode =
+  | 'expand-matches'
+  | 'collapse-non-matches'
+  | 'hide-non-matches';
+
+export type PathStoreTreesSearchChangeListener = (value: string | null) => void;
+
+export interface PathStoreTreesSearchSessionHandle {
+  closeSearch(): void;
+  focusNextSearchMatch(): void;
+  focusPreviousSearchMatch(): void;
+  getSearchMatchingPaths(): readonly PathStoreTreesPublicId[];
+  getSearchValue(): string;
+  isSearchOpen(): boolean;
+  openSearch(initialValue?: string): void;
+  setSearch(value: string | null): void;
+}
+
 export interface PathStoreFileTreeOptions
   extends PathStoreTreesControllerOptions, PathStoreTreesRenderOptions {
   composition?: PathStoreTreesCompositionOptions;
@@ -83,6 +104,7 @@ export interface PathStoreFileTreeOptions
   icons?: FileTreeIcons;
   onSelectionChange?: PathStoreTreesSelectionChangeListener;
   renderRowDecoration?: PathStoreTreesRowDecorationRenderer;
+  search?: boolean;
 }
 
 export interface PathStoreTreesViewportMetrics {
@@ -109,7 +131,9 @@ export interface PathStoreTreesViewProps extends PathStoreTreesRenderOptions {
   controller: import('./controller').PathStoreTreesController;
   composition?: PathStoreTreesCompositionOptions;
   icons?: FileTreeIcons;
+  instanceId?: string;
   renderRowDecoration?: PathStoreTreesRowDecorationRenderer;
+  searchEnabled?: boolean;
   slotHost?: PathStoreTreesSlotHost;
 }
 
