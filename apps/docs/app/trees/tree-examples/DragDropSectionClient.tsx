@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { FeatureHeader } from '../../diff-examples/FeatureHeader';
 import { DEFAULT_FILE_TREE_PANEL_CLASS, dragDropOptions } from './demo-data';
 import { TreeExampleSection } from './TreeExampleSection';
+import { PRODUCTS } from '@/app/product-config';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 
@@ -57,7 +58,7 @@ export function DragDropSectionClient({
             <code>lockedPaths</code> to prevent specific paths from being
             dragged. Learn more in the{' '}
             <Link
-              href="/preview/trees/docs#drag-and-drop"
+              href={`${PRODUCTS.trees.docsPath}#drag-and-drop`}
               className="inline-link"
             >
               FileTreeOptions docs
