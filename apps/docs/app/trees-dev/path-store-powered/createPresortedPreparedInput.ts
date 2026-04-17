@@ -4,9 +4,9 @@ type PathStorePreparedInput = NonNullable<
   PathStoreFileTreeOptions['preparedInput']
 >;
 
-// The docs demo already receives canonical presorted workloads, so this helper
-// builds the matching path-store fast path without sorting again on the client
-// or server.
+// This helper exists for demos whose input is already ordered according to the
+// same path-store sort semantics the live tree will use. It does not sort or
+// validate; callers must pass presorted paths.
 export function createPresortedPreparedInput(
   paths: readonly string[]
 ): PathStorePreparedInput {
