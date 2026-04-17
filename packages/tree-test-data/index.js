@@ -66,7 +66,7 @@ function deriveExpandedFolders(paths) {
       ? normalizedPath.length
       : normalizedPath.lastIndexOf('/');
 
-    while (searchIndex >= 0 && searchIndex < limit) {
+    while (searchIndex >= 0 && searchIndex <= limit) {
       folders.add(normalizedPath.slice(0, searchIndex));
       searchIndex = normalizedPath.indexOf('/', searchIndex + 1);
     }
