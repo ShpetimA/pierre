@@ -1,10 +1,10 @@
-import { FileTree } from '@pierre/trees/react';
-import { preloadFileTree } from '@pierre/trees/ssr';
 import type { CSSProperties } from 'react';
 
 import { FeatureHeader } from '../../diff-examples/FeatureHeader';
 import { baseTreeOptions, DEFAULT_FILE_TREE_PANEL_CLASS } from './demo-data';
 import { TreeExampleSection } from './TreeExampleSection';
+import { preloadFileTree } from '@/lib/treesCompat';
+import { FileTree } from '@/lib/treesCompatClient';
 
 const a11yStyle: CSSProperties = {
   colorScheme: 'dark',

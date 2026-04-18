@@ -1,5 +1,3 @@
-import { FileTree } from '@pierre/trees/react';
-import { preloadFileTree } from '@pierre/trees/ssr';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
@@ -7,6 +5,8 @@ import { FeatureHeader } from '../../diff-examples/FeatureHeader';
 import { DEFAULT_FILE_TREE_PANEL_CLASS } from './demo-data';
 import { TreeExampleSection } from './TreeExampleSection';
 import { PRODUCTS } from '@/app/product-config';
+import { preloadFileTree } from '@/lib/treesCompat';
+import { FileTree } from '@/lib/treesCompatClient';
 
 const EXTENSIONS = ['.ts', '.tsx', '.css', '.json', '.md', '.test.ts'];
 
