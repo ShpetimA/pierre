@@ -477,7 +477,10 @@ function isEventInContextMenu(event: Event): boolean {
       return true;
     }
 
-    if (entry.dataset.type === 'context-menu-anchor') {
+    if (
+      entry.dataset.type === 'context-menu-anchor' ||
+      entry.dataset.type === CONTEXT_MENU_TRIGGER_TYPE
+    ) {
       return true;
     }
 
@@ -501,6 +504,22 @@ function serializeAnchorRect(
     width: rect.width,
     x: rect.x,
     y: rect.y,
+  };
+}
+
+function createAnchorRectFromPoint(
+  x: number,
+  y: number
+): PathStoreTreesContextMenuOpenContext['anchorRect'] {
+  return {
+    bottom: y,
+    height: 0,
+    left: x,
+    right: x,
+    top: y,
+    width: 0,
+    x,
+    y,
   };
 }
 
@@ -637,6 +656,7 @@ function renderStyledRow(
   directoriesWithGitChanges: ReadonlySet<string> | undefined,
   gitStatusByPath: ReadonlyMap<string, GitStatus> | undefined,
   contextMenuEnabled: boolean,
+  contextMenuRightClickEnabled: boolean,
   registerRenameInput: (element: HTMLInputElement | null) => void,
   registerButton: (path: string, element: HTMLElement | null) => void,
   resolveIcon: ReturnType<typeof createPathStoreIconResolver>['resolveIcon'],
@@ -646,7 +666,11 @@ function renderStyledRow(
   ) => PathStoreTreesRowDecoration | null,
   openContextMenuForRow: (
     row: PathStoreTreesVisibleRow,
-    targetPath: string
+    targetPath: string,
+    options?: {
+      anchorRect?: PathStoreTreesContextMenuOpenContext['anchorRect'];
+      source?: 'button' | 'keyboard' | 'right-click';
+    }
   ) => void,
   onKeyDown: (event: KeyboardEvent) => void,
   key: string | number,
@@ -777,8 +801,17 @@ function renderStyledRow(
             }
 
             event.preventDefault();
+            if (!contextMenuRightClickEnabled) {
+              return;
+            }
             item?.focus();
-            openContextMenuForRow(row, targetPath);
+            openContextMenuForRow(row, targetPath, {
+              anchorRect: createAnchorRectFromPoint(
+                event.clientX,
+                event.clientY
+              ),
+              source: 'right-click',
+            });
           }
         : undefined,
     onFocus: () => {
@@ -883,6 +916,7 @@ function renderRangeChildren(
   directoriesWithGitChanges: ReadonlySet<string> | undefined,
   gitStatusByPath: ReadonlyMap<string, GitStatus> | undefined,
   contextMenuEnabled: boolean,
+  contextMenuRightClickEnabled: boolean,
   registerRenameInput: (element: HTMLInputElement | null) => void,
   registerButton: (path: string, element: HTMLElement | null) => void,
   resolveIcon: ReturnType<typeof createPathStoreIconResolver>['resolveIcon'],
@@ -892,7 +926,11 @@ function renderRangeChildren(
   ) => PathStoreTreesRowDecoration | null,
   openContextMenuForRow: (
     row: PathStoreTreesVisibleRow,
-    targetPath: string
+    targetPath: string,
+    options?: {
+      anchorRect?: PathStoreTreesContextMenuOpenContext['anchorRect'];
+      source?: 'button' | 'keyboard' | 'right-click';
+    }
   ) => void,
   onKeyDown: (event: KeyboardEvent) => void
 ): JSX.Element[] {
@@ -925,6 +963,7 @@ function renderRangeChildren(
         directoriesWithGitChanges,
         gitStatusByPath,
         contextMenuEnabled,
+        contextMenuRightClickEnabled,
         registerRenameInput,
         registerButton,
         resolveIcon,
@@ -1002,8 +1041,10 @@ export function PathStoreTreesView({
     'focus' | 'pointer' | null
   >(null);
   const [contextMenuState, setContextMenuState] = useState<{
+    anchorRect: PathStoreTreesContextMenuOpenContext['anchorRect'] | null;
     item: PathStoreTreesContextMenuItem;
     path: string;
+    source: 'button' | 'keyboard' | 'right-click';
   } | null>(null);
   const contextMenuStateRef = useRef(contextMenuState);
   contextMenuStateRef.current = contextMenuState;
@@ -1026,6 +1067,13 @@ export function PathStoreTreesView({
     composition?.contextMenu?.render != null ||
     composition?.contextMenu?.onOpen != null ||
     composition?.contextMenu?.onClose != null;
+  const contextMenuTriggerMode =
+    composition?.contextMenu?.triggerMode ?? 'both';
+  const contextMenuButtonTriggerEnabled =
+    contextMenuTriggerMode === 'both' || contextMenuTriggerMode === 'button';
+  const contextMenuRightClickEnabled =
+    contextMenuTriggerMode === 'both' ||
+    contextMenuTriggerMode === 'right-click';
   const { resolveIcon } = useMemo(
     () => createPathStoreIconResolver(icons),
     [icons]
@@ -1117,7 +1165,14 @@ export function PathStoreTreesView({
     []
   );
   const openContextMenuForRow = useCallback(
-    (row: PathStoreTreesVisibleRow, targetPath: string): void => {
+    (
+      row: PathStoreTreesVisibleRow,
+      targetPath: string,
+      options?: {
+        anchorRect?: PathStoreTreesContextMenuOpenContext['anchorRect'];
+        source?: 'button' | 'keyboard' | 'right-click';
+      }
+    ): void => {
       const item = controller.getItem(targetPath);
       if (item == null) {
         return;
@@ -1127,8 +1182,10 @@ export function PathStoreTreesView({
       updateTriggerPosition(rowButtonRefs.current.get(targetPath) ?? null);
       shouldRestoreContextMenuFocusRef.current = true;
       setContextMenuState({
+        anchorRect: options?.anchorRect ?? null,
         item: createContextMenuItem(row, targetPath),
         path: targetPath,
+        source: options?.source ?? 'keyboard',
       });
     },
     [controller, updateTriggerPosition]
@@ -1935,7 +1992,9 @@ export function PathStoreTreesView({
 
     const context: PathStoreTreesContextMenuOpenContext = {
       anchorElement,
-      anchorRect: serializeAnchorRect(anchorElement.getBoundingClientRect()),
+      anchorRect:
+        contextMenuState.anchorRect ??
+        serializeAnchorRect(anchorElement.getBoundingClientRect()),
       close: (options) => {
         closeContextMenuRef.current(options?.restoreFocus ?? true);
       },
@@ -2144,6 +2203,7 @@ export function PathStoreTreesView({
       : lastContextMenuInteraction === 'focus'
         ? focusTriggerPath
         : null);
+  const isPointerContextMenuOpen = contextMenuState?.source === 'right-click';
 
   useLayoutEffect(() => {
     const triggerButton =
@@ -2355,16 +2415,31 @@ export function PathStoreTreesView({
       : (rowButtonRefs.current.get(triggerPath) ?? null);
   const triggerButtonVisible =
     contextMenuEnabled &&
+    contextMenuButtonTriggerEnabled &&
+    !isPointerContextMenuOpen &&
     triggerButton != null &&
     contextMenuAnchorTop != null &&
     triggerPath != null;
+  const contextMenuAnchorVisible =
+    contextMenuEnabled && (triggerButtonVisible || contextMenuState != null);
+  const pointerAnchorRect = contextMenuState?.anchorRect;
   const contextMenuAnchorStyle =
-    triggerButtonVisible && contextMenuAnchorTop != null
+    pointerAnchorRect != null
       ? {
-          top: `${contextMenuAnchorTop}px`,
+          left: `${pointerAnchorRect.left}px`,
+          right: 'auto',
+          top: `${pointerAnchorRect.top}px`,
         }
-      : undefined;
+      : triggerButtonVisible && contextMenuAnchorTop != null
+        ? {
+            top: `${contextMenuAnchorTop}px`,
+          }
+        : undefined;
   const openMenuFromTrigger = (): void => {
+    if (!contextMenuButtonTriggerEnabled) {
+      return;
+    }
+
     if (triggerPath == null || triggerButton == null) {
       return;
     }
@@ -2377,12 +2452,14 @@ export function PathStoreTreesView({
     updateTriggerPosition(triggerButton);
     shouldRestoreContextMenuFocusRef.current = true;
     setContextMenuState({
+      anchorRect: null,
       item: {
         kind: triggerItem.isDirectory() ? 'directory' : 'file',
         name: triggerButton.getAttribute('aria-label') ?? triggerPath,
         path: triggerItem.getPath(),
       },
       path: triggerItem.getPath(),
+      source: 'button',
     });
   };
 
@@ -2466,6 +2543,7 @@ export function PathStoreTreesView({
               directoriesWithGitChanges,
               gitStatusByPath,
               contextMenuEnabled,
+              contextMenuRightClickEnabled,
               (element) => {
                 renameInputRef.current = element;
               },
@@ -2501,6 +2579,7 @@ export function PathStoreTreesView({
                   directoriesWithGitChanges,
                   gitStatusByPath,
                   contextMenuEnabled,
+                  contextMenuRightClickEnabled,
                   (element) => {
                     renameInputRef.current = element;
                   },
@@ -2552,6 +2631,7 @@ export function PathStoreTreesView({
                   directoriesWithGitChanges,
                   gitStatusByPath,
                   contextMenuEnabled,
+                  contextMenuRightClickEnabled,
                   (element) => {
                     renameInputRef.current = element;
                   },
@@ -2587,7 +2667,7 @@ export function PathStoreTreesView({
           <div
             ref={contextMenuAnchorRef}
             data-type="context-menu-anchor"
-            data-visible={triggerButtonVisible ? 'true' : 'false'}
+            data-visible={contextMenuAnchorVisible ? 'true' : 'false'}
             style={contextMenuAnchorStyle}
           >
             <button
