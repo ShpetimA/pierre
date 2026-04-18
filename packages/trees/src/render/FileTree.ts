@@ -414,8 +414,9 @@ export class FileTree
     return {
       composition: this.#composition,
       controller: this.#controller,
-      directoriesWithGitChanges: this.#gitStatusState?.directoriesWithChanges,
       gitStatusByPath: this.#gitStatusState?.statusByPath,
+      ignoredGitDirectories: this.#gitStatusState?.ignoredDirectoryPaths,
+      directoriesWithGitChanges: this.#gitStatusState?.directoriesWithChanges,
       icons: this.#icons,
       instanceId: this.#id,
       renamingEnabled: this.#renamingEnabled,
@@ -652,8 +653,9 @@ export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
     h(FileTreeView, {
       composition,
       controller,
-      directoriesWithGitChanges: gitStatusState?.directoriesWithChanges,
       gitStatusByPath: gitStatusState?.statusByPath,
+      ignoredGitDirectories: gitStatusState?.ignoredDirectoryPaths,
+      directoriesWithGitChanges: gitStatusState?.directoriesWithChanges,
       icons,
       instanceId: resolvedId,
       itemHeight,
