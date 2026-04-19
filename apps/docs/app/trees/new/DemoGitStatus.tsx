@@ -1,6 +1,6 @@
 'use client';
 
-import { IconSymbolDiffstat } from '@pierre/icons';
+import { IconColorDark, IconColorLight } from '@pierre/icons';
 import type { FileTreeOptions } from '@pierre/trees';
 import {
   FileTree,
@@ -13,30 +13,61 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { FeatureHeader } from '../../diff-examples/FeatureHeader';
 import { sampleFileList } from '../demo-data';
-import {
-  DEFAULT_FILE_TREE_PANEL_CLASS,
-  GIT_STATUSES_A,
-  GIT_STATUSES_B,
-} from '../tree-examples/demo-data';
+import { DEFAULT_FILE_TREE_PANEL_CLASS } from '../tree-examples/demo-data';
 import { TreeExampleSection } from '../tree-examples/TreeExampleSection';
 import { TREE_NEW_VIEWPORT_HEIGHTS } from './dimensions';
+import {
+  TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
+  TREE_NEW_GIT_STATUSES_A,
+  TREE_NEW_GIT_STATUSES_B,
+} from './gitStatusDemoData';
 import { PRODUCTS } from '@/app/product-config';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup, ButtonGroupItem } from '@/components/ui/button-group';
 import { Switch } from '@/components/ui/switch';
+import type { GitStatusEntry } from '@/lib/treesCompat';
 
-const GIT_STATUS_EXPANDED_PATHS = ['src', 'src/components'] as const;
-const gitStatusPanelStyle = {
-  colorScheme: 'dark',
-  '--trees-search-bg-override': 'light-dark(#fff, oklch(14.5% 0 0))',
-} as CSSProperties;
+function escapePathForRegex(path: string): string {
+  return path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Keep ignored descendants visible when the demo hides unmodified files so the
+// inherited ignored styling still has real rows to act on.
+function getVisibleGitStatusPaths(
+  paths: readonly string[],
+  entries: readonly GitStatusEntry[]
+): string[] {
+  const directPaths = new Set<string>();
+  const ignoredDirectoryPaths: string[] = [];
+
+  for (const entry of entries) {
+    if (entry.status === 'ignored' && entry.path.endsWith('/')) {
+      ignoredDirectoryPaths.push(entry.path);
+      continue;
+    }
+
+    directPaths.add(entry.path);
+  }
+
+  if (ignoredDirectoryPaths.length === 0) {
+    return paths.filter((path) => directPaths.has(path));
+  }
+
+  const ignoredDirectoryPattern = new RegExp(
+    `^(?:${ignoredDirectoryPaths.map(escapePathForRegex).join('|')})`
+  );
+
+  return paths.filter(
+    (path) => directPaths.has(path) || ignoredDirectoryPattern.test(path)
+  );
+}
 
 const FILE_TREE_GIT_STATUS_BASE_OPTIONS: Omit<
   FileTreeOptions,
   'gitStatus' | 'id'
 > = {
   flattenEmptyDirectories: true,
-  initialExpandedPaths: GIT_STATUS_EXPANDED_PATHS,
+  initialExpandedPaths: TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
   paths: sampleFileList,
   search: false,
   viewportHeight: TREE_NEW_VIEWPORT_HEIGHTS.gitStatusFull,
@@ -50,35 +81,39 @@ interface DemoGitStatusProps {
 }
 
 export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
-  const [enabled, setEnabled] = useState(true);
   const [showUnmodified, setShowUnmodified] = useState(true);
   const [useSetB, setUseSetB] = useState(false);
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('dark');
 
   const activeGitStatus = useMemo(
-    () => (useSetB ? GIT_STATUSES_B : GIT_STATUSES_A),
+    () => (useSetB ? TREE_NEW_GIT_STATUSES_B : TREE_NEW_GIT_STATUSES_A),
     [useSetB]
   );
-  const gitStatus = useMemo(
-    () => (enabled ? activeGitStatus : undefined),
-    [activeGitStatus, enabled]
+  const isDark = colorMode === 'dark';
+  const panelStyle = useMemo(
+    () =>
+      ({
+        colorScheme: colorMode,
+        '--trees-search-bg-override': isDark ? 'oklch(14.5% 0 0)' : '#fff',
+      }) as CSSProperties,
+    [colorMode, isDark]
   );
   const visiblePaths = useMemo(() => {
-    if (!enabled || showUnmodified) {
+    if (showUnmodified) {
       return sampleFileList;
     }
 
-    const changedPathSet = new Set(activeGitStatus.map((entry) => entry.path));
-    return sampleFileList.filter((path) => changedPathSet.has(path));
-  }, [activeGitStatus, enabled, showUnmodified]);
+    return getVisibleGitStatusPaths(sampleFileList, activeGitStatus);
+  }, [activeGitStatus, showUnmodified]);
 
   const { model: fullViewportModel } = useFileTree({
     ...FILE_TREE_GIT_STATUS_BASE_OPTIONS,
-    gitStatus: GIT_STATUSES_A,
+    gitStatus: TREE_NEW_GIT_STATUSES_A,
     id: 'file-tree-git-status-demo-full',
   });
   const { model: filteredViewportModel } = useFileTree({
     ...FILE_TREE_GIT_STATUS_BASE_OPTIONS,
-    gitStatus: GIT_STATUSES_A,
+    gitStatus: TREE_NEW_GIT_STATUSES_A,
     id: 'file-tree-git-status-demo-filtered',
     viewportHeight: TREE_NEW_VIEWPORT_HEIGHTS.gitStatusFiltered,
   });
@@ -92,10 +127,10 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
 
   useEffect(() => {
     model.resetPaths(visiblePaths, {
-      initialExpandedPaths: GIT_STATUS_EXPANDED_PATHS,
+      initialExpandedPaths: TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
     });
-    model.setGitStatus(gitStatus);
-  }, [gitStatus, model, visiblePaths]);
+    model.setGitStatus(activeGitStatus);
+  }, [activeGitStatus, model, visiblePaths]);
 
   return (
     <TreeExampleSection>
@@ -111,35 +146,18 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
             >
               <code>gitStatus</code>
             </Link>{' '}
-            option with the file tree model to show indicators for added,
-            modified, and deleted files. Folder rows derive a changed-descendant
-            hint automatically. Toggle between two status datasets and
-            optionally hide unmodified files.
+            option with the file tree model to show `A`, `M`, `D`, `R`, and `U`
+            badges alongside ignored rows and folders. Ignored items inherit
+            their styling without rendering a letter, while folders with changed
+            descendants get a dot automatically. Toggle between two status mixes
+            across the same tree, one of which also includes ignored content,
+            then optionally hide unmodified files.
           </>
         }
       />
 
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="gridstack">
-            <Button
-              variant="outline"
-              className="w-full justify-between gap-3 pr-11 pl-3 md:w-auto"
-              onClick={() => setEnabled((previous) => !previous)}
-            >
-              <div className="flex items-center gap-2">
-                <IconSymbolDiffstat />
-                Show Git status
-              </div>
-            </Button>
-            <Switch
-              checked={enabled}
-              onCheckedChange={setEnabled}
-              onClick={(event) => event.stopPropagation()}
-              className="pointer-events-none mr-3 place-self-center justify-self-end"
-            />
-          </div>
-
           <div className="gridstack">
             <Button
               variant="outline"
@@ -163,6 +181,21 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
             <ButtonGroupItem value="set-a">Changeset A</ButtonGroupItem>
             <ButtonGroupItem value="set-b">Changeset B</ButtonGroupItem>
           </ButtonGroup>
+
+          <ButtonGroup
+            value={colorMode}
+            onValueChange={(value) => setColorMode(value as 'light' | 'dark')}
+            className="md:ml-auto"
+          >
+            <ButtonGroupItem value="light">
+              <IconColorLight className="size-4" />
+              Light
+            </ButtonGroupItem>
+            <ButtonGroupItem value="dark">
+              <IconColorDark className="size-4" />
+              Dark
+            </ButtonGroupItem>
+          </ButtonGroup>
         </div>
 
         <FileTree
@@ -170,7 +203,7 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
           model={model}
           preloadedData={activePreloadedData}
           style={{
-            ...gitStatusPanelStyle,
+            ...panelStyle,
             height: `${String(viewportHeight)}px`,
           }}
         />
