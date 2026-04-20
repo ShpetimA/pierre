@@ -808,7 +808,7 @@ function DefaultTab({
       className={[
         'group relative isolate flex h-7 max-w-[200px] items-center overflow-hidden rounded-sm text-xs font-medium transition-colors',
         isActive
-          ? 'bg-transparent text-zinc-100 group-hover/tabbar:bg-neutral-900'
+          ? 'bg-neutral-900 text-zinc-100'
           : 'bg-transparent text-zinc-400 group-hover/tabbar:bg-neutral-900/30 group-hover/tabbar:hover:bg-neutral-800/60 group-hover/tabbar:hover:text-zinc-200',
       ].join(' ')}
     >
@@ -921,26 +921,32 @@ export function TreeApp<LAnnotation = unknown>({
     ) as CSSProperties;
   }, [treeStyleRecord]);
 
-  const containerStyle = useMemo<CSSProperties>(
-    () => ({
+  const containerStyle = useMemo<CSSProperties>(() => {
+    const normalizedHeight =
+      typeof height === 'number' ? `${String(height)}px` : height;
+    return {
       ...treeCssVariables,
       '--tree-app-tree-surface': treeSurfaceColor,
-      height,
+      '--tree-app-height': normalizedHeight,
       ...style,
-    }),
-    [height, style, treeCssVariables, treeSurfaceColor]
-  );
+    } as CSSProperties;
+  }, [height, style, treeCssVariables, treeSurfaceColor]);
 
   const sidebarStyle = useMemo<CSSProperties>(
-    () => ({ width: `${String(explorer.width)}px` }),
+    () =>
+      ({
+        '--tree-app-explorer-width': `${String(explorer.width)}px`,
+      }) as CSSProperties,
     [explorer.width]
   );
 
   const treeHostStyle = useMemo<CSSProperties>(
     () => ({
       ...treeStyle,
+      width: '100%',
       height: '100%',
-      borderRadius: '8px',
+      paddingBottom: 10,
+      borderRadius: 8,
       border: '1px solid rgb(255 255 255 / 0.05)',
     }),
     [treeStyle]
@@ -1051,7 +1057,7 @@ export function TreeApp<LAnnotation = unknown>({
         file={file}
         options={fileOptions}
         prerenderedHTML={prerenderedHTML}
-        className="h-full min-h-0 overflow-auto"
+        className="min-h-0 flex-1 overflow-auto"
       />
     );
   }, [
@@ -1066,7 +1072,7 @@ export function TreeApp<LAnnotation = unknown>({
   return (
     <div
       className={[
-        'flex flex-col overflow-hidden rounded-xl border bg-[#070707] text-zinc-200 shadow-lg p-1.5',
+        'flex flex-col overflow-hidden rounded-xl border bg-[#070707] text-zinc-200 shadow-lg p-1.5 h-[calc(var(--tree-app-height)+170px)] md:h-[var(--tree-app-height)]',
         className,
       ]
         .filter(Boolean)
@@ -1081,9 +1087,9 @@ export function TreeApp<LAnnotation = unknown>({
       {windowChromeNode != null ? (
         <div className="shrink-0">{windowChromeNode}</div>
       ) : null}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <aside
-          className="group/tree-app-explorer flex min-h-0 shrink-0 flex-col"
+          className="group/tree-app-explorer flex min-h-[260px] w-full shrink-0 flex-col md:min-h-0 md:w-[var(--tree-app-explorer-width)]"
           style={sidebarStyle}
         >
           <FileTree
@@ -1103,13 +1109,13 @@ export function TreeApp<LAnnotation = unknown>({
           onPointerMove={explorer.onPointerMove}
           onPointerUp={explorer.onPointerUp}
           onPointerCancel={explorer.onPointerUp}
-          className="relative w-px shrink-0 cursor-col-resize bg-white/0 after:absolute after:inset-y-0 after:-left-1 after:w-2 after:content-['']"
+          className="relative hidden w-px shrink-0 cursor-col-resize bg-white/0 after:absolute after:inset-y-0 after:-left-1 after:w-2 after:content-[''] md:block"
         />
         <section className="flex min-w-0 flex-1 flex-col">
           {showTabs && openPaths.length > 0 ? (
             <div
-              className="group/tabbar flex h-10 items-center gap-1 overflow-x-auto px-2"
-              style={{ backgroundColor: 'light-dark(#fff, #070707)' }}
+              className="group/tabbar flex h-10 items-center gap-1 overflow-x-auto px-2 pt-2 md:pt-0"
+              style={{ backgroundColor: '#070707' }}
             >
               {openPaths.map((path) => {
                 const tabContext: TreeAppTabRenderContext = {
@@ -1143,7 +1149,7 @@ export function TreeApp<LAnnotation = unknown>({
             </div>
           ) : null}
           <div
-            className="flex min-h-0 flex-1 flex-col"
+            className="flex min-h-0 flex-1"
             style={{ backgroundColor: '#070707' }}
           >
             {editor}
