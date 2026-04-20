@@ -15,8 +15,7 @@ import { sampleFileList } from './demo-data';
 import { TREE_NEW_VIEWPORT_HEIGHTS } from './dimensions';
 import {
   TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
-  TREE_NEW_GIT_STATUSES_A,
-  TREE_NEW_GIT_STATUSES_B,
+  TREE_NEW_GIT_STATUSES,
 } from './gitStatusDemoData';
 import { DEFAULT_FILE_TREE_PANEL_CLASS } from './tree-examples/demo-data';
 import { TreeExampleSection } from './tree-examples/TreeExampleSection';
@@ -82,13 +81,9 @@ interface DemoGitStatusProps {
 
 export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
   const [showUnmodified, setShowUnmodified] = useState(true);
-  const [useSetB, setUseSetB] = useState(false);
   const [colorMode, setColorMode] = useState<'light' | 'dark'>('dark');
 
-  const activeGitStatus = useMemo(
-    () => (useSetB ? TREE_NEW_GIT_STATUSES_B : TREE_NEW_GIT_STATUSES_A),
-    [useSetB]
-  );
+  const activeGitStatus = TREE_NEW_GIT_STATUSES;
   const isDark = colorMode === 'dark';
   const panelStyle = useMemo(
     () =>
@@ -108,12 +103,12 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
 
   const { model: fullViewportModel } = useFileTree({
     ...FILE_TREE_GIT_STATUS_BASE_OPTIONS,
-    gitStatus: TREE_NEW_GIT_STATUSES_A,
+    gitStatus: TREE_NEW_GIT_STATUSES,
     id: 'file-tree-git-status-demo-full',
   });
   const { model: filteredViewportModel } = useFileTree({
     ...FILE_TREE_GIT_STATUS_BASE_OPTIONS,
-    gitStatus: TREE_NEW_GIT_STATUSES_A,
+    gitStatus: TREE_NEW_GIT_STATUSES,
     id: 'file-tree-git-status-demo-filtered',
     viewportHeight: TREE_NEW_VIEWPORT_HEIGHTS.gitStatusFiltered,
   });
@@ -146,12 +141,10 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
             >
               <code>gitStatus</code>
             </Link>{' '}
-            option with the file tree model to show `A`, `M`, `D`, `R`, and `U`
-            badges alongside ignored rows and folders. Ignored items inherit
-            their styling without rendering a letter, while folders with changed
-            descendants get a dot automatically. Toggle between two status mixes
-            across the same tree, one of which also includes ignored content,
-            then optionally hide unmodified files.
+            option to show status badges for added, modified, deleted, renamed,
+            untracked, and ignored files. Ignored items inherit their styling
+            without rendering an indicator while folders with changed
+            descendants get a dot indicator automatically.
           </>
         }
       />
@@ -173,14 +166,6 @@ export function DemoGitStatus({ preloadedData }: DemoGitStatusProps) {
               className="pointer-events-none mr-3 place-self-center justify-self-end"
             />
           </div>
-
-          <ButtonGroup
-            value={useSetB ? 'set-b' : 'set-a'}
-            onValueChange={(value) => setUseSetB(value === 'set-b')}
-          >
-            <ButtonGroupItem value="set-a">Changeset A</ButtonGroupItem>
-            <ButtonGroupItem value="set-b">Changeset B</ButtonGroupItem>
-          </ButtonGroup>
 
           <ButtonGroup
             value={colorMode}
