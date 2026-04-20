@@ -22,9 +22,10 @@ import { FeatureHeader } from '../diff-examples/FeatureHeader';
 import { sampleFileList } from './demo-data';
 import { TREE_NEW_VIEWPORT_HEIGHTS } from './dimensions';
 import {
-  getDefaultFileTreePanelClass,
-  GIT_STATUSES_A,
-} from './tree-examples/demo-data';
+  TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
+  TREE_NEW_GIT_STATUSES,
+} from './gitStatusDemoData';
+import { getDefaultFileTreePanelClass } from './tree-examples/demo-data';
 import { TreeExampleSection } from './tree-examples/TreeExampleSection';
 import { PRODUCTS } from '@/app/product-config';
 import { Button } from '@/components/ui/button';
@@ -36,11 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const DEFAULT_LIGHT = 'default-light' as const;
-const DEFAULT_DARK = 'default-dark' as const;
-
 const LIGHT_THEMES = [
-  DEFAULT_LIGHT,
   'pierre-light',
   'catppuccin-latte',
   'everforest-light',
@@ -63,7 +60,6 @@ const LIGHT_THEMES = [
 ] as const;
 
 const DARK_THEMES = [
-  DEFAULT_DARK,
   'pierre-dark',
   'andromeeda',
   'aurora-x',
@@ -112,16 +108,6 @@ const DARK_THEMES = [
 type LightTheme = (typeof LIGHT_THEMES)[number];
 type DarkTheme = (typeof DARK_THEMES)[number];
 
-function themeDisplayName(theme: string): string {
-  if (theme === DEFAULT_LIGHT) return 'Default Light';
-  if (theme === DEFAULT_DARK) return 'Default Dark';
-  return theme;
-}
-
-function isDefaultTheme(theme: string): boolean {
-  return theme === DEFAULT_LIGHT || theme === DEFAULT_DARK;
-}
-
 interface DemoThemingClientProps {
   initialThemeStyles: TreeThemeStyles;
   preloadedData: FileTreePreloadedData;
@@ -133,9 +119,9 @@ export function DemoThemingClient({
 }: DemoThemingClientProps) {
   const { model } = useFileTree({
     flattenEmptyDirectories: true,
-    gitStatus: GIT_STATUSES_A,
+    gitStatus: TREE_NEW_GIT_STATUSES,
     id: 'trees-shiki-themes-tree',
-    initialExpandedPaths: ['src', 'src/components'],
+    initialExpandedPaths: TREE_NEW_GIT_STATUS_EXPANDED_PATHS,
     initialSelectedPaths: ['package.json'],
     paths: sampleFileList,
     initialVisibleRowCount: TREE_NEW_VIEWPORT_HEIGHTS.theming / 30,
@@ -173,14 +159,6 @@ export function DemoThemingClient({
 
   const loadTheme = useCallback(async (themeName: string) => {
     setError(null);
-    if (isDefaultTheme(themeName)) {
-      setThemeStyles({
-        colorScheme: themeName === DEFAULT_LIGHT ? 'light' : 'dark',
-      } as TreeThemeStyles);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     try {
       const theme = await resolveTheme(
@@ -213,8 +191,7 @@ export function DemoThemingClient({
             </Link>{' '}
             can style the <code>FileTree</code>. Sidebar and Git decoration
             colors come from your choice of themes. Pick a theme and switch
-            light/dark to see the tree update live. Compare against our default
-            themes in light and dark mode, too. See the{' '}
+            light/dark to see the tree update live. See the{' '}
             <Link
               href={`${PRODUCTS.trees.docsPath}#styling-and-theming`}
               className="inline-link"
@@ -231,7 +208,7 @@ export function DemoThemingClient({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex-1 justify-start">
                 <IconColorLight />
-                {themeDisplayName(selectedLightTheme)}
+                {selectedLightTheme}
                 <IconChevronSm className="text-muted-foreground ml-auto" />
               </Button>
             </DropdownMenuTrigger>
@@ -245,7 +222,7 @@ export function DemoThemingClient({
                   }}
                   selected={selectedLightTheme === theme}
                 >
-                  {themeDisplayName(theme)}
+                  {theme}
                   {selectedLightTheme === theme ? (
                     <IconCheck className="ml-auto" />
                   ) : null}
@@ -258,7 +235,7 @@ export function DemoThemingClient({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex-1 justify-start">
                 <IconColorDark />
-                {themeDisplayName(selectedDarkTheme)}
+                {selectedDarkTheme}
                 <IconChevronSm className="text-muted-foreground ml-auto" />
               </Button>
             </DropdownMenuTrigger>
@@ -276,7 +253,7 @@ export function DemoThemingClient({
                   }}
                   selected={selectedDarkTheme === theme}
                 >
-                  {themeDisplayName(theme)}
+                  {theme}
                   {selectedDarkTheme === theme ? (
                     <IconCheck className="ml-auto" />
                   ) : (
