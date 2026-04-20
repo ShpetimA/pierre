@@ -1134,18 +1134,26 @@
   }
 
   [data-item-rename-input] {
+    appearance: none;
     width: 100%;
     min-width: 0;
+    height: calc(var(--trees-row-height) - 4px);
     font-family: inherit;
     font-size: inherit;
-    line-height: calc(var(--trees-row-height) - 8px);
-    height: calc(var(--trees-row-height) - 8px);
+    /* line-height: calc(var(--trees-row-height) - 8px); */
     color: inherit;
-    background-color: var(--trees-search-bg);
-    border: 1px solid var(--trees-border-color);
-    /* border-radius: calc(var(--trees-border-radius) - 1px);border-radius */
+    background-color: transparent;
+    border: 0;
     padding-inline: 6px;
     outline: none;
+    box-sizing: border-box;
+  }
+
+  [data-item-section='content']:has([data-item-rename-input])
+    ~ [data-item-section='action'],
+  [data-item-section='content']:has([data-item-rename-input])
+    ~ [data-item-section='decoration'] {
+    display: none;
   }
 
   /* Chevron pointing right */

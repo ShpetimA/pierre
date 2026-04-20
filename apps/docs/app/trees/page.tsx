@@ -15,6 +15,7 @@ import { DemoGitStatus } from './DemoGitStatus';
 import { DemoSearch } from './DemoSearch';
 import { DemoStyling } from './DemoStyling';
 import { DemoTheming } from './DemoTheming';
+import { DemoTreeApp } from './DemoTreeApp';
 import { DemoVirtualization } from './DemoVirtualization';
 import { TREE_NEW_VIEWPORT_HEIGHTS } from './dimensions';
 import {
@@ -28,7 +29,7 @@ import { PierreCompanySection } from '@/components/PierreCompanySection';
 const PRODUCT_ID: ProductId = 'trees';
 
 export const metadata: Metadata = {
-  title: 'Pierre Trees — A file tree rendering library.',
+  title: 'Trees, by Pierre',
   description:
     "@pierre/trees is an open source file tree rendering library. It's built for performance and flexibility, is super customizable, and comes packed with features.",
 };
@@ -80,6 +81,10 @@ export default function TreesPage() {
     <div className="mx-auto min-h-screen max-w-5xl px-5 xl:max-w-[80rem]">
       <Header className="-mb-[1px]" />
       <Hero productId={PRODUCT_ID} />
+
+      <section className="mb-16 md:-mt-6">
+        <DemoTreeApp />
+      </section>
 
       <HeadingAnchors />
       <section className="space-y-12 pb-8">

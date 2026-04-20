@@ -947,7 +947,7 @@ function renderStyledRow(
       isFlattened={row.isFlattened}
       value={renamingValue}
       onBlur={() => {
-        renameView.cancel();
+        renameView.commit();
       }}
       onInput={(event) => {
         renameView.setValue((event.currentTarget as HTMLInputElement).value);
@@ -3018,6 +3018,7 @@ export function FileTreeView({
     contextMenuEnabled &&
     contextMenuButtonTriggerEnabled &&
     !isPointerContextMenuOpen &&
+    !isRenaming &&
     triggerButton != null &&
     contextMenuAnchorTop != null &&
     triggerPath != null;
@@ -3156,7 +3157,10 @@ export function FileTreeView({
       />
       <slot name={HEADER_SLOT_NAME} data-type="header-slot" />
       {searchEnabled ? (
-        <div data-file-tree-search-container>
+        <div
+          data-file-tree-search-container
+          data-open={isSearchOpen ? 'true' : 'false'}
+        >
           <input
             ref={searchInputRef}
             aria-activedescendant={activeDescendantId}
