@@ -525,11 +525,15 @@
       --trees-action-lane-width-override,
       calc(var(--trees-icon-width) + 2px)
     );
-    /* Keep the floating trigger centered over the row's decorative action lane.
-       The row icon sits inside trailing item padding, while the real trigger uses
-       a focus-ring margin of its own. */
+    /* Keep the floating trigger aligned with the row's action lane. Going in
+       from the root's right edge: the scroll container reserves
+       `--trees-padding-inline` of effective inset on each side (its asymmetric
+       padding formula cancels the scrollbar gutter on the right), the row
+       sits inside that inset, and its trailing `--trees-item-padding-x` is the
+       action lane itself. The trigger's own focus-ring margin then trims one
+       pixel back so the button's visible right edge lines up with the lane. */
     --trees-context-menu-trigger-inline-offset: calc(
-      var(--trees-item-margin-x) + var(--trees-item-padding-x) -
+      var(--trees-padding-inline) + var(--trees-item-padding-x) -
         var(--trees-focus-ring-width)
     );
 
@@ -673,6 +677,26 @@
     z-index: 4;
     overflow: visible;
     pointer-events: none;
+  }
+
+  /* The overlay DOM is kept populated even at scrollTop=0 so the browser has
+   * the rendered rows on hand the moment scrolling begins — otherwise the
+   * compositor paints a scrolled frame before React can mount the overlay,
+   * and the topmost sticky folder jumps up by a couple of pixels before it
+   * "snaps" into its pinned position. We hide it via CSS whenever the scroll
+   * is at the top and no scroll is in progress, so the preview doesn't leak
+   * through at rest. `data-overlay-reveal` is stamped on the root only when
+   * the user initiates a scroll while already at the top — exactly the case
+   * where we need the pre-mounted overlay to be visible through the first
+   * compositor frame. It is deliberately distinct from the general
+   * `data-is-scrolling` flag so a scroll that ends at the top (e.g. ArrowUp
+   * navigation) re-hides the overlay the instant the scroll lands, rather
+   * than waiting for the hover-suppression timer to elapse. */
+  [data-file-tree-virtualized-root='true'][data-scroll-at-top='true']:not(
+      [data-overlay-reveal]
+    )
+    [data-file-tree-sticky-overlay='true'] {
+    visibility: hidden;
   }
 
   [data-file-tree-sticky-overlay-content='true'] {
@@ -1284,6 +1308,19 @@
     &[data-visible='true'] {
       display: flex;
     }
+  }
+
+  /* Hide the floating trigger while the scroll container is actively moving.
+   * The anchor is positioned against the root, not the scroll content, so its
+   * `top` follows the row via a React state update — one frame behind the
+   * compositor. That delay is visible as the trigger hovering over the wrong
+   * row during the first frame of a scroll. The `data-is-scrolling` flag on
+   * the root is flipped synchronously on `wheel`/`touchmove`/`keydown` before
+   * the compositor commits the next paint, so this selector hides the anchor
+   * in the same frame the scroll begins. */
+  [data-file-tree-virtualized-root='true'][data-is-scrolling]
+    [data-type='context-menu-anchor'] {
+    display: none;
   }
 
   [data-type='context-menu-anchor'] > slot[name='context-menu'] {

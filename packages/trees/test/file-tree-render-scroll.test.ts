@@ -242,6 +242,22 @@ function getStickyRowPaths(
   shadowRoot: ShadowRoot | null | undefined,
   dom: JSDOM
 ): string[] {
+  // The overlay's rows are pre-populated into the DOM even at scrollTop=0 so
+  // the first scroll paint doesn't have to wait on React to mount them; CSS
+  // hides that preview when `data-scroll-at-top` is set AND `data-overlay-
+  // reveal` is absent. Mirror that selector exactly so these tests catch a
+  // regression where the preview leaks through at the top (e.g. if the reveal
+  // flag gets stuck set, or the hide rule breaks).
+  const root = shadowRoot?.querySelector<HTMLElement>(
+    '[data-file-tree-virtualized-root="true"]'
+  );
+  const previewHidden =
+    root instanceof dom.window.HTMLElement &&
+    root.dataset.scrollAtTop === 'true' &&
+    root.dataset.overlayReveal == null;
+  if (previewHidden) {
+    return [];
+  }
   return Array.from(
     shadowRoot?.querySelectorAll('[data-file-tree-sticky-path]') ?? []
   )

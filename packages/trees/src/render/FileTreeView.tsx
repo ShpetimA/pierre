@@ -23,7 +23,9 @@ import {
 } from '../model/FileTreeController';
 import {
   computeFileTreeLayout,
+  computeStickyRows,
   type FileTreeLayoutSnapshot,
+  type FileTreeLayoutStickyRow,
 } from '../model/fileTreeLayout';
 import type {
   FileTreeContextMenuButtonVisibility,
@@ -174,6 +176,16 @@ function getFileTreeRowAriaLabel(row: FileTreeVisibleRow): string {
 
 type FileTreeViewLayoutState = {
   snapshot: FileTreeLayoutSnapshot<FileTreeVisibleRow>;
+  // Rows rendered inside the sticky overlay. Usually equal to
+  // `snapshot.sticky.rows`, but at scrollTop=0 we keep this populated with
+  // what the overlay would contain at scrollTop=1 so the DOM is ready before
+  // the first scroll lands (CSS hides the overlay until the user scrolls, so
+  // there's no visual impact at rest). Without this, the overlay has to be
+  // created in the same frame that the first scroll happens, and the compositor
+  // paints the scrolled rows one frame before React can mount it — showing up
+  // as a brief upward jump of the first sticky folder.
+  overlayRows: readonly FileTreeLayoutStickyRow<FileTreeVisibleRow>[];
+  overlayHeight: number;
   visibleRows: readonly FileTreeVisibleRow[];
 };
 
@@ -212,7 +224,18 @@ function computeFileTreeViewLayoutState({
     viewportHeight,
   });
 
+  const overlayRows =
+    stickyFolders && scrollTop <= 0 && visibleRows.length > 0
+      ? computeStickyRows(visibleRows, 1, itemHeight)
+      : snapshot.sticky.rows;
+  const overlayHeight = overlayRows.reduce(
+    (maxBottom, entry) => Math.max(maxBottom, entry.top + itemHeight),
+    0
+  );
+
   return {
+    overlayHeight,
+    overlayRows,
     snapshot,
     visibleRows,
   };
@@ -1488,7 +1511,12 @@ export function FileTreeView({
   const dragTarget = dragSession?.target ?? null;
   const draggedPrimaryPath = dragSession?.primaryPath ?? null;
   const treeDomId = getFileTreeRootDomId(instanceId);
-  const { snapshot: layoutSnapshot, visibleRows } = layoutState;
+  const {
+    overlayHeight: overlayRowsHeight,
+    overlayRows,
+    snapshot: layoutSnapshot,
+    visibleRows,
+  } = layoutState;
   const resolvedViewportHeight = layoutSnapshot.physical.viewportHeight;
   const range = useMemo(
     () => ({
@@ -1497,7 +1525,13 @@ export function FileTreeView({
     }),
     [layoutSnapshot.window.endIndex, layoutSnapshot.window.startIndex]
   );
-  const stickyRows = layoutSnapshot.sticky.rows;
+  // The overlay DOM mirrors `overlayRows` (which includes the scrollTop=0
+  // preview). The virtualized scroll content, on the other hand, must only
+  // hide rows that the overlay is *actually* sticky-covering — at rest the
+  // overlay is CSS-hidden, so filtering out preview rows would leave empty
+  // slots where the real rows belong.
+  const stickyRows = overlayRows;
+  const occludedStickyRows = layoutSnapshot.sticky.rows;
   const focusedRowIsMounted =
     focusedIndex >= 0 &&
     focusedIndex >= range.start &&
@@ -2269,10 +2303,29 @@ export function FileTreeView({
     };
   }, []);
 
+  // Mirror `scrollTop <= 0` onto the root element as a data attribute so CSS
+  // can hide the pre-populated sticky overlay when the list is at rest at the
+  // top. We drive this from the layout snapshot (synced on every scroll +
+  // layout update) rather than only the scroll event, because programmatic
+  // scrolling via keyboard navigation doesn't always fire a `scroll` event
+  // across environments, and we want the attribute to track state reliably.
+  useLayoutEffect(() => {
+    const rootElement = rootRef.current;
+    if (rootElement == null) {
+      return;
+    }
+    if (layoutSnapshot.physical.scrollTop <= 0) {
+      rootElement.dataset.scrollAtTop = 'true';
+    } else {
+      delete rootElement.dataset.scrollAtTop;
+    }
+  }, [layoutSnapshot.physical.scrollTop]);
+
   useLayoutEffect(() => {
     let scrollTimer: ReturnType<typeof setTimeout> | null = null;
     const scrollElement = scrollRef.current;
     const listElement = listRef.current;
+    const rootElement = rootRef.current;
     if (scrollElement == null) {
       return;
     }
@@ -2310,39 +2363,135 @@ export function FileTreeView({
       setControllerRevision((revision) => revision + 1);
       update();
     });
+    // Flip a plain DOM attribute on the root (not React state) so the anchor
+    // can be hidden via CSS before the compositor paints a scrolled frame.
+    // Using state here would require a re-render to land, which is one frame
+    // too late — the user would see the floating trigger sit at its old row
+    // position for a frame while the rows themselves have already scrolled.
+    const markScrolling = (): void => {
+      if (debugDisableScrollSuppressionRef.current === true) {
+        return;
+      }
+      if (listElement != null) {
+        listElement.dataset.isScrolling ??= '';
+      }
+      if (rootElement != null) {
+        rootElement.dataset.isScrolling ??= '';
+      }
+      isScrollingRef.current = true;
+      if (scrollTimer != null) {
+        clearTimeout(scrollTimer);
+      }
+      scrollTimer = setTimeout(() => {
+        if (listElement != null) {
+          delete listElement.dataset.isScrolling;
+        }
+        if (rootElement != null) {
+          delete rootElement.dataset.isScrolling;
+        }
+        isScrollingRef.current = false;
+        scrollTimer = null;
+      }, 50);
+    };
+
+    // A distinct signal from `is-scrolling`: set *only* when the user initiates
+    // a scroll while already at the top. It overrides the "hide overlay at
+    // rest" CSS rule for long enough that the overlay is on screen by the time
+    // the compositor paints the first scrolled frame. Unlike `is-scrolling`,
+    // it is not set during a scroll *to* the top, so the overlay re-hides the
+    // instant the user returns there.
+    let overlayRevealTimer: ReturnType<typeof setTimeout> | null = null;
+    const clearOverlayReveal = (): void => {
+      if (rootElement != null) {
+        delete rootElement.dataset.overlayReveal;
+      }
+      if (overlayRevealTimer != null) {
+        clearTimeout(overlayRevealTimer);
+        overlayRevealTimer = null;
+      }
+    };
+    const markOverlayReveal = (): void => {
+      if (
+        rootElement == null ||
+        debugDisableScrollSuppressionRef.current === true
+      ) {
+        return;
+      }
+      if (scrollElement.scrollTop > 0) {
+        // Already past the top; overlay is already visible via scroll-at-top
+        // being absent, and we don't want to arm the reveal for the next time
+        // the scroll returns to 0.
+        return;
+      }
+      rootElement.dataset.overlayReveal = 'true';
+      if (overlayRevealTimer != null) {
+        clearTimeout(overlayRevealTimer);
+      }
+      // Fallback cleanup if no scroll event follows (e.g. the user wheeled
+      // while already pinned at the top). Long enough for the compositor to
+      // commit a frame, short enough that a leftover reveal can't outlive an
+      // intended "at rest" state.
+      overlayRevealTimer = setTimeout(() => {
+        clearOverlayReveal();
+      }, 200);
+    };
+
     const onScroll = (): void => {
       update();
+      if (scrollElement.scrollTop > 0) {
+        clearOverlayReveal();
+      }
       if (contextMenuStateRef.current != null) {
         closeContextMenuRef.current();
       }
-      const disableScrollSuppression =
-        debugDisableScrollSuppressionRef.current === true;
-      isScrollingRef.current = disableScrollSuppression ? false : true;
-      if (!disableScrollSuppression) {
-        setContextHoverPath((previousPath) =>
-          previousPath == null ? previousPath : null
-        );
-
-        // Mark the list as scrolling to suppress hover styles on items.
-        // Applied to the list (inside the scroll container) so the container
-        // itself still receives scroll events.
-        if (listElement != null) {
-          listElement.dataset.isScrolling ??= '';
-        }
-        if (scrollTimer != null) {
-          clearTimeout(scrollTimer);
-        }
-        scrollTimer = setTimeout(() => {
-          if (listElement != null) {
-            delete listElement.dataset.isScrolling;
-          }
-          isScrollingRef.current = false;
-          scrollTimer = null;
-        }, 50);
+      if (debugDisableScrollSuppressionRef.current === true) {
+        isScrollingRef.current = false;
+        return;
       }
+      setContextHoverPath((previousPath) =>
+        previousPath == null ? previousPath : null
+      );
+      markScrolling();
+    };
+
+    // `wheel` / `touchmove` fire on the main thread before the compositor
+    // commits the scroll, so setting the scrolling flag here hides the
+    // context-menu anchor in the same frame the user sees the content move —
+    // no one-frame drift of the floating trigger over the wrong row. When the
+    // scroll starts from the very top we also arm the overlay-reveal flag so
+    // the pre-mounted sticky overlay is visible through that first frame.
+    const onPreScroll = (): void => {
+      markScrolling();
+      markOverlayReveal();
+    };
+
+    // Only the keys that actually move the scroll position should mark the
+    // tree as scrolling — otherwise Shift+F10 / ContextMenu / Enter / letter
+    // keys all trip the 50ms suppression and, for the ContextMenu case, hide
+    // the keyboard-opened menu that was the whole point of the keypress.
+    const SCROLL_KEYS = new Set([
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'PageUp',
+      'PageDown',
+      'Home',
+      'End',
+      ' ',
+      'Spacebar',
+    ]);
+    const onKeyDownPreScroll = (event: KeyboardEvent): void => {
+      if (!SCROLL_KEYS.has(event.key)) {
+        return;
+      }
+      onPreScroll();
     };
 
     scrollElement.addEventListener('scroll', onScroll, { passive: true });
+    scrollElement.addEventListener('wheel', onPreScroll, { passive: true });
+    scrollElement.addEventListener('touchmove', onPreScroll, { passive: true });
+    scrollElement.addEventListener('keydown', onKeyDownPreScroll);
     const resizeObserver =
       typeof ResizeObserver !== 'undefined'
         ? new ResizeObserver(() => {
@@ -2356,12 +2505,26 @@ export function FileTreeView({
       updateViewportRef.current = () => {};
       unsubscribe();
       scrollElement.removeEventListener('scroll', onScroll);
+      scrollElement.removeEventListener('wheel', onPreScroll);
+      scrollElement.removeEventListener('touchmove', onPreScroll);
+      scrollElement.removeEventListener('keydown', onKeyDownPreScroll);
       if (scrollTimer != null) {
         clearTimeout(scrollTimer);
+      }
+      if (overlayRevealTimer != null) {
+        clearTimeout(overlayRevealTimer);
       }
       if (listElement != null) {
         delete listElement.dataset.isScrolling;
       }
+      if (rootElement != null) {
+        delete rootElement.dataset.isScrolling;
+        delete rootElement.dataset.overlayReveal;
+      }
+      // `data-scroll-at-top` is owned by the separate sync layout effect —
+      // deleting it here would strand the attribute off if this effect
+      // rebinds (e.g. viewportHeight changes) while scrollTop is still 0,
+      // because the sync effect only fires when scrollTop itself changes.
       isScrollingRef.current = false;
       resizeObserver?.disconnect();
     };
@@ -2485,8 +2648,9 @@ export function FileTreeView({
 
   const stickyOverlayHeight = layoutSnapshot.sticky.height;
   const stickyRowPathSet = useMemo(
-    () => new Set(stickyRows.map((entry) => getFileTreeRowPath(entry.row))),
-    [stickyRows]
+    () =>
+      new Set(occludedStickyRows.map((entry) => getFileTreeRowPath(entry.row))),
+    [occludedStickyRows]
   );
 
   useLayoutEffect(() => {
@@ -3015,7 +3179,7 @@ export function FileTreeView({
           <div aria-hidden="true" data-file-tree-sticky-overlay="true">
             <div
               data-file-tree-sticky-overlay-content="true"
-              style={{ height: `${stickyOverlayHeight}px` }}
+              style={{ height: `${overlayRowsHeight}px` }}
             >
               {stickyRows.map((entry, index) =>
                 renderStickyRow(
