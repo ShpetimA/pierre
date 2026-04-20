@@ -1,9 +1,9 @@
 export const TREE_NEW_DEFAULT_VIEWPORT_HEIGHT = 716;
 
 export const TREE_NEW_VIEWPORT_HEIGHTS = {
-  a11y: TREE_NEW_DEFAULT_VIEWPORT_HEIGHT,
-  contextMenu: 770,
-  customIcons: TREE_NEW_DEFAULT_VIEWPORT_HEIGHT + 42, // for search bar
+  a11y: 760,
+  contextMenu: 760,
+  customIcons: TREE_NEW_DEFAULT_VIEWPORT_HEIGHT, // for search bar
   densityCompact: 362,
   densityDefault: 446,
   densityRelaxed: 530,
@@ -13,9 +13,9 @@ export const TREE_NEW_VIEWPORT_HEIGHTS = {
   gitStatusFiltered: 270,
   gitStatusFull: 720,
   middotTruncation: 690,
-  searchCollapseNonMatches: 760,
-  searchExpandMatches: 968,
-  searchHideNonMatches: 398,
+  searchHideNonMatches: 310,
+  searchCollapseNonMatches: 820,
+  searchExpandMatches: 1030,
   styling: 438,
   theming: TREE_NEW_DEFAULT_VIEWPORT_HEIGHT,
   treeApp: 720,
