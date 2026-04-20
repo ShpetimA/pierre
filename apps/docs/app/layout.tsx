@@ -89,8 +89,15 @@ const WORKTREE_PREFIX = worktreeTitlePrefix();
 const baseTitle = 'Diffs, from Pierre';
 const taggedTitle = `${WORKTREE_PREFIX}${baseTitle}`;
 
+// Using Next's `title.template` so the emoji + slug prefix also reaches pages
+// that export their own `metadata.title` (e.g. `app/trees/page.tsx`). Pages
+// that set a bare `title: 'X'` render as `🟢 [slug] X`; pages that need to
+// opt out entirely can set `title: { absolute: 'X' }`.
 export const metadata: Metadata = {
-  title: taggedTitle,
+  title: {
+    default: taggedTitle,
+    template: `${WORKTREE_PREFIX}%s`,
+  },
   description:
     'An open source diff and file rendering library by The Pierre Computer Company.',
   icons: {
@@ -102,13 +109,19 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   openGraph: {
-    title: taggedTitle,
+    title: {
+      default: taggedTitle,
+      template: `${WORKTREE_PREFIX}%s`,
+    },
     description:
       'An open source diff and file rendering library by The Pierre Computer Company.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: taggedTitle,
+    title: {
+      default: taggedTitle,
+      template: `${WORKTREE_PREFIX}%s`,
+    },
     description:
       'An open source diff and file rendering library by The Pierre Computer Company.',
   },
