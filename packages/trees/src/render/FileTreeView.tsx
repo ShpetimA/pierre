@@ -1573,7 +1573,13 @@ export function FileTreeView({
   const revealCanonicalRowAtStickyOffset = useCallback(
     (
       path: string,
-      { restoreTreeFocus = true }: { restoreTreeFocus?: boolean } = {}
+      {
+        restoreTreeFocus = true,
+        targetOffset = 'live-overlay',
+      }: {
+        restoreTreeFocus?: boolean;
+        targetOffset?: 'live-overlay' | 'sticky-parents';
+      } = {}
     ): boolean => {
       const scrollElement = scrollRef.current;
       if (scrollElement == null) {
@@ -1586,26 +1592,46 @@ export function FileTreeView({
         return false;
       }
 
+      const focusedRow =
+        controller.getVisibleRows(visibleIndex, visibleIndex)[0] ?? null;
+      if (focusedRow == null) {
+        return false;
+      }
+
+      const liveViewportHeight = getMeasuredViewportHeight(
+        scrollElement,
+        resolvedViewportHeight
+      );
+      const liveTotalHeight = controller.getVisibleCount() * itemHeight;
+      const targetViewportOffset =
+        targetOffset === 'sticky-parents'
+          ? focusedRow.ancestorPaths.length * itemHeight
+          : computeFileTreeViewLayoutState({
+              controller,
+              itemHeight,
+              overscan,
+              scrollTop: scrollElement.scrollTop,
+              stickyFolders,
+              viewportHeight: liveViewportHeight,
+            }).snapshot.sticky.height;
+
+      // A sticky interaction can mutate the tree before we reveal the canonical
+      // row. Collapsing the interacted sticky row should leave only its parents
+      // pinned, while rename handoff keeps using the live overlay geometry.
       domFocusOwnerRef.current = true;
       scrollFocusedRowToViewportOffset(
         scrollElement,
         visibleIndex,
         itemHeight,
-        resolvedViewportHeight,
-        totalScrollableHeight,
-        stickyOverlayHeight
+        liveViewportHeight,
+        liveTotalHeight,
+        targetViewportOffset
       );
       updateViewportRef.current();
       pendingStickyFocusPathRef.current = restoreTreeFocus ? path : null;
       return true;
     },
-    [
-      controller,
-      itemHeight,
-      resolvedViewportHeight,
-      stickyOverlayHeight,
-      totalScrollableHeight,
-    ]
+    [controller, itemHeight, overscan, resolvedViewportHeight, stickyFolders]
   );
 
   const shouldSuppressContextMenu = (): boolean => {
@@ -2203,6 +2229,7 @@ export function FileTreeView({
         if (renamingPath != null) {
           revealCanonicalRowAtStickyOffset(renamingPath, {
             restoreTreeFocus: false,
+            targetOffset: 'live-overlay',
           });
         }
         return;
@@ -3071,7 +3098,9 @@ export function FileTreeView({
         controller.closeSearch();
       }
       if (plan.revealCanonical) {
-        revealCanonicalRowAtStickyOffset(targetPath);
+        revealCanonicalRowAtStickyOffset(targetPath, {
+          targetOffset: 'sticky-parents',
+        });
       }
     },
     [controller, revealCanonicalRowAtStickyOffset]
