@@ -1,4 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Locator, test } from '@playwright/test';
+
+import { scrollUntilLocatorPresent } from './helpers/stickyScroll';
 
 declare global {
   interface Window {
@@ -15,6 +17,17 @@ test.describe('file-tree rename proof', () => {
       ) as HTMLElement | null;
       return focusedItem?.dataset.itemPath ?? null;
     });
+
+  const scrollUntilStickyRow = (
+    tree: Locator,
+    path: string
+  ): Promise<Locator> =>
+    scrollUntilLocatorPresent(
+      tree,
+      tree.locator(
+        `button[data-type="item"][data-file-tree-sticky-row="true"][data-item-path="${path}"]`
+      )
+    );
 
   test('F2 starts inline rename and Enter commits the renamed path', async ({
     page,
@@ -76,6 +89,50 @@ test.describe('file-tree rename proof', () => {
     await renameInput.press('Escape');
     await expect(renameInput).toHaveCount(0);
     await expect(indexRow).toBeVisible();
+  });
+
+  test('sticky-row context-menu rename hands off focus to the canonical row input', async ({
+    page,
+  }) => {
+    await page.goto('/test/e2e/fixtures/file-tree-rename.html');
+    await page.waitForFunction(
+      () => window.__fileTreeRenameFixtureReady === true
+    );
+
+    const mainTree = page.locator('file-tree-container').nth(0);
+    const stickyLibRow = await scrollUntilStickyRow(mainTree, 'src/lib/');
+    const canonicalLibRow = mainTree.locator(
+      'button[data-type="item"][data-item-path="src/lib/"]:not([data-file-tree-sticky-row="true"])'
+    );
+    await expect(canonicalLibRow).toHaveCount(0);
+
+    await stickyLibRow.hover();
+    const trigger = mainTree.locator(
+      'button[data-type="context-menu-trigger"][data-visible="true"]'
+    );
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+
+    const menu = page.locator('[data-test-context-menu="true"]');
+    await expect(menu).toBeVisible();
+    await page.locator('[data-test-menu-rename="src/lib/"]').click();
+
+    const renameRow = mainTree.locator(
+      'div[data-type="item"][data-item-path="src/lib/"]:not([data-file-tree-sticky-row="true"])'
+    );
+    const renameInput = renameRow.locator('input[data-item-rename-input]');
+    await expect(menu).toHaveCount(0);
+    await expect(renameRow).toBeVisible();
+    expect(
+      await renameRow.getAttribute('data-file-tree-sticky-row')
+    ).toBeNull();
+    await expect(renameInput).toBeFocused();
+    await expect(renameInput).toHaveValue('lib');
+    await expect(
+      mainTree.locator(
+        'button[data-file-tree-sticky-row="true"] input[data-item-rename-input]'
+      )
+    ).toHaveCount(0);
   });
 
   test('portaled context-menu rename keeps the inline input focused', async ({
@@ -158,20 +215,22 @@ test.describe('file-tree rename proof', () => {
       'button[data-type="item"][data-item-path="README.md"]'
     );
     await readmeRow.click();
-    await page.keyboard.press('w');
+    await readmeRow.press('w');
 
     const searchInput = mainTree.locator('input[data-file-tree-search-input]');
     await expect(searchInput).toBeFocused();
     await searchInput.fill('worker');
 
-    await expect(
-      mainTree.locator('button[data-item-path="src/utils/worker.ts"]')
-    ).toBeVisible();
+    const workerRow = mainTree.locator(
+      'button[data-item-path="src/utils/worker.ts"]'
+    );
+    await expect(workerRow).toBeVisible();
     await expect(
       mainTree.locator('button[data-item-path="README.md"]')
     ).toHaveCount(0);
 
-    await searchInput.press('F2');
+    await workerRow.click();
+    await workerRow.press('F2');
 
     const renameInput = mainTree.locator('input[data-item-rename-input]');
     await expect(renameInput).toBeFocused();

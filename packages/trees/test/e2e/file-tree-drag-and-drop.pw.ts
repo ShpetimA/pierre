@@ -1,5 +1,7 @@
 import { type CDPSession, expect, type Page, test } from '@playwright/test';
 
+import { scrollUntilStickyWithVisible } from './helpers/stickyScroll';
+
 declare global {
   interface Window {
     __getDragState?: () => {
@@ -8,7 +10,6 @@ declare global {
       targets: string[];
     };
     __hasPath?: (path: string) => boolean;
-    __getVisiblePaths?: () => string[];
     __getFlattenedSegments?: () => string[];
     __lastDropError?: {
       error: string;
@@ -113,6 +114,52 @@ test.describe('file-tree drag-and-drop proof', () => {
       page.locator(
         'file-tree-container button[data-item-path="src/lib/README.md"]'
       )
+    ).toBeVisible();
+    await expectDragStateCleared(page);
+  });
+
+  test('pointer drag moves a visible row into a sticky folder row', async ({
+    page,
+  }) => {
+    await openFixture(page);
+
+    const sourcePath = 'src/lib/theme.ts';
+    const targetPath = 'src/';
+    await scrollUntilStickyWithVisible(page, targetPath, sourcePath, {
+      maxScrollTop: 480,
+    });
+
+    const source = page.locator(
+      `file-tree-container button[data-item-path="${sourcePath}"]:not([data-file-tree-sticky-row="true"])`
+    );
+    const stickyTarget = page.locator(
+      `file-tree-container button[data-file-tree-sticky-row="true"][data-file-tree-sticky-path="${targetPath}"]`
+    );
+    await expect(source).toBeVisible();
+    await expect(stickyTarget).toBeVisible();
+
+    // `locator.dragTo()` dispatches Chromium's native HTML5 drag handshake
+    // with the same sequencing Playwright uses in its battle-tested drag
+    // helper — manual `mouse.move` calls intermittently lose the dragover
+    // handoff in headless CI. The explicit target position lands the
+    // pointer inside the sticky row so `resolveDropTargetFromElement`
+    // identifies `src/` rather than the overlay content behind it.
+    const targetBox = await stickyTarget.boundingBox();
+    expect(targetBox).not.toBeNull();
+    await source.dragTo(stickyTarget, {
+      targetPosition: {
+        x: targetBox!.width / 2,
+        y: targetBox!.height / 2,
+      },
+    });
+
+    await page.waitForFunction(
+      () =>
+        window.__hasPath?.('src/theme.ts') === true &&
+        window.__hasPath?.('src/lib/theme.ts') === false
+    );
+    await expect(
+      page.locator('file-tree-container button[data-item-path="src/theme.ts"]')
     ).toBeVisible();
     await expectDragStateCleared(page);
   });
