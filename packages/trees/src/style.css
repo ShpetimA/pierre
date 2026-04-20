@@ -204,6 +204,14 @@
       var(--trees-theme-input-bg, var(--trees-input-bg))
     );
 
+    --trees-scrollbar-thumb: var(
+      --trees-scrollbar-thumb-override,
+      var(
+        --trees-theme-scrollbar-thumb,
+        color-mix(in lab, var(--trees-fg) 25%, var(--trees-bg))
+      )
+    );
+
     --trees-selected-fg: var(
       --trees-selected-fg-override,
       var(--trees-theme-list-active-selection-fg, var(--trees-fg))
@@ -596,7 +604,7 @@
     }
 
     &:hover::-webkit-scrollbar-thumb {
-      background-color: var(--trees-bg-muted);
+      background-color: var(--trees-scrollbar-thumb);
     }
   }
 
@@ -618,7 +626,7 @@
     [data-file-tree-virtualized-scroll='true'],
     [data-file-tree-scrollbar-measure='true'] {
       scrollbar-width: thin;
-      scrollbar-color: var(--trees-bg-muted) transparent;
+      scrollbar-color: var(--trees-scrollbar-thumb) transparent;
     }
   }
 
