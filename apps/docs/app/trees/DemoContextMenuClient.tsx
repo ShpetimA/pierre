@@ -1,5 +1,6 @@
 'use client';
 
+import { IconRefresh } from '@pierre/icons';
 import type {
   ContextMenuTriggerMode,
   FileTreeCompositionOptions,
@@ -208,6 +209,7 @@ export function DemoContextMenuClient({
             ))}
           </ButtonGroup>
           <Button
+            className="ml-auto min-[500px]:ml-0"
             variant="outline"
             disabled={!hasMutated}
             onClick={() => {
@@ -223,25 +225,29 @@ export function DemoContextMenuClient({
               setHasMutated(false);
             }}
           >
+            <IconRefresh />
             Reset
           </Button>
         </div>
-        <TreeApp
-          key={activeModeDemo.id}
-          contextMenuPortalContainer={portalContainer}
-          height={IDE_WINDOW_HEIGHT}
-          model={activeModel}
-          preloadedTreeData={preloadedDataById[activeModeDemo.id]}
-          projectName={getProjectNameForMode(activeMode)}
-          showTabs={false}
-          treeClassName="dark h-full min-h-0 overflow-auto"
-          treeStyle={contextMenuPanelStyle}
-          renderEmpty={() => (
-            <div className="flex flex-1 items-center justify-center px-6 text-sm text-zinc-500">
-              Editor canvas intentionally empty.
-            </div>
-          )}
-        />
+        <div className="max-md:-mr-5 max-md:-ml-5 max-md:overflow-x-clip max-md:pl-5">
+          <TreeApp
+            key={activeModeDemo.id}
+            className="max-md:w-[720px] max-md:min-w-[720px]"
+            contextMenuPortalContainer={portalContainer}
+            height={IDE_WINDOW_HEIGHT}
+            model={activeModel}
+            preloadedTreeData={preloadedDataById[activeModeDemo.id]}
+            projectName={getProjectNameForMode(activeMode)}
+            showTabs={false}
+            treeClassName="dark h-full min-h-0 overflow-auto"
+            treeStyle={contextMenuPanelStyle}
+            renderEmpty={() => (
+              <div className="flex flex-1 items-center justify-center px-6 text-sm text-zinc-500">
+                Editor canvas intentionally empty.
+              </div>
+            )}
+          />
+        </div>
       </div>
     </TreeExampleSection>
   );
