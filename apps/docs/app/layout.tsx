@@ -12,6 +12,7 @@ import {
 import localFont from 'next/font/local';
 
 import './globals.css';
+import { type ProductId, PRODUCTS } from './product-config';
 import { PreloadHighlighter } from '@/components/PreloadHighlighter';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -86,35 +87,42 @@ function worktreeTitlePrefix(): string {
 }
 
 const WORKTREE_PREFIX = worktreeTitlePrefix();
-const baseTitle = 'Diffs, from Pierre';
-const taggedTitle = `${WORKTREE_PREFIX}${baseTitle}`;
 
-// Using Next's `title.template` so the emoji + slug prefix also reaches pages
-// that export their own `metadata.title` (e.g. `app/trees/page.tsx`). Pages
-// that set a bare `title: 'X'` render as `🟢 [slug] X`; pages that need to
-// opt out entirely can set `title: { absolute: 'X' }`.
+// On `trees.software`, `icons` is intentionally omitted so the
+// file-convention assets in `app/trees/` (`icon.{ico,svg}`,
+// `apple-icon.png`) take over.
+const SITE = (process.env.NEXT_PUBLIC_SITE ?? 'diffs') as ProductId;
+const isTrees = SITE === 'trees';
+const SITE_PRODUCT = PRODUCTS[SITE];
+const SITE_ORIGIN = isTrees ? 'https://trees.software' : 'https://diffs.com';
+const baseTitle = `${SITE_PRODUCT.name}, from Pierre`;
+const taggedTitle = `${WORKTREE_PREFIX}${baseTitle}`;
+const description = SITE_PRODUCT.description;
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: taggedTitle,
     template: `${WORKTREE_PREFIX}%s`,
   },
-  description:
-    'An open source diff and file rendering library by The Pierre Computer Company.',
-  icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.png', type: 'image/png' },
-    ],
-    apple: '/apple-touch-icon.png',
-    shortcut: '/favicon.ico',
-  },
+  description,
+  ...(isTrees
+    ? {}
+    : {
+        icons: {
+          icon: [
+            { url: '/favicon.svg', type: 'image/svg+xml' },
+            { url: '/favicon.png', type: 'image/png' },
+          ],
+          apple: '/apple-touch-icon.png',
+        },
+      }),
   openGraph: {
     title: {
       default: taggedTitle,
       template: `${WORKTREE_PREFIX}%s`,
     },
-    description:
-      'An open source diff and file rendering library by The Pierre Computer Company.',
+    description,
   },
   twitter: {
     card: 'summary_large_image',
@@ -122,8 +130,7 @@ export const metadata: Metadata = {
       default: taggedTitle,
       template: `${WORKTREE_PREFIX}%s`,
     },
-    description:
-      'An open source diff and file rendering library by The Pierre Computer Company.',
+    description,
   },
 };
 

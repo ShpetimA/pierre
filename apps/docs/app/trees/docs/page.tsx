@@ -99,10 +99,24 @@ const REFERENCE_SECTIONS: readonly DocsSection[] = [
   { filePath: 'trees/docs/Reference/Icons/content.mdx' },
 ];
 
+const treesDocsTitle = 'Trees, from Pierre';
+const treesDocsDescription =
+  'Guide-first documentation for @pierre/trees, covering React, vanilla, prepared input, styling, icons, Git status, large trees, and SSR hydration.';
+
 export const metadata: Metadata = {
-  title: 'Trees, from Pierre',
-  description:
-    'Guide-first documentation for @pierre/trees, covering React, vanilla, prepared input, styling, icons, Git status, large trees, and SSR hydration.',
+  title: treesDocsTitle,
+  description: treesDocsDescription,
+  openGraph: {
+    title: treesDocsTitle,
+    description: treesDocsDescription,
+    images: ['/trees/opengraph-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: treesDocsTitle,
+    description: treesDocsDescription,
+    images: ['/trees/twitter-image.png'],
+  },
 };
 
 export default function TreesDocsPage() {

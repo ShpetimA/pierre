@@ -4,6 +4,7 @@ import {
   preloadMultiFileDiff,
   preloadUnresolvedFile,
 } from '@pierre/diffs/ssr';
+import type { Metadata } from 'next';
 
 import { MERGE_CONFLICT_EXAMPLE } from '../diff-examples/MergeConflict/constants';
 import { MergeConflict } from '../diff-examples/MergeConflict/MergeConflict';
@@ -110,6 +111,26 @@ import {
 } from './WorkerPool/constants';
 import Footer from '@/components/Footer';
 import { renderMDX } from '@/lib/mdx';
+
+const docsTitle = 'Diffs docs';
+const docsDescription =
+  'Documentation for @pierre/diffs: React and vanilla APIs, virtualization, theming, token hooks, the worker pool, and SSR hydration.';
+
+export const metadata: Metadata = {
+  title: docsTitle,
+  description: docsDescription,
+  openGraph: {
+    title: docsTitle,
+    description: docsDescription,
+    images: ['/opengraph-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: docsTitle,
+    description: docsDescription,
+    images: ['/twitter-image.png'],
+  },
+};
 
 export default function DocsPage() {
   return (
