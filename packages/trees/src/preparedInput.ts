@@ -1,8 +1,6 @@
 import { PathStore } from '@pierre/path-store';
-import type {
-  PathStorePathComparator,
-  PathStorePreparedInput,
-} from '@pierre/path-store';
+
+import type { FileTreeSortComparator } from './model/types';
 
 declare const FILE_TREE_PREPARED_INPUT: unique symbol;
 
@@ -18,7 +16,7 @@ export function prepareFileTreeInput(
   paths: readonly string[],
   options: {
     flattenEmptyDirectories?: boolean;
-    sort?: 'default' | PathStorePathComparator;
+    sort?: 'default' | FileTreeSortComparator;
   } = {}
 ): FileTreePreparedInput {
   return PathStore.prepareInput(paths, options) as FileTreePreparedInput;
@@ -29,10 +27,4 @@ export function preparePresortedFileTreeInput(
   paths: readonly string[]
 ): FileTreePreparedInput {
   return PathStore.preparePresortedInput(paths) as FileTreePreparedInput;
-}
-
-export function toPathStorePreparedInput(
-  preparedInput: FileTreePreparedInput
-): PathStorePreparedInput {
-  return preparedInput as unknown as PathStorePreparedInput;
 }

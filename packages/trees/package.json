@@ -5,12 +5,29 @@
   "files": [
     "dist",
     "LICENSE.md",
+    "NOTICE.md",
     "README.md"
   ],
   "type": "module",
   "sideEffects": [
     "./dist/components/web-components.js"
   ],
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ],
+      "react": [
+        "dist/react/index.d.ts"
+      ],
+      "ssr": [
+        "dist/ssr/index.d.ts"
+      ],
+      "web-components": [
+        "dist/web-components.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -33,7 +50,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsdown --clean",
+    "build": "tsdown --clean && bun scripts/assert-no-path-store.ts",
     "benchmark": "bun run benchmark:file-tree-get-item",
     "benchmark:file-tree-get-item": "bun run ./scripts/benchmarkFileTreeGetItem.ts",
     "profile:file-tree": "bun run ./scripts/profileFileTree.ts",
@@ -47,7 +64,9 @@
     "test:e2e:server": "vite --config test/e2e/vite.config.ts",
     "tsc": "tsgo --noEmit --pretty",
     "generate-icons": "bun scripts/generate-built-in-icons.ts",
-    "prepublishOnly": "bun run build"
+    "publish-package": "bun run ./scripts/publish.ts",
+    "assert:safe-publish": "bun scripts/assert-safe-publish.ts",
+    "prepublishOnly": "bun run assert:safe-publish && bun run build"
   },
   "dependencies": {
     "@pierre/path-store": "workspace:*",
@@ -73,7 +92,7 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0"
   }
 }

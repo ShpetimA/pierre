@@ -1,17 +1,11 @@
 import { PathStore } from '@pierre/path-store';
 import type {
   PathStoreEvent,
-  PathStoreMoveOptions,
-  PathStoreOperation,
   PathStorePathInfo,
-  PathStoreRemoveOptions,
   PathStoreVisibleTreeProjectionData,
 } from '@pierre/path-store';
 
-import {
-  type FileTreePreparedInput,
-  toPathStorePreparedInput,
-} from '../preparedInput';
+import type { FileTreePreparedInput } from '../preparedInput';
 import { renameFileTreePaths } from '../utils/renameFileTreePaths';
 import {
   buildDropOperations,
@@ -23,6 +17,7 @@ import {
 } from './dragAndDrop';
 import type {
   FileTreeBatchEvent,
+  FileTreeBatchOperation,
   FileTreeControllerListener,
   FileTreeControllerOptions,
   FileTreeDirectoryHandle,
@@ -30,11 +25,13 @@ import type {
   FileTreeDropTarget,
   FileTreeFileHandle,
   FileTreeItemHandle,
+  FileTreeMoveOptions,
   FileTreeMutationEvent,
   FileTreeMutationEventForType,
   FileTreeMutationEventType,
   FileTreeMutationHandle,
   FileTreeMutationSemanticEvent,
+  FileTreeRemoveOptions,
   FileTreeRenameEvent,
   FileTreeRenamingConfig,
   FileTreeResetEvent,
@@ -1198,19 +1195,19 @@ export class FileTreeController
     this.#store.add(path);
   }
 
-  public remove(path: string, options: PathStoreRemoveOptions = {}): void {
+  public remove(path: string, options: FileTreeRemoveOptions = {}): void {
     this.#store.remove(path, options);
   }
 
   public move(
     fromPath: string,
     toPath: string,
-    options: PathStoreMoveOptions = {}
+    options: FileTreeMoveOptions = {}
   ): void {
     this.#store.move(fromPath, toPath, options);
   }
 
-  public batch(operations: readonly PathStoreOperation[]): void {
+  public batch(operations: readonly FileTreeBatchOperation[]): void {
     this.#store.batch(operations);
   }
 
@@ -1664,7 +1661,7 @@ export class FileTreeController
   // Validate multi-item drop batches against a throwaway store first so a later
   // collision cannot partially mutate the live tree before surfacing the error.
   #validateBatchDropOperations(
-    operations: readonly PathStoreOperation[]
+    operations: readonly FileTreeBatchOperation[]
   ): void {
     const currentPaths = this.#store.list();
     const validationStore = this.#createStore(currentPaths);
@@ -1682,7 +1679,7 @@ export class FileTreeController
       preparedInput:
         preparedInput == null
           ? undefined
-          : toPathStorePreparedInput(preparedInput),
+          : (preparedInput as unknown as { paths: readonly string[] }),
       ...(initialExpandedPathsOverride !== undefined
         ? { initialExpandedPaths: initialExpandedPathsOverride }
         : {}),

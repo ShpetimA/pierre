@@ -1,26 +1,18 @@
 {
   "name": "@pierre/path-store",
   "version": "1.0.0-beta.1",
-  "license": "apache-2.0",
-  "files": [
-    "src",
-    "LICENSE.md",
-    "README.md"
-  ],
+  "private": true,
   "type": "module",
   "exports": {
     ".": {
       "import": "./src/index.ts"
     }
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "benchmark": "bun run ./scripts/benchmark.ts",
     "benchmark:visible-tree-projection": "bun run ./scripts/benchmarkVisibleTreeProjection.ts",
-    "build": "bun run vite build demo",
-    "dev": "bun run vite demo --host 127.0.0.1 --port 4175",
+    "build:demo": "bun run vite build demo",
+    "dev:demo": "bun run vite demo --host 127.0.0.1 --port 4175",
     "profile:demo": "bun run ./scripts/profileDemo.ts",
     "profile:visible-tree-projection": "bun run ./scripts/profileVisibleTreeProjection.ts",
     "test": "bun test",
