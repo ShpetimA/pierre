@@ -54,7 +54,7 @@
     "benchmark": "bun run benchmark:file-tree-get-item",
     "benchmark:file-tree-get-item": "bun run ./scripts/benchmarkFileTreeGetItem.ts",
     "profile:file-tree": "bun run ./scripts/profileFileTree.ts",
-    "dev": "echo 'Watching for changes…' && tsdown --watch --log-level error",
+    "dev": "echo 'Watching for changes…' && tsdown --watch src --watch ../path-store/src --log-level error",
     "test": "bun test",
     "coverage": "bun test --coverage",
     "test:e2e:base": "bun run build && (bun ./test/e2e/check-playwright-binary.ts || bun run test:e2e:installbinary)",
