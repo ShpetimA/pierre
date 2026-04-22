@@ -54,9 +54,13 @@ afterAll(() => {
 
   if (originalRequestAnimationFrame != null) {
     globalThis.requestAnimationFrame = originalRequestAnimationFrame;
+  } else {
+    Reflect.deleteProperty(globalThis, 'requestAnimationFrame');
   }
   if (originalCancelAnimationFrame != null) {
     globalThis.cancelAnimationFrame = originalCancelAnimationFrame;
+  } else {
+    Reflect.deleteProperty(globalThis, 'cancelAnimationFrame');
   }
 });
 
