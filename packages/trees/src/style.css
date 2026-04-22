@@ -607,7 +607,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: transparent;
+      background-color: var(--trees-scrollbar-thumb);
       border: 1px solid transparent;
       background-clip: content-box;
       border-radius: calc(var(--trees-scrollbar-gutter) / 2);
@@ -615,10 +615,6 @@
 
     &::-webkit-scrollbar-corner {
       background-color: transparent;
-    }
-
-    &:hover::-webkit-scrollbar-thumb {
-      background-color: var(--trees-scrollbar-thumb);
     }
   }
 
