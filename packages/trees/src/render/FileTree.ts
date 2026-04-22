@@ -16,6 +16,10 @@ import {
   HEADER_SLOT_NAME,
 } from '../constants';
 import { normalizeFileTreeIcons } from '../iconConfig';
+import {
+  type FileTreeDensityPreset,
+  resolveFileTreeDensity,
+} from '../model/density';
 import { FileTreeController } from '../model/FileTreeController';
 import {
   type FileTreeGitStatusState,
@@ -115,15 +119,21 @@ function getHeaderSlotHtml(
   return `<div slot="${HEADER_SLOT_NAME}" data-file-tree-managed-slot="${HEADER_SLOT_NAME}">${headerHtml}</div>`;
 }
 
+// Builds the host element opening markup. The optional `hostStyle` string is
+// emitted as an inline `style="..."` so vanilla SSR consumers (who serialize
+// the payload directly) get the resolved density variables on first paint
+// without needing the React wrapper to paint them.
 function getFileTreeOuterStart(
   id: string,
-  mode: 'declarative' | 'dom'
+  mode: 'declarative' | 'dom',
+  hostStyle: string
 ): string {
   const templateAttr =
     mode === 'declarative'
       ? 'shadowrootmode="open"'
       : 'data-file-tree-shadowrootmode="open"';
-  return `<file-tree-container id="${id}" data-file-tree-virtualized="true"><template ${templateAttr}>`;
+  const styleAttr = hostStyle.length === 0 ? '' : ` style="${hostStyle}"`;
+  return `<file-tree-container id="${id}" data-file-tree-virtualized="true"${styleAttr}><template ${templateAttr}>`;
 }
 
 function getFileTreeOuterEnd(headerSlotHtml: string): string {
@@ -172,6 +182,7 @@ export class FileTree
   readonly #searchEnabled: boolean;
   readonly #searchFakeFocus: boolean;
   readonly #slotHost = new FileTreeManagedSlotHost();
+  readonly #density: FileTreeDensityPreset;
   readonly #viewOptions: Pick<
     FileTreeOptions,
     'initialVisibleRowCount' | 'itemHeight' | 'overscan' | 'stickyFolders'
@@ -189,6 +200,7 @@ export class FileTree
   public constructor(options: FileTreeOptions) {
     const {
       composition,
+      density,
       fileTreeSearchMode,
       gitStatus,
       id,
@@ -219,8 +231,9 @@ export class FileTree
     this.#searchBlurBehavior = searchBlurBehavior;
     this.#searchEnabled = search === true;
     this.#searchFakeFocus = searchFakeFocus === true;
+    this.#density = resolveFileTreeDensity(density, itemHeight);
     this.#viewOptions = {
-      itemHeight,
+      itemHeight: this.#density.itemHeight,
       overscan,
       stickyFolders,
       initialVisibleRowCount,
@@ -285,6 +298,14 @@ export class FileTree
 
   public getComposition(): FileTreeCompositionOptions | undefined {
     return this.#composition;
+  }
+
+  public getItemHeight(): number {
+    return this.#density.itemHeight;
+  }
+
+  public getDensityFactor(): number {
+    return this.#density.factor;
   }
 
   public subscribe(listener: FileTreeListener): () => void {
@@ -705,6 +726,7 @@ export class FileTree
 export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
   const {
     composition,
+    density,
     fileTreeSearchMode,
     gitStatus,
     id,
@@ -724,6 +746,8 @@ export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
     initialVisibleRowCount,
     ...controllerOptions
   } = options;
+  const resolvedDensity = resolveFileTreeDensity(density, itemHeight);
+  const resolvedItemHeight = resolvedDensity.itemHeight;
   const resolvedId = createServerId(id);
   const controller = new FileTreeController({
     ...controllerOptions,
@@ -734,7 +758,7 @@ export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
   const gitStatusState = resolveFileTreeGitStatusState(gitStatus);
   const initialViewportHeight = resolveInitialViewportHeight({
     initialVisibleRowCount,
-    itemHeight,
+    itemHeight: resolvedItemHeight,
   });
   const normalizedIcons = normalizeFileTreeIcons(icons);
   const customSpriteSheet = normalizedIcons.spriteSheet?.trim() ?? '';
@@ -759,7 +783,7 @@ export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
       directoriesWithGitChanges: gitStatusState?.directoriesWithChanges,
       icons,
       instanceId: resolvedId,
-      itemHeight,
+      itemHeight: resolvedItemHeight,
       overscan,
       renamingEnabled: renaming != null && renaming !== false,
       renderRowDecoration,
@@ -774,8 +798,17 @@ export function preloadFileTree(options: FileTreeOptions): FileTreeSsrPayload {
 
   const shadowHtml = `${getBuiltInSpriteSheet(normalizedIcons.set)}${customSpriteSheet}<style ${FILE_TREE_STYLE_ATTRIBUTE}>${wrappedCoreCss}</style>${unsafeCssStyle}<div data-file-tree-id="${resolvedId}" data-file-tree-virtualized-wrapper="true"${coloredIconsAttr}>${bodyHtml}</div>`;
   const headerSlotHtml = getHeaderSlotHtml(composition);
-  const outerStart = getFileTreeOuterStart(resolvedId, 'declarative');
-  const domOuterStart = getFileTreeOuterStart(resolvedId, 'dom');
+  // Inline the resolved density on the host so vanilla SSR consumers get the
+  // same first paint as the React wrapper, where the model paints these vars
+  // for them. The two paths must agree because the SSR shadow body was laid
+  // out using the same resolved itemHeight.
+  const hostStyle = `--trees-item-height:${String(resolvedItemHeight)}px;--trees-density-override:${String(resolvedDensity.factor)}`;
+  const outerStart = getFileTreeOuterStart(
+    resolvedId,
+    'declarative',
+    hostStyle
+  );
+  const domOuterStart = getFileTreeOuterStart(resolvedId, 'dom', hostStyle);
   const outerEnd = getFileTreeOuterEnd(headerSlotHtml);
   return {
     domOuterStart,
