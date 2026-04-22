@@ -1,6 +1,5 @@
 // sort-imports-ignore
 import type { Metadata, Viewport } from 'next';
-import { ThemeProvider } from 'next-themes';
 import {
   Fira_Code,
   Geist,
@@ -14,6 +13,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { type ProductId, PRODUCTS } from './product-config';
 import { PreloadHighlighter } from '@/components/PreloadHighlighter';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
@@ -98,6 +98,28 @@ const SITE_ORIGIN = isTrees ? 'https://trees.software' : 'https://diffs.com';
 const baseTitle = `${SITE_PRODUCT.name}, from Pierre`;
 const taggedTitle = `${WORKTREE_PREFIX}${baseTitle}`;
 const description = SITE_PRODUCT.description;
+const themeBootstrapScript = `(${String(function applyInitialTheme() {
+  try {
+    const storedTheme = window.localStorage.getItem('theme');
+    const theme =
+      storedTheme === 'light' || storedTheme === 'dark'
+        ? storedTheme
+        : 'system';
+    const resolvedTheme =
+      theme === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        : theme;
+    const root = document.documentElement;
+
+    root.classList.remove('light', 'dark');
+    root.classList.add(resolvedTheme);
+    root.style.colorScheme = resolvedTheme;
+  } catch {
+    // Ignore storage/media failures and let CSS defaults apply.
+  }
+})})()`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
@@ -145,6 +167,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${berkeleyMono.variable} ${geistSans.variable} ${geistMono.variable} ${firaMono.variable} ${ibmPlexMono.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
+      <head>
+        <script
+          id="docs-theme-bootstrap"
+          dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}
+        />
+      </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
