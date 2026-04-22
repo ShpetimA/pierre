@@ -2,7 +2,7 @@ export const TREE_NEW_DEFAULT_VIEWPORT_HEIGHT = 716;
 
 export const TREE_NEW_VIEWPORT_HEIGHTS = {
   a11y: 760,
-  contextMenu: 760,
+  contextMenu: 770,
   customIcons: TREE_NEW_DEFAULT_VIEWPORT_HEIGHT, // for search bar
   densityCompact: 362,
   densityDefault: 446,
