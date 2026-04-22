@@ -51,6 +51,7 @@ import {
   collapsePath,
   expandPath,
   getVisibleCount,
+  getVisibleRowContext,
   getVisibleSlice,
   getVisibleTreeProjectionData as getVisibleTreeProjectionDataFromState,
   getVisibleTreeProjection as getVisibleTreeProjectionFromState,
@@ -71,6 +72,7 @@ import type {
   PathStorePreparedInput,
   PathStoreRemoveOptions,
   PathStoreVisibleRow,
+  PathStoreVisibleRowContext,
   PathStoreVisibleTreeProjection,
   PathStoreVisibleTreeProjectionData,
 } from './public-types';
@@ -302,6 +304,10 @@ export class PathStore {
           instrumentation
         )
     );
+    if (useExplicitOpenExpansionFastPath) {
+      this.#state.collapseNewDirectoriesByDefault = true;
+    }
+
     const expandedDirectoryCount = useExplicitOpenExpansionFastPath
       ? this.#state.snapshot.directories.size - 1
       : withBenchmarkPhase(
@@ -447,6 +453,16 @@ export class PathStore {
       this.#state.instrumentation,
       'store.getVisibleSlice',
       () => getVisibleSlice(this.#state, start, end)
+    );
+  }
+
+  public getVisibleRowContext(
+    index: number
+  ): PathStoreVisibleRowContext | null {
+    return withBenchmarkPhase(
+      this.#state.instrumentation,
+      'store.getVisibleRowContext',
+      () => getVisibleRowContext(this.#state, index)
     );
   }
 

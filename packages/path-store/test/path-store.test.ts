@@ -621,6 +621,73 @@ describe('PathStore', () => {
     ]);
   });
 
+  test('keeps closed-default semantics for directories added after all startup directories were expanded', () => {
+    const preparedInput = PathStore.preparePresortedInput(['src/a.ts']);
+    const store = new PathStore({
+      initialExpandedPaths: ['src/'],
+      preparedInput,
+    });
+
+    expect(getVisiblePaths(store, 0, 10)).toEqual(['src/', 'src/a.ts']);
+
+    store.add('new-dir/file.ts');
+
+    expect(getVisiblePaths(store, 0, 10)).toEqual([
+      'new-dir/',
+      'src/',
+      'src/a.ts',
+    ]);
+    expect(store.getVisibleSlice(0, 0)[0]?.isExpanded).toBe(false);
+  });
+
+  test('returns visible row context with flattened ancestors and sibling metadata', () => {
+    const store = new PathStore({
+      flattenEmptyDirectories: true,
+      initialExpansion: 'open',
+      paths: [
+        'README.md',
+        'src/index.ts',
+        'src/lib/a.ts',
+        'src/lib/b.ts',
+        'src/test/spec.ts',
+      ],
+    });
+
+    const context = store.getVisibleRowContext(2);
+    expect(context?.row.path).toBe('src/lib/a.ts');
+    expect(context?.ancestorPaths).toEqual(['src/', 'src/lib/']);
+    expect(
+      context?.ancestorRows.map((ancestor) => ({
+        ancestorPaths: ancestor.ancestorPaths,
+        index: ancestor.index,
+        path: ancestor.row.path,
+        posInSet: ancestor.posInSet,
+        setSize: ancestor.setSize,
+        subtreeEndIndex: ancestor.subtreeEndIndex,
+      }))
+    ).toEqual([
+      {
+        ancestorPaths: [],
+        index: 0,
+        path: 'src/',
+        posInSet: 0,
+        setSize: 2,
+        subtreeEndIndex: 6,
+      },
+      {
+        ancestorPaths: ['src/'],
+        index: 1,
+        path: 'src/lib/',
+        posInSet: 0,
+        setSize: 3,
+        subtreeEndIndex: 3,
+      },
+    ]);
+    expect(context?.posInSet).toBe(0);
+    expect(context?.setSize).toBe(2);
+    expect(context?.subtreeEndIndex).toBe(2);
+  });
+
   test('restores projected depth after collapsing and re-expanding a flattened row', () => {
     const store = new PathStore({
       flattenEmptyDirectories: true,
