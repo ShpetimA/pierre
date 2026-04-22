@@ -648,6 +648,20 @@ export class FileTreeController
     }
   }
 
+  // DOM row events already know the target row is mounted, so they can focus it
+  // by path without materializing every visible row in large open trees.
+  public focusMountedPathFromInput(path: string): void {
+    const resolvedPath = this.#store.getPathInfo(path)?.path ?? null;
+    if (resolvedPath == null) {
+      return;
+    }
+
+    const nextFocusedIndex = this.#resolveFocusedIndex(resolvedPath);
+    if (nextFocusedIndex >= 0) {
+      this.#setFocusedIndex(nextFocusedIndex);
+    }
+  }
+
   public focusNearestPath(path: string | null): string | null {
     const nextPath = this.resolveNearestVisiblePath(path);
     if (nextPath == null) {
@@ -886,6 +900,26 @@ export class FileTreeController
       : this.#getOrCreateItemHandle(itemInfo.path, itemInfo);
   }
 
+  // Only use this for paths sourced from currently mounted directory rows. The
+  // mounted-row invariant lets click handling skip public handle creation while
+  // still revalidating stale DOM events against the live store.
+  public resolveMountedDirectoryPathFromInput(path: string): string | null {
+    const pathInfo = this.#store.getPathInfo(path);
+    return pathInfo?.kind === 'directory' ? pathInfo.path : null;
+  }
+
+  // Only use this for paths sourced from currently mounted directory rows. The
+  // live-path check prevents stale DOM events from throwing if the row was
+  // removed or became a file before the click handler ran.
+  public toggleMountedDirectoryFromInput(path: string): void {
+    const directoryPath = this.resolveMountedDirectoryPathFromInput(path);
+    if (directoryPath == null) {
+      return;
+    }
+
+    this.#toggleDirectory(directoryPath);
+  }
+
   public selectAllVisiblePaths(): void {
     this.#ensureFullProjection();
     const nextSelectedPaths = [...this.#getCurrentVisiblePaths()];
@@ -902,6 +936,13 @@ export class FileTreeController
     }
 
     this.#applySelection([resolvedPath], resolvedPath);
+  }
+
+  // Only use this for paths sourced from currently mounted rows. Visible rows
+  // already provide canonical public paths, so regular row clicks can update
+  // selection without re-normalizing the same path through the store.
+  public selectOnlyMountedPathFromInput(path: string): void {
+    this.#applySelection([path], path);
   }
 
   public selectPath(path: string): void {
@@ -1897,14 +1938,21 @@ export class FileTreeController
   }
 
   #syncSearchVisibilityState(): void {
+    if (this.#searchValue == null || this.#searchValue.length === 0) {
+      this.#searchMatchingPaths = [];
+      this.#searchVisibleIndices = null;
+      this.#searchVisiblePaths = null;
+      this.#searchVisibleIndexByPath = null;
+      this.#visibleCount = this.#storeVisibleCount;
+      return;
+    }
+
     const currentVisiblePaths = this.#projectionPaths;
     this.#searchMatchingPaths = currentVisiblePaths.filter((path) =>
       this.#searchMatchPathSet.has(path)
     );
 
     if (
-      this.#searchValue == null ||
-      this.#searchValue.length === 0 ||
       this.#searchMode !== 'hide-non-matches' ||
       this.#searchMatchPathSet.size === 0
     ) {

@@ -1299,7 +1299,7 @@ function renderStyledRow(
             if (!contextMenuRightClickEnabled) {
               return;
             }
-            controller.focusPath(targetPath);
+            controller.focusMountedPathFromInput(targetPath);
             openContextMenuForRow(row, targetPath, {
               anchorRect: createAnchorRectFromPoint(
                 event.clientX,
@@ -1311,7 +1311,7 @@ function renderStyledRow(
         : undefined,
     onFocus: !isSticky
       ? () => {
-          controller.focusPath(targetPath);
+          controller.focusMountedPathFromInput(targetPath);
         }
       : undefined,
     onKeyDown: !isSticky ? onKeyDown : undefined,
@@ -3591,7 +3591,6 @@ export function FileTreeView({
       targetPath: string,
       mode: FileTreeRenderedRowMode
     ): void => {
-      const item = controller.getItem(targetPath);
       const plan = computeFileTreeRowClickPlan({
         event: {
           ctrlKey: event.ctrlKey,
@@ -3599,19 +3598,29 @@ export function FileTreeView({
           shiftKey: event.shiftKey,
         },
         isDirectory: row.kind === 'directory',
-        isSearchOpen: controller.isSearchOpen(),
+        isSearchOpen,
         mode,
       });
 
+      const shouldToggleDirectory =
+        plan.toggleDirectory && row.kind === 'directory';
+      const mountedDirectoryPath = shouldToggleDirectory
+        ? controller.resolveMountedDirectoryPathFromInput(targetPath)
+        : null;
+      if (shouldToggleDirectory && mountedDirectoryPath == null) {
+        return;
+      }
+      const actionTargetPath = mountedDirectoryPath ?? targetPath;
+
       switch (plan.selection.kind) {
         case 'range':
-          controller.selectPathRange(targetPath, plan.selection.additive);
+          controller.selectPathRange(actionTargetPath, plan.selection.additive);
           break;
         case 'toggle':
-          controller.togglePathSelectionFromInput(targetPath);
+          controller.togglePathSelectionFromInput(actionTargetPath);
           break;
         case 'single':
-          controller.selectOnlyPath(targetPath);
+          controller.selectOnlyMountedPathFromInput(actionTargetPath);
           break;
       }
 
@@ -3626,28 +3635,29 @@ export function FileTreeView({
         clickedElement != null &&
         clickedElement.dataset.itemParked !== 'true';
 
-      item?.focus();
+      controller.focusMountedPathFromInput(actionTargetPath);
       if (shouldExposeFocusedTrigger) {
         domFocusOwnerRef.current = true;
         setActiveItemPath((previousPath) =>
-          previousPath === targetPath ? previousPath : targetPath
+          previousPath === actionTargetPath ? previousPath : actionTargetPath
         );
         setLastContextMenuInteraction('focus');
       }
-      if (plan.toggleDirectory && isFileTreeDirectoryHandle(item)) {
-        item.toggle();
+      if (shouldToggleDirectory) {
+        controller.toggleMountedDirectoryFromInput(actionTargetPath);
       }
       if (plan.closeSearch) {
         controller.closeSearch();
       }
       if (plan.revealCanonical) {
-        revealCanonicalRowAtStickyOffset(targetPath, {
+        revealCanonicalRowAtStickyOffset(actionTargetPath, {
           targetOffset: 'sticky-parents',
         });
       }
     },
     [
       controller,
+      isSearchOpen,
       layoutSnapshot.visible.endIndex,
       layoutSnapshot.visible.startIndex,
       revealCanonicalRowAtStickyOffset,
